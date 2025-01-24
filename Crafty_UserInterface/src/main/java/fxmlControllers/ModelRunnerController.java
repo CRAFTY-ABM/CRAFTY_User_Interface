@@ -344,7 +344,7 @@ public class ModelRunnerController {
 	public static String exportConfigurationFile() {
 		String cofiguration = "";
 		try {
-			InputStream inputStream = ResourceReader.class.getResourceAsStream(ConfigLoader.configPath);
+			InputStream inputStream = ResourceReader.class.getResourceAsStream(""/* ConfigLoader.configPath */);
 			cofiguration = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			e.printStackTrace();

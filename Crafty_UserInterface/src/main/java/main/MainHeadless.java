@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dataLoader.AFTsLoader;
@@ -22,16 +23,22 @@ public class MainHeadless {
 	private static final CustomLogger LOGGER = new CustomLogger(MainHeadless.class);
 
 	public static void main(String[] args) {
+		String configPath = "/config.yaml";
+		if (args.length > 0) {
+			configPath = args[0];
+		}
+		// Initialize the configuration with the chosen configPath
+		ConfigLoader.init(configPath);
 		LOGGER.info(/* "\u001B[33m"+ */"--Starting runing CRAFTY--"/* +"\u001B[0m" */);
+		System.out.println("------------CRAFTY executed from Java-----------------");
+		System.out.println(Arrays.toString(args));
+		PathsLoader.initialisation(Paths.get(ConfigLoader.config.project_path));
+		PathsLoader.setScenario(ConfigLoader.config.scenario);
 		modelInitialisation();
 		runHeadless();
-		System.out.println("------------CRAFTY executed from Java-----------------");
 	}
 
 	public static void modelInitialisation() {
-		System.out.println("is linux:  " + System.getProperty("os.name").toLowerCase().contains("linux"));
-		PathsLoader.initialisation(Paths.get(ConfigLoader.config.project_path));
-		PathsLoader.setScenario(ConfigLoader.config.scenario);
 		CellsLoader.loadCapitalsList();
 		ServiceSet.loadServiceList();
 		TabPaneController.cellsLoader.loadMap();

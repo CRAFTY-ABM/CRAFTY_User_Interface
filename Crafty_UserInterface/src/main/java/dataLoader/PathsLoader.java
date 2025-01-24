@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 public final class PathsLoader {
 	private static final CustomLogger LOGGER = new CustomLogger(PathsLoader.class);
-	private static String[] foldersNecessary = { "agents", "csv", "production", "worlds" };
 	private static int startYear;
 	private static int endtYear;
 	private static int currentYear = startYear;
@@ -54,21 +53,7 @@ public final class PathsLoader {
 
 	}
 
-	static public List<String> checkfolders(String path) {
-		List<String> listOfFilesMissing = new ArrayList<>();
-		List<File> folders = PathTools.detectFolders(path);
-		List<String> foldersname = new ArrayList<>();
-		folders.forEach(e -> {
-			foldersname.add(e.getName());
-		});
-		for (int i = 0; i < foldersNecessary.length; i++) {
-			if (!foldersname.contains(foldersNecessary[i])) {
-				listOfFilesMissing.add(folders.get(0).getParent() + File.separator + foldersNecessary[i]);
-			}
-		}
 
-		return listOfFilesMissing;
-	}
 
 	public static ArrayList<Path> getAllfilesPathInData() {
 		return allfilesPathInData;
