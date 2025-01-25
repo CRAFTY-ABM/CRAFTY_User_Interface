@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 public class ConfigLoader {
 
-	public static Config config ;//= ConfigLoader.loadConfig("/config.yaml");
+	public static Config config= ConfigLoader.loadConfig("/config.yaml");
 
 	public static void init(String resourcePath) {
 		config = loadConfig(resourcePath);
