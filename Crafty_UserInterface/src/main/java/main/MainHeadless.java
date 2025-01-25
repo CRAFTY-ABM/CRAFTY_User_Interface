@@ -35,7 +35,7 @@ public class MainHeadless {
 		PathsLoader.initialisation(Paths.get(ConfigLoader.config.project_path));
 		PathsLoader.setScenario(ConfigLoader.config.scenario);
 		modelInitialisation();
-//		runHeadless();
+		runHeadless();
 	}
 
 	public static void modelInitialisation() {
