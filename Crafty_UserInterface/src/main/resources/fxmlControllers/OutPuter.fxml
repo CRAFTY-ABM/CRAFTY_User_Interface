@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.OutPuterController">
+	fx:controller="de.cesr.crafty.controller.fxml.OutPuterController">
 	<children>
 		<VBox spacing="5.0">
 			<children>

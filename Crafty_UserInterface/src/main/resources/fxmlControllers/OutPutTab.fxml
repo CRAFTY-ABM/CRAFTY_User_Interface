@@ -16,7 +16,7 @@
 <?import javafx.scene.control.Tab?>
 
 <Tab xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.OutPutTabController"
+	fx:controller="de.cesr.crafty.controller.fxml.OutPutTabController"
 	text="Import OutPut">
 	<!-- TODO Add Nodes -->
 	<graphic>

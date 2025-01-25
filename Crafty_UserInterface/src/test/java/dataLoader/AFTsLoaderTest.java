@@ -1,6 +1,6 @@
 package dataLoader;
 
-
+import de.cesr.crafty.dataLoader.AFTsLoader;
 
 public class AFTsLoaderTest {
 	AFTsLoader afts;

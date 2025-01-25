@@ -9,7 +9,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.MenuBarController">
+	fx:controller="de.cesr.crafty.controller.fxml.MenuBarController">
 	<top>
 	<MenuBar>
 		<Menu text="File">
@@ -39,4 +39,3 @@
 	</MenuBar>
 	</top>
 </BorderPane>
-

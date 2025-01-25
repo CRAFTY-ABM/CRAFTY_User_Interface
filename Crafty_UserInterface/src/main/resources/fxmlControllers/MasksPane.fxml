@@ -6,7 +6,7 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.ScrollPane?>
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.MasksPaneController">
+	fx:controller="de.cesr.crafty.controller.fxml.MasksPaneController">
 	<ScrollPane fx:id="scroll"   prefWidth="100.0">
 		<VBox fx:id="boxMaskTypes">
 

@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.junit.jupiter.api.Test;
 
+import de.cesr.crafty.main.FxMain;
 import javafx.stage.DirectoryChooser;
-import main.FxMain;
 
 class FileRederTest {
 

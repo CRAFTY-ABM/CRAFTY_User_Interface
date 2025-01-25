@@ -9,7 +9,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/8"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.MapToolsBarController">
+	fx:controller="de.cesr.crafty.controller.fxml.MapToolsBarController">
 	<ToolBar>
 		<Button fx:id="colorPallet" text="Color Pallet"
 			onAction="#colorPallet" styleClass="button-icon">

@@ -9,7 +9,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox fx:id="vbox" xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.ModelRunnerController">
+	fx:controller="de.cesr.crafty.controller.fxml.ModelRunnerController">
 	<children>
 		<HBox spacing="15.0">
 			<children>

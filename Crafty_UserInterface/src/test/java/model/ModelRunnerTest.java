@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import dataLoader.CellsLoaderTest;
+import de.cesr.crafty.model.Cell;
+import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.ModelRunner;
 
 class ModelRunnerTest {
 

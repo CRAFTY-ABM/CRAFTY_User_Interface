@@ -12,7 +12,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="fxmlControllers.RunCofigController">
+	fx:controller="de.cesr.crafty.controller.fxml.RunCofigController">
 	<children>
 		<VBox>
 			<children>
