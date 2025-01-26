@@ -1,7 +1,5 @@
 package de.cesr.crafty.dataLoader;
 
-import java.util.List;
-
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.file.PathTools;
 import de.cesr.crafty.utils.file.ReaderFile;
@@ -22,22 +20,22 @@ public final class PathsLoader {
 	private static int startYear;
 	private static int endtYear;
 	private static int currentYear = startYear;
-	private static Path projectPath ;
-	
+	private static Path projectPath;
+
 	private static ArrayList<String> scenariosList = new ArrayList<>();
 	private static HashMap<String, String> scenariosHash = new HashMap<>();
 	static ArrayList<Path> allfilesPathInData;
 	private static String scenario;
 	public static String WorldName = "";
+
 	public static void initialisation(Path p) {
 		projectPath = p;
 		allfilesPathInData = PathTools.findAllFiles(projectPath);
 		initialSenarios();
 	}
-	
 
 	static void initialSenarios() {
-		Path path = PathTools.fileFilter(File.separator+"scenarios.csv").iterator().next();
+		Path path = PathTools.fileFilter(File.separator + "scenarios.csv").iterator().next();
 		HashMap<String, ArrayList<String>> hash = ReaderFile.ReadAsaHash(path);
 		setScenariosList(hash.get("Name"));
 		for (String scenario : scenariosList) {
@@ -45,15 +43,14 @@ public final class PathsLoader {
 				scenariosHash.put(scenario, hash.get("startYear").get(hash.get("Name").indexOf(scenario)) + "_"
 						+ hash.get("endtYear").get(hash.get("Name").indexOf(scenario)));
 			} catch (NullPointerException e) {
-				LOGGER.fatal("cannot find \"Name\", \"startYear\" and/or \"endtYear\" in the head of the file :"+ path);
+				LOGGER.fatal(
+						"cannot find \"Name\", \"startYear\" and/or \"endtYear\" in the head of the file :" + path);
 				break;
 			}
 		}
 		setScenario(getScenariosList().get(1));
 
 	}
-
-
 
 	public static ArrayList<Path> getAllfilesPathInData() {
 		return allfilesPathInData;
@@ -108,8 +105,7 @@ public final class PathsLoader {
 		String[] temp = scenariosHash.get(scenario).split("_");
 		startYear = (int) Tools.sToD(temp[0]);
 		endtYear = (int) Tools.sToD(temp[1]);
-		 LOGGER.info(scenario+"--> startYear= "+ startYear+", endtYear "+
-		 endtYear);
+		LOGGER.info(scenario + "--> startYear= " + startYear + ", endtYear " + endtYear);
 	}
 
 }
