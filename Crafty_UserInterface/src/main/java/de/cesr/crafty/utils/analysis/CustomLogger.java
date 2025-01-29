@@ -11,7 +11,7 @@ import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import de.cesr.crafty.main.ConfigLoader;
+import de.cesr.crafty.cli.ConfigLoader;
 
 public class CustomLogger {
 

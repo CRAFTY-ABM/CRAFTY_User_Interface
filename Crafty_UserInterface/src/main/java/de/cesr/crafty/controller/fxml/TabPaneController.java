@@ -3,13 +3,13 @@ package de.cesr.crafty.controller.fxml;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.DemandModel;
 import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.ModelRunner;

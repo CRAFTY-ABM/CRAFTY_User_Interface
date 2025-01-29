@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.controller.fxml.TabPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
@@ -22,7 +23,6 @@ import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceWeightLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.RegionClassifier;
 import de.cesr.crafty.utils.file.CsvTools;

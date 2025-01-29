@@ -7,9 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.output.ListenerByRegion;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.general.Utils;

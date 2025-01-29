@@ -2,13 +2,13 @@ package de.cesr.crafty.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.cesr.crafty.cli.Config;
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.controller.fxml.MasksPaneController;
 import de.cesr.crafty.controller.fxml.TabPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.Config;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.output.Listener;
 import de.cesr.crafty.utils.analysis.Tracker;
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.cli.CraftyOptions;
 import de.cesr.crafty.cli.OptionsParser;
 import de.cesr.crafty.dataLoader.AFTsLoader;

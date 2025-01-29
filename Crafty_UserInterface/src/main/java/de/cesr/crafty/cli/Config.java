@@ -1,4 +1,4 @@
-package de.cesr.crafty.main;
+package de.cesr.crafty.cli;
 
 public class Config {
 

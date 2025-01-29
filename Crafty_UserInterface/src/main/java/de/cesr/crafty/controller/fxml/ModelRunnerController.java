@@ -10,11 +10,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import de.cesr.crafty.cli.Config;
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.Config;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.model.RegionClassifier;

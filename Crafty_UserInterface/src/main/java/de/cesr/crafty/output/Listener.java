@@ -14,10 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ibm.icu.impl.data.ResourceReader;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.model.RegionClassifier;
 import de.cesr.crafty.model.RegionalModelRunner;

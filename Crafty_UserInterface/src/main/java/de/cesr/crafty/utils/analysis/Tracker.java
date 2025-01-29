@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.model.RegionClassifier;
 
 public class Tracker {

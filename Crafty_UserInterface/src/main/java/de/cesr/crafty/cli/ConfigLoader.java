@@ -1,4 +1,4 @@
-package de.cesr.crafty.main;
+package de.cesr.crafty.cli;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;

@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.PathsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.ConfigLoader;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.Manager;
 import de.cesr.crafty.utils.analysis.CustomLogger;

@@ -3,8 +3,8 @@ package de.cesr.crafty.controller.fxml;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.TextField;
-import de.cesr.crafty.main.Config;
-import de.cesr.crafty.main.ConfigLoader;
+import de.cesr.crafty.cli.Config;
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.utils.graphical.Tools;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Slider;

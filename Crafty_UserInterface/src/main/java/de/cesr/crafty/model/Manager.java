@@ -2,9 +2,9 @@ package de.cesr.crafty.model;
 
 import java.util.Random;
 
+import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.ConfigLoader;
 import javafx.scene.paint.Color;
 
 /**
