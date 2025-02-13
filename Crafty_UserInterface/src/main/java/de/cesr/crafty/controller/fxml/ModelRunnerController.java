@@ -71,6 +71,7 @@ public class ModelRunnerController {
 	@FXML
 	private ScrollPane scroll;
 
+	public String colorDisplay = "AFT";
 	public static ModelRunner runner;
 
 	Timeline timeline;
@@ -131,7 +132,7 @@ public class ModelRunnerController {
 		for (int i = 0; i < radioColor.length; i++) {
 			int m = i;
 			radioColor[i].setOnAction(e -> {
-				runner.colorDisplay = radioColor[m].getText();
+				colorDisplay = radioColor[m].getText();
 				CellsSet.colorMap(radioColor[m].getText());
 				for (int I = 0; I < radioColor.length; I++) {
 					if (I != m) {
@@ -156,11 +157,18 @@ public class ModelRunnerController {
 		LOGGER.info("------------------- Start of Tick  |" + tick.get() + "| -------------------");
 		ProjectLoader.setCurrentYear(tick.get());
 		runner.step();
+		mapSynchronisation();
 		tickTxt.setText(tick.toString());
 		updateSupplyDemandLineChart();
 		tick.getAndIncrement();
 	}
-
+	private void mapSynchronisation() {
+		if (Config.mapSynchronisation
+				&& ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % Config.mapSynchronisationGap == 0
+						|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
+			CellsSet.colorMap(colorDisplay);
+		}
+	}
 	private void updateSupplyDemandLineChart() {
 		if (Config.chartSynchronisation && ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
 				% Config.chartSynchronisationGap == 0
@@ -238,7 +246,7 @@ public class ModelRunnerController {
 
 		tick.set(ProjectLoader.getStartYear());
 		ProjectLoader.setCurrentYear(ProjectLoader.getStartYear());
-		ProjectLoader.cellsLoader.loadMap();
+		ProjectLoader.cellsSet.loadMap();
 		CellsSet.colorMap();
 		RegionClassifier.serviceupdater();
 

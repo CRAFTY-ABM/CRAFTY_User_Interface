@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.cesr.crafty.model.Cell;
-import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.file.CsvTools;
@@ -59,7 +58,7 @@ public class MaskRestrictionDataLoader {
 			if (csv != null) {
 				cleanMaskType(maskType);
 				for (int i = 0; i < csv.values().iterator().next().size(); i++) {
-					Cell c = CellsSet.getCellsSet().getCell((int) Tools.sToD(csv.get("X").get(i)),
+					Cell c = ProjectLoader.cellsSet.getCell((int) Tools.sToD(csv.get("X").get(i)),
 							(int) Tools.sToD(csv.get("Y").get(i)));
 					int ii = i;
 					csv.keySet().forEach(key -> {

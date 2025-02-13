@@ -31,7 +31,7 @@ public class CapitalsAnalyzer {
 
 	static ConcurrentHashMap<String, Double> mapToValues(int year) {
 		ProjectLoader.setCurrentYear(year);
-		ProjectLoader.cellsLoader.updateCapitals(year);
+		ProjectLoader.cellsSet.updateCapitals(year);
 		ConcurrentHashMap<String, Double> capiHash = new ConcurrentHashMap<>();
 
 		CellsLoader.hashCell.values().forEach(c -> {

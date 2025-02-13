@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import de.cesr.crafty.dataLoader.ProjectLoader;
 
 public class CellsSubSets {
 
@@ -47,12 +48,12 @@ public class CellsSubSets {
 		Set<Cell> neighborhood = Collections.synchronizedSet(new HashSet<>());
 		for (int i = (c.x - 1); i <= c.x + 1; i++) {
 			for (int j = (c.y - 1); j <= (c.y) + 1; j++) {
-				if (CellsSet.getCellsSet().getCell(i, j) != null) {
-					neighborhood.add(CellsSet.getCellsSet().getCell(i, j));
+				if (ProjectLoader.cellsSet.getCell(i, j) != null) {
+					neighborhood.add(ProjectLoader.cellsSet.getCell(i, j));
 				}
 			}
 		}
-		neighborhood.remove(CellsSet.getCellsSet().getCell(c.x, c.y));
+		neighborhood.remove(ProjectLoader.cellsSet.getCell(c.x, c.y));
 
 		return neighborhood;
 	}
@@ -74,7 +75,7 @@ public class CellsSubSets {
 				if (i == c.x && j == c.y) {
 					continue;
 				}
-				Cell cell = CellsSet.getCellsSet().getCell(i, j);
+				Cell cell = ProjectLoader.cellsSet.getCell(i, j);
 				if (cell != null) {
 					neighborhood.add(cell);
 				}

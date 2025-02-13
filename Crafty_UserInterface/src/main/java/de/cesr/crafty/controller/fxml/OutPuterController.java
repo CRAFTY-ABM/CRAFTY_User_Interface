@@ -209,7 +209,7 @@ public class OutPuterController {
 				String newfolder = PathTools
 						.makeDirectory(outputpath + File.separator + OutPutTabController.radioColor[ii].getText());
 				yearChoice.getItems().forEach(filepath -> {
-					ProjectLoader.cellsLoader.servicesAndOwneroutPut(filepath, outputpath.toString());
+					ProjectLoader.cellsSet.servicesAndOwneroutPut(filepath, outputpath.toString());
 					OutPutTabController.radioColor[ii].fire();
 					String fileyear = new File(filepath).getName().replace(".csv", "").replace("-Cell-", "");
 					for (String scenario : ProjectLoader.getScenariosList()) {
@@ -447,7 +447,7 @@ public class OutPuterController {
 	}
 
 	void newOutPut(String year) {
-		ProjectLoader.cellsLoader.servicesAndOwneroutPut(year, outputpath.toString());
+		ProjectLoader.cellsSet.servicesAndOwneroutPut(year, outputpath.toString());
 		for (int i = 0; i < OutPutTabController.radioColor.length; i++) {
 			if (OutPutTabController.radioColor[i].isSelected()) {
 				CellsSet.colorMap(OutPutTabController.radioColor[i].getText());

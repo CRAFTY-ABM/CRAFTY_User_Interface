@@ -10,7 +10,6 @@ import de.cesr.crafty.dataLoader.DemandModel;
 import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.model.RegionClassifier;
@@ -108,7 +107,7 @@ public class TabPaneController {
 	@FXML
 	public void scenarioschoice() {
 		if (isNotInitialsation) {
-			ProjectLoader.cellsLoader.loadMap();
+			ProjectLoader.cellsSet.loadMap();
 			ProjectLoader.setScenario(scenarioschoice.getValue());
 			// DemandModel.updateDemand();// =
 			// CsvTools.csvReader(Path.fileFilter(Path.scenario, "demand").get(0));
@@ -117,7 +116,7 @@ public class TabPaneController {
 			ModelRunner.listner.initializeListeners();
 			LineChart<Number, Number> chart = ServicesController.getInstance().getDemandsChart();
 			new LineChartTools().lineChart((Pane) chart.getParent(), chart, DemandModel.serialisationWorldDemand());
-			ProjectLoader.cellsLoader.AFtsSet.updateAFTsForsenario();
+			ProjectLoader.cellsSet.AFtsSet.updateAFTsForsenario();
 			yearchoice();
 			MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
 			MasksPaneController.getInstance().clear(new ActionEvent());
@@ -130,7 +129,7 @@ public class TabPaneController {
 		if (isNotInitialsation) {
 			if (yearchoice.getValue() != null) {
 				ProjectLoader.setCurrentYear((int) Tools.sToD(yearchoice.getValue()));
-				ProjectLoader.cellsLoader.updateCapitals(ProjectLoader.getCurrentYear());
+				ProjectLoader.cellsSet.updateCapitals(ProjectLoader.getCurrentYear());
 				AFTsLoader.updateAFTs();
 				if (dataPane.isSelected()) {
 					for (int i = 0; i < CellsLoader.getCapitalsList().size() + 1; i++) {

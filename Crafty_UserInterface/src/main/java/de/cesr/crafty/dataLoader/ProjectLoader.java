@@ -1,7 +1,6 @@
 package de.cesr.crafty.dataLoader;
 
 import de.cesr.crafty.cli.ConfigLoader;
-import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.RegionClassifier;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.file.PathTools;
@@ -31,8 +30,8 @@ public final class ProjectLoader {
 	static ArrayList<Path> allfilesPathInData;
 	private static String scenario;
 	public static String WorldName = "";
-	
-	public static CellsLoader cellsLoader = new CellsLoader();
+
+	public static CellsLoader cellsSet = new CellsLoader();
 
 	public static void pathInitialisation(Path p) {
 		projectPath = p;
@@ -43,14 +42,13 @@ public final class ProjectLoader {
 	public static void modelInitialisation() {
 		pathInitialisation(Paths.get(ConfigLoader.config.project_path));
 		setScenario(ConfigLoader.config.scenario);
-		
+
 		CellsLoader.loadCapitalsList();
 		ServiceSet.loadServiceList();
-		cellsLoader.loadMap();
+		cellsSet.loadMap();
 		RegionClassifier.initialation();
 		ServiceWeightLoader.updateWorldWeight();
 		AFTsLoader.hashAgentNbrRegions();
-		CellsSet.setCellsSet(cellsLoader);
 		MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
 	}
 
@@ -127,5 +125,6 @@ public final class ProjectLoader {
 		endtYear = (int) Tools.sToD(temp[1]);
 		LOGGER.info(scenario + "--> startYear= " + startYear + ", endtYear " + endtYear);
 	}
+	
 
 }

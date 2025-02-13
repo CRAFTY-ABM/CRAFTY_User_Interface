@@ -102,7 +102,7 @@ public class LineChartTools {
 					K.getAndIncrement();
 				}
 			});
-			if (ProjectLoader.cellsLoader != null)
+			if (ProjectLoader.cellsSet != null)
 				labelcolor( lineChart);
 			lineChart.setCreateSymbols(false);
 		}

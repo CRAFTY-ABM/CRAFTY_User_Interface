@@ -2,7 +2,6 @@ package de.cesr.crafty.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.cli.Config;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.controller.fxml.MasksPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
@@ -18,10 +17,11 @@ import de.cesr.crafty.utils.analysis.Tracker;
 
 public class ModelRunner {
 //	private static final CustomLogger LOGGER = new CustomLogger(ModelRunner.class);
-	public String colorDisplay = "AFT";
+	
 	public ConcurrentHashMap<String, Double> totalSupply;
 	public static ConcurrentHashMap<String, RegionalModelRunner> regionsModelRunner;
 	public static Listener listner = new Listener();
+	
 
 	public static void setup() {
 		regionsModelRunner = new ConcurrentHashMap<>();
@@ -39,7 +39,7 @@ public class ModelRunner {
 				ProjectLoader.getEndtYear());
 
 		totalSupply = new ConcurrentHashMap<>();
-		ProjectLoader.cellsLoader.updateCapitals(year);
+		ProjectLoader.cellsSet.updateCapitals(year);
 		AFTsLoader.updateAFTs();
 		MasksPaneController.Maskloader.CellSetToMaskLoader(year);
 		aggregateTotalSupply();
@@ -47,17 +47,11 @@ public class ModelRunner {
 			RegionalRunner.step(year);
 		});
 		listnerOutput(year);
-		mapSynchronisation();
+
 		AFTsLoader.hashAgentNbr();
 	}
 
-	private void mapSynchronisation() {
-		if (Config.mapSynchronisation
-				&& ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % Config.mapSynchronisationGap == 0
-						|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
-			CellsSet.colorMap(colorDisplay);// "Categories"
-		}
-	}
+
 
 	private void listnerOutput(int year) {
 		if (ConfigLoader.config.generate_csv_files) {
@@ -92,7 +86,7 @@ public class ModelRunner {
 	}
 
 	private static void RegionalDemandEquilibrium_calculation() {
-		ProjectLoader.cellsLoader.updateCapitals(ProjectLoader.getStartYear());
+		ProjectLoader.cellsSet.updateCapitals(ProjectLoader.getStartYear());
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.initialDSEquilibriumFactorCalculation();
 		});

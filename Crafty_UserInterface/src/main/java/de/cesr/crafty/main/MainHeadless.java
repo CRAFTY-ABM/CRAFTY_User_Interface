@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.cli.CraftyOptions;
 import de.cesr.crafty.cli.OptionsParser;
-import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.output.Listener;
@@ -23,7 +22,6 @@ public class MainHeadless {
 		CraftyOptions options = OptionsParser.parseArguments(args);
 		ConfigLoader.configPath = options.getConfigFilePath();
 		ConfigLoader.init();
-
 		// If the user specified a project directory and scenario name, override the
 		// ones in the YAML
 		String projectDirectoryPath = options.getProjectDirectoryPath();

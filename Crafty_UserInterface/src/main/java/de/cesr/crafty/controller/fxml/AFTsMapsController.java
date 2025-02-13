@@ -20,7 +20,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -135,8 +134,8 @@ public class AFTsMapsController {
 		// * add menu to PiChart*//
 		HashMap<String, Consumer<String>> newItemMenu = new HashMap<>();
 		Consumer<String> reset = x -> {
-			ProjectLoader.cellsLoader.AFtsSet.agentsColorinitialisation();
-			ProjectLoader.cellsLoader.AFtsSet.forEach((a) -> {
+			ProjectLoader.cellsSet.AFtsSet.agentsColorinitialisation();
+			ProjectLoader.cellsSet.AFtsSet.forEach((a) -> {
 				color.put(a.getLabel(), a.getColor());
 			});
 			new PieChartTools().updateChart(convertedMap, color, chart, false);

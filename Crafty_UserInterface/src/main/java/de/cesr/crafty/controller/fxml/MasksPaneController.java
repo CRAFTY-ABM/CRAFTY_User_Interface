@@ -181,7 +181,7 @@ public class MasksPaneController {
 
 	private ArrayList<PlotItem> initPlotItem() {
 		ArrayList<PlotItem> itemsList = new ArrayList<>();
-		ProjectLoader.cellsLoader.AFtsSet.forEach(a -> {
+		ProjectLoader.cellsSet.AFtsSet.forEach(a -> {
 			itemsList.add(new PlotItem(a.getLabel(), 10, a.getColor()));
 		});
 		return itemsList;

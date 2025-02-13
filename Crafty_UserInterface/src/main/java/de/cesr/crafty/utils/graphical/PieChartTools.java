@@ -52,7 +52,7 @@ public class PieChartTools {
 			}
 		}
 
-		legendColorPicker(ProjectLoader.cellsLoader,color, chart);
+		legendColorPicker(ProjectLoader.cellsSet,color, chart);
 
 	}
 	

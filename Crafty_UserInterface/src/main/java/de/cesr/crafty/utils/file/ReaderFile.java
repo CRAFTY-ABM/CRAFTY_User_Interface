@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.model.Cell;
-import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.graphical.Tools;
 import tech.tablesaw.api.Table;
@@ -131,10 +131,10 @@ public class ReaderFile {
 	    int y = (int) Tools.sToD(immutableList.get(indexof.get("Y")));
 	    CellsLoader.getCapitalsList().forEach(capital_name -> {
 	        if (indexof.get(capital_name.toUpperCase()) == null) {
-	            CellsSet.getCellsSet().getCell(x, y).getCapitals().put(capital_name, 0.);
+	        	ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, 0.);
 	        }else {
 	        double capital_value = Tools.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-	        CellsSet.getCellsSet().getCell(x, y).getCapitals().put(capital_name, capital_value);}
+	        ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, capital_value);}
 	    });
 	}
 

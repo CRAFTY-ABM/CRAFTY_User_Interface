@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
+import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.output.ListenerByRegion;
 import de.cesr.crafty.utils.analysis.CustomLogger;
@@ -136,7 +137,7 @@ public class RegionalModelRunner {
 
 	private void giveUp() {
 		if (ConfigLoader.config.use_abandonment_threshold) {
-			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsSet.getRandomSubset(R.getCells(),
+			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsLoader.getRandomSubset(R.getCells(),
 					ConfigLoader.config.land_abandonment_percentage);
 			if (randomCellsubSetForGiveUp != null) {
 				randomCellsubSetForGiveUp.values().parallelStream().forEach(c -> {
@@ -148,7 +149,7 @@ public class RegionalModelRunner {
 
 	private void competition(int year) {
 		// Randomly select % of the land available for competition
-		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsSet.getRandomSubset(R.getCells(),
+		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsLoader.getRandomSubset(R.getCells(),
 				ConfigLoader.config.participating_cells_percentage);
 		if (randomCellsubSet != null) {
 			List<ConcurrentHashMap<String, Cell>> subsubsets = Utils.splitIntoSubsets(randomCellsubSet,
