@@ -20,11 +20,15 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import javafx.scene.control.Tooltip?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="de.cesr.crafty.controller.fxml.AFTsConfigurationController">
 	<children>
-		<VBox >
+		<VBox>
 			<children>
 				<HBox spacing="10.0">
 					<children>
@@ -45,7 +49,7 @@
 				</HBox>
 				<HBox spacing="10.0">
 					<children>
-					<!-- -->
+
 						<Button fx:id="removeBtn" onAction="#removeBtnSetOnAction"
 							text="Remove" styleClass="button-icon">
 							<graphic>
@@ -55,7 +59,7 @@
 								<Tooltip text="Remove Current AFT from the list" />
 							</tooltip>
 						</Button>
-						 
+
 						<Button fx:id="saveModeficationBtn"
 							onAction="#saveModefication" text="Save modifications"
 							styleClass="button-icon">
@@ -97,107 +101,36 @@
 						</Button>
 					</children>
 				</HBox>
+
+				<TabPane tabClosingPolicy="UNAVAILABLE">
+					<tabs>
+						<Tab text="AFTs Distribution">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="AFTs Behaviour" />
+							</tooltip>
+							<content>
+								<fx:include
+									source="/fxmlControllers/AFTsProduction.fxml" />
+							</content>
+						</Tab>
+						<Tab text="AFTs Distribution">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="AFTs Behaviour" />
+							</tooltip>
+							<content>
+								<fx:include
+									source="/fxmlControllers/AFTsBehaviour.fxml" />
+							</content>
+						</Tab>
+					</tabs>
+				</TabPane>
 			</children>
 		</VBox>
-		<TitledPane animated="true"
-			text="Optimal Production Levels and Behevoir Parametrs">
-			<content>
-				<ScrollPane fx:id="scrollProduction" prefWidth="700.0">
-
-					<VBox spacing="10.0">
-						<children>
-							<TableView fx:id="productivityTable" prefHeight="72" />
-							<HBox>
-								<children>
-									<TitledPane animated="true"
-										text="Behevoir Parametrs">
-										<content>
-											<GridPane fx:id="gridBehevoirButtons" hgap="5.0"
-												vgap="5.0">
-												<children>
-													<Label text="GiveIn Mean" />
-													<Label text="GiveIn Standard Deviation"
-														GridPane.rowIndex="1" />
-													<Label text="GiveUp Mean" GridPane.rowIndex="2" />
-													<Label text="GiveUp Standard Deviation"
-														GridPane.rowIndex="3" />
-													<Label text="Service Level Noise Min"
-														GridPane.rowIndex="4" />
-													<Label fx:id="SNoiseMaxS"
-														text="Service Level Noise Max" GridPane.rowIndex="5" />
-													<Label text="GiveUp Probabilty" GridPane.rowIndex="6" />
-													<Slider fx:id="GiveInSDS" GridPane.columnIndex="1"
-														GridPane.rowIndex="1" />
-													<Slider fx:id="GiveUpMeanS" GridPane.columnIndex="1"
-														GridPane.rowIndex="2" />
-													<Slider fx:id="GiveUpSDS" GridPane.columnIndex="1"
-														GridPane.rowIndex="3" />
-													<Slider fx:id="SNoiseMinS" GridPane.columnIndex="1"
-														GridPane.rowIndex="4" />
-													<Slider fx:id="ServiceLevelNoiseMaxS"
-														GridPane.columnIndex="1" GridPane.rowIndex="5" />
-													<Slider fx:id="GiveUpProbabiltyS"
-														GridPane.columnIndex="1" GridPane.rowIndex="6" />
-													<TextField fx:id="GiveInMeanT"
-														GridPane.columnIndex="2" />
-													<TextField fx:id="GiveInSDT"
-														GridPane.columnIndex="2" GridPane.rowIndex="1" />
-													<TextField fx:id="GiveUpMeanT"
-														GridPane.columnIndex="2" GridPane.rowIndex="2" />
-													<TextField fx:id="GiveUpSDT"
-														GridPane.columnIndex="2" GridPane.rowIndex="3" />
-													<TextField fx:id="SNoiseMinT"
-														GridPane.columnIndex="2" GridPane.rowIndex="4" />
-													<TextField fx:id="ServiceLevelNoiseMaxT"
-														GridPane.columnIndex="2" GridPane.rowIndex="5" />
-													<TextField fx:id="GiveUpProbabiltyT"
-														GridPane.columnIndex="2" GridPane.rowIndex="6" />
-													<Slider fx:id="GiveInMeanS" GridPane.columnIndex="1" />
-												</children>
-											</GridPane>
-
-										</content>
-									</TitledPane>
-									<BarChart fx:id="histogramePlevel">
-										<xAxis>
-											<CategoryAxis side="BOTTOM" />
-										</xAxis>
-										<yAxis>
-											<NumberAxis side="LEFT" />
-										</yAxis>
-									</BarChart>
-								</children>
-							</HBox>
-						</children>
-					</VBox>
-
-
-				</ScrollPane>
-
-			</content>
-		</TitledPane>
-		<TitledPane animated="true"
-			text="Weighting Factor Specific to Capital (Sensitivity Factors)">
-			<content>
-				<AnchorPane>
-					<children>
-						<TableView fx:id="sensitivtyTable" prefHeight="200.0"
-							AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-							AnchorPane.topAnchor="0.0" />
-					</children>
-				</AnchorPane>
-			</content>
-		</TitledPane>
-		<TitledPane animated="true"
-			text="Radar Chart of Sensitivity Factors">
-			<content>
-				<ScrollPane fx:id="scrollgrid" prefHeight="500.0"
-					prefWidth="700.0">
-					<GridPane fx:id="radarChartsGridPane"
-						AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-100.0">
-					</GridPane>
-				</ScrollPane>
-			</content>
-		</TitledPane>
 	</children>
 </VBox>

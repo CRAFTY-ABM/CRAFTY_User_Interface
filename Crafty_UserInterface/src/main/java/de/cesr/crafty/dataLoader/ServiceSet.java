@@ -41,7 +41,7 @@ public class ServiceSet {
 
 	public static boolean isRegionalServicesExisted() {
 		for (String r : RegionClassifier.regions.keySet()) {
-			ArrayList<Path> paths = PathTools.fileFilter(PathsLoader.getScenario(), PathTools.asFolder("demand"), r);
+			ArrayList<Path> paths = PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"), r);
 			if (paths == null) {
 				return false;
 			}

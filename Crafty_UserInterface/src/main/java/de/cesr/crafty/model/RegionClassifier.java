@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.DemandModel;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceWeightLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.utils.analysis.CustomLogger;
@@ -33,7 +33,7 @@ public class RegionClassifier {
 				initialation();
 			}
 		} else {
-			String name = PathsLoader.WorldName;
+			String name = ProjectLoader.WorldName;
 			regions.put(name, new Region(name));
 			regions.get(name).setCells(CellsLoader.hashCell);
 		}
@@ -52,7 +52,7 @@ public class RegionClassifier {
 	}
 
 	public static void aggregateDemandToWorldServiceDemand() {
-		for (int i = PathsLoader.getStartYear(); i <= PathsLoader.getEndtYear(); i++) {
+		for (int i = ProjectLoader.getStartYear(); i <= ProjectLoader.getEndtYear(); i++) {
 			int year = i;
 			ServiceSet.worldService.forEach((ns, s) -> {
 				s.getDemands().put(year, 0.);

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.output.ListenerByRegion;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.general.Utils;
@@ -23,7 +23,7 @@ public class RegionalModelRunner {
 	private static final CustomLogger LOGGER = new CustomLogger(RegionalModelRunner.class);
 	ConcurrentHashMap<String, Double> regionalSupply;
 	ConcurrentHashMap<String, Double> marginal = new ConcurrentHashMap<>();
-	ConcurrentHashMap<Manager, Double> distributionMean;
+	ConcurrentHashMap<Aft, Double> distributionMean;
 	public Region R;
 
 	public ListenerByRegion listner;
@@ -101,14 +101,15 @@ public class RegionalModelRunner {
 	}
 
 	public void initialDSEquilibriumFactorCalculation() {
+		//update the capital first year
 		regionalSupply();
 		regionalSupply.forEach((serviceName, serviceSuplly) -> {
 			double factor = 1;
 			if (serviceSuplly != 0) {
-				if (R.getServicesHash().get(serviceName).getDemands().get(PathsLoader.getStartYear()) == 0) {
+				if (R.getServicesHash().get(serviceName).getDemands().get(ProjectLoader.getStartYear()) == 0) {
 					LOGGER.warn("Demand for " + serviceName + " = 0");
 				} else {
-					factor = R.getServicesHash().get(serviceName).getDemands().get(PathsLoader.getStartYear())
+					factor = R.getServicesHash().get(serviceName).getDemands().get(ProjectLoader.getStartYear())
 							/ (serviceSuplly);
 				}
 			} else {

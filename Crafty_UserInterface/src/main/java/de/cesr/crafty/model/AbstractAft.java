@@ -2,13 +2,14 @@ package de.cesr.crafty.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.cesr.crafty.dataLoader.AftCategorised;
 import javafx.scene.paint.Color;
 
 /**
  * @author Mohamed Byari
  *
  */
-public abstract class AbstractManager {
+public abstract class AbstractAft {
 	String label;
 	String completeName;
 	ManagerTypes type;
@@ -16,7 +17,16 @@ public abstract class AbstractManager {
 	ConcurrentHashMap<String, Double> productivityLevel = new ConcurrentHashMap<>();
 	double giveInMean = 0, giveInSD = 0, giveUpMean = 0, giveUpSD = 0, serviceLevelNoiseMin = 0,
 			serviceLevelNoiseMax = 0, giveUpProbabilty = 0;
+	AftCategory category;
 	Color color;
+
+	public AftCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(AftCategory category) {
+		this.category = category;
+	}
 
 	public ManagerTypes getType() {
 		return type;

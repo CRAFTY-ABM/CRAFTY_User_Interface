@@ -7,6 +7,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -42,28 +43,20 @@ public class OutPutTabController {
 
 	public void initialize() {
 		radioColor = new RadioButton[ServiceSet.getServicesList().size() + 1];
-
+		ToggleGroup radiosgroup = new ToggleGroup();
 		for (int i = 0; i < radioColor.length; i++) {
 			if (i < ServiceSet.getServicesList().size()) {
 				radioColor[i] = new RadioButton(ServiceSet.getServicesList().get(i));
 
 			} else if (i == ServiceSet.getServicesList().size()) {
-				radioColor[i] = new RadioButton("Agent");
+				radioColor[i] = new RadioButton("AFT");
 			}
+			radioColor[i].setToggleGroup(radiosgroup);
 			int k = i;
 			radioColor[i].setOnAction(e -> {
-				for (int j = 0; j < radioColor.length; j++) {
-					if (k != j) {
-						radioColor[j].setSelected(false);
-					}
-				}
-				if (k < ServiceSet.getServicesList().size()) {
-					CellsSet.colorMap(ServiceSet.getServicesList().get(k));
-				} else if (k == ServiceSet.getServicesList().size()) {
-					CellsSet.colorMap("AFT");
-				}
-
+				CellsSet.colorMap(radioColor[k].getText());
 			});
+
 		}
 
 		tmp.setClosable(false);

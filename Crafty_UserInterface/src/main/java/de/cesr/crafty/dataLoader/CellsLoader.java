@@ -72,8 +72,8 @@ public class CellsLoader {
 	public void loadGisData() {
 		try {
 			Path path = PathTools.fileFilter(true, File.separator + "GIS" + File.separator).get(0);
-			PathsLoader.WorldName = path.toFile().getName().replace("_Regions", "").replace(".csv", "");
-			LOGGER.info("WorldName = " + PathsLoader.WorldName);
+			ProjectLoader.WorldName = path.toFile().getName().replace("_Regions", "").replace(".csv", "");
+			LOGGER.info("WorldName = " + ProjectLoader.WorldName);
 			CsvReadOptions options = CsvReadOptions.builder(path.toFile()).separator(',').build();
 			Table T = Table.read().usingOptions(options);
 
@@ -99,17 +99,17 @@ public class CellsLoader {
 
 	public void updateCapitals(int year) {
 		LOGGER.info("Cells.updateCapitals");
-		year = Math.min(year, PathsLoader.getEndtYear());
+		year = Math.min(year, ProjectLoader.getEndtYear());
 
-		if (!PathsLoader.getScenario().equalsIgnoreCase("Baseline")) {
-			Path path = PathTools.fileFilter(year + "", PathsLoader.getScenario(), PathTools.asFolder("capitals"))
+		if (!ProjectLoader.getScenario().equalsIgnoreCase("Baseline")) {
+			Path path = PathTools.fileFilter(year + "", ProjectLoader.getScenario(), PathTools.asFolder("capitals"))
 					.get(0);
 			ReaderFile.processCSV(this, path, "Capitals");
 		}
 	}
 
 	public void servicesAndOwneroutPut(String year, String outputpath) {
-		PathsLoader.setAllfilesPathInData(PathTools.findAllFiles(PathsLoader.getProjectPath()));
+		ProjectLoader.setAllfilesPathInData(PathTools.findAllFiles(ProjectLoader.getProjectPath()));
 		Path path = PathTools.fileFilter(year, ".csv").get(0);
 
 		ReaderFile.processCSV(this, path, "Services");

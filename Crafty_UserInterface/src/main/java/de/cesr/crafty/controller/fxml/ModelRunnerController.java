@@ -13,8 +13,9 @@ import java.util.stream.Collectors;
 import de.cesr.crafty.cli.Config;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
+import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.model.RegionClassifier;
@@ -64,8 +65,6 @@ public class ModelRunnerController {
 	@FXML
 	private Button run;
 	@FXML
-	private Button pause;
-	@FXML
 	private Button stop;
 	@FXML
 	private GridPane gridPaneLinnChart;
@@ -92,19 +91,24 @@ public class ModelRunnerController {
 		lineChart = new ArrayList<>();
 
 		Collections.synchronizedList(lineChart);
-		ConfigLoader.config.output_folder_name = PathsLoader.getScenario();
+		ConfigLoader.config.output_folder_name = ProjectLoader.getScenario();
 		initilaseChart(lineChart);
 		initialzeRadioColorBox();
-		scroll.setPrefHeight(Screen.getPrimary().getBounds().getHeight() * 0.8);
+		forceResizing();
+		initializeGridpane(3);
+	}
 
-		initializeGridpane(2);
-		gridPaneLinnChart.prefWidthProperty().bind(scroll.widthProperty());
+	private void forceResizing() {
+		double scaley = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY * 1.1);
+		scroll.setMaxHeight(scaley);
+		scroll.setMinHeight(scaley);
+		scroll.setPrefHeight(scaley);
 	}
 
 	public static void init() {
 		runner = new ModelRunner();
 		ModelRunner.setup();
-		tick = new AtomicInteger(PathsLoader.getStartYear());
+		tick = new AtomicInteger(ProjectLoader.getStartYear());
 	}
 
 	void initializeGridpane(int colmunNBR) {
@@ -120,7 +124,7 @@ public class ModelRunnerController {
 
 	void initialzeRadioColorBox() {
 		radioColor = new RadioButton[ServiceSet.getServicesList().size() + 1];
-		radioColor[radioColor.length - 1] = new RadioButton("FR");
+		radioColor[radioColor.length - 1] = new RadioButton("AFT");
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
 			radioColor[i] = new RadioButton(ServiceSet.getServicesList().get(i));
 		}
@@ -150,7 +154,7 @@ public class ModelRunnerController {
 	@FXML
 	public void oneStep() {
 		LOGGER.info("------------------- Start of Tick  |" + tick.get() + "| -------------------");
-		PathsLoader.setCurrentYear(tick.get());
+		ProjectLoader.setCurrentYear(tick.get());
 		runner.step();
 		tickTxt.setText(tick.toString());
 		updateSupplyDemandLineChart();
@@ -158,9 +162,9 @@ public class ModelRunnerController {
 	}
 
 	private void updateSupplyDemandLineChart() {
-		if (Config.chartSynchronisation
-				&& ((PathsLoader.getCurrentYear() - PathsLoader.getStartYear()) % Config.chartSynchronisationGap == 0
-						|| PathsLoader.getCurrentYear() == PathsLoader.getEndtYear())) {
+		if (Config.chartSynchronisation && ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
+				% Config.chartSynchronisationGap == 0
+				|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
 			AtomicInteger m = new AtomicInteger();
 			ServiceSet.getServicesList().forEach(service -> {
 				lineChart.get(m.get()).getData().get(0).getData().add(new XYChart.Data<>(tick.get(),
@@ -202,7 +206,7 @@ public class ModelRunnerController {
 	}
 
 	private void scheduleIteravitveTicks(Duration delay) {
-		if (PathsLoader.getCurrentYear() > PathsLoader.getEndtYear()) {
+		if (ProjectLoader.getCurrentYear() > ProjectLoader.getEndtYear()) {
 			// Stop if max iterations reached
 			if (ConfigLoader.config.generate_csv_files)
 				displayRunAsOutput();
@@ -222,7 +226,7 @@ public class ModelRunnerController {
 			// Calculate the delay for the next tick to maintain the rhythm
 			long delayForNextTick = Math.max(300, (System.currentTimeMillis() - startTime) / 3);
 			// Schedule the next tick
-			System.out.println("Tick=...." + PathsLoader.getCurrentYear());
+			System.out.println("Tick=...." + ProjectLoader.getCurrentYear());
 			scheduleIteravitveTicks(Duration.millis(delayForNextTick));
 
 		}));
@@ -230,17 +234,11 @@ public class ModelRunnerController {
 	}
 
 	@FXML
-	public void pause() {
-		timeline.stop();
-		run.setDisable(false);
-	}
-
-	@FXML
 	public void stop() {
 
-		tick.set(PathsLoader.getStartYear());
-		PathsLoader.setCurrentYear(PathsLoader.getStartYear());
-		TabPaneController.cellsLoader.loadMap();
+		tick.set(ProjectLoader.getStartYear());
+		ProjectLoader.setCurrentYear(ProjectLoader.getStartYear());
+		ProjectLoader.cellsLoader.loadMap();
 		CellsSet.colorMap();
 		RegionClassifier.serviceupdater();
 
@@ -270,10 +268,10 @@ public class ModelRunnerController {
 			s1.setName("Demand " + service);
 			s2.setName("Supply " + service);
 			LineChart<Number, Number> l = new LineChart<>(
-					new NumberAxis(PathsLoader.getStartYear(), PathsLoader.getEndtYear(), 5), new NumberAxis());
+					new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
 			l.getData().add(s1);
 			l.getData().add(s2);
-			LineChartTools.configurexAxis(l, PathsLoader.getStartYear(), PathsLoader.getEndtYear());
+			LineChartTools.configurexAxis(l, ProjectLoader.getStartYear(), ProjectLoader.getEndtYear());
 			lineChart.add(l);
 			LineChartTools.addSeriesTooltips(l);
 
@@ -287,7 +285,7 @@ public class ModelRunnerController {
 			MousePressed.mouseControle(vbox, l, othersMenuItems);
 		});
 		LineChart<Number, Number> l = new LineChart<>(
-				new NumberAxis(PathsLoader.getStartYear(), PathsLoader.getEndtYear(), 5), new NumberAxis());
+				new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
 		lineChart.add(l);
 
 		AFTsLoader.getAftHash().forEach((name, a) -> {
@@ -303,8 +301,6 @@ public class ModelRunnerController {
 		LineChartTools.labelcolor(l);
 	}
 
-
-
 	Alert simulationFolderName() {
 		if (!ConfigLoader.config.generate_csv_files) {
 			return null;
@@ -315,7 +311,7 @@ public class ModelRunnerController {
 		cofiguration = cofiguration + " \n " + "Add any comments \n ";
 		TextField textField = new TextField();
 		textField.setPromptText("Output_Folder_Name (if not specified, a default name will be created)");
-		Text txt = new Text(PathsLoader.getProjectPath() + PathTools.asFolder("output") + PathsLoader.getScenario()
+		Text txt = new Text(ProjectLoader.getProjectPath() + PathTools.asFolder("output") + ProjectLoader.getScenario()
 				+ File.separator + "...");
 		TextArea textArea = new TextArea();
 		textArea.setText(cofiguration);

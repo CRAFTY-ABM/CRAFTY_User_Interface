@@ -16,7 +16,7 @@ import com.ibm.icu.impl.data.ResourceReader;
 
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.model.ModelRunner;
 import de.cesr.crafty.model.RegionClassifier;
@@ -32,7 +32,7 @@ public class Listener {
 	private static String[][] DSEquilibriumListener;
 
 	public void initializeListeners() {
-		servicedemandListener = new String[PathsLoader.getEndtYear() - PathsLoader.getStartYear()
+		servicedemandListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
 				+ 2][ServiceSet.getServicesList().size() * 2 + 1];
 		servicedemandListener[0][0] = "Year";
 		for (int i = 1; i < ServiceSet.getServicesList().size() + 1; i++) {
@@ -40,7 +40,7 @@ public class Listener {
 			servicedemandListener[0][i + ServiceSet.getServicesList().size()] = "Demand:"
 					+ ServiceSet.getServicesList().get(i - 1);
 		}
-		compositionAftListener = new String[PathsLoader.getEndtYear() - PathsLoader.getStartYear()
+		compositionAftListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
 				+ 2][AFTsLoader.getAftHash().size() + 1];
 		compositionAftListener[0][0] = "Year";
 		int k = 1;
@@ -61,7 +61,7 @@ public class Listener {
 
 	public void outPutserviceDemandToCsv(int year, ConcurrentHashMap<String, Double> totalSupply) {
 		AtomicInteger m = new AtomicInteger(1);
-		int y = year - PathsLoader.getStartYear() + 1;
+		int y = year - ProjectLoader.getStartYear() + 1;
 		servicedemandListener[y][0] = year + "";
 		ServiceSet.getServicesList().forEach(serviceName -> {
 			servicedemandListener[y][m.get()] = totalSupply.get(serviceName) + "";
@@ -72,7 +72,7 @@ public class Listener {
 	}
 
 	public void compositionAFT(int year) {
-		int y = year - PathsLoader.getStartYear() + 1;
+		int y = year - ProjectLoader.getStartYear() + 1;
 		compositionAftListener[y][0] = year + "";
 		AFTsLoader.hashAgentNbr.forEach((name, value) -> {
 			compositionAftListener[y][Tools.indexof(name, compositionAftListener[0])] = value + "";
@@ -90,21 +90,21 @@ public class Listener {
 
 	public void updateCSVFilesWolrd() {
 		Path aggregateAFTComposition = Paths.get(ConfigLoader.config.output_folder_name + File.separator
-				+ PathsLoader.getScenario() + "Total-AggregateAFTComposition.csv");
+				+ ProjectLoader.getScenario() + "Total-AggregateAFTComposition.csv");
 		CsvTools.writeCSVfile(compositionAftListener, aggregateAFTComposition);
 		Path aggregateServiceDemand = Paths.get(ConfigLoader.config.output_folder_name + File.separator
-				+ PathsLoader.getScenario() + "Total-AggregateServiceDemand.csv");
+				+ ProjectLoader.getScenario() + "Total-AggregateServiceDemand.csv");
 		CsvTools.writeCSVfile(servicedemandListener, aggregateServiceDemand);
 		Path DSEquilibriumPath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
-				+ PathsLoader.getScenario() + "Total-AggregateDemandServicesEquilibrium.csv");
+				+ ProjectLoader.getScenario() + "Total-AggregateDemandServicesEquilibrium.csv");
 		DSEquilibriumListener();
 		CsvTools.writeCSVfile(DSEquilibriumListener, DSEquilibriumPath);
 	}
 
 	public void writOutPutMap(int year) {
-		if ((PathsLoader.getCurrentYear() - PathsLoader.getStartYear()) % ConfigLoader.config.csv_output_frequency == 0
-				|| PathsLoader.getCurrentYear() == PathsLoader.getEndtYear()) {
-			CsvTools.exportToCSV(ConfigLoader.config.output_folder_name + File.separator + PathsLoader.getScenario()
+		if ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % ConfigLoader.config.csv_output_frequency == 0
+				|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear()) {
+			CsvTools.exportToCSV(ConfigLoader.config.output_folder_name + File.separator + ProjectLoader.getScenario()
 					+ "-Cell-" + year + ".csv");
 		}
 	}
@@ -120,8 +120,8 @@ public class Listener {
 			ConfigLoader.config.output_folder_name = textFieldGetText;
 		}
 
-		String dir = PathTools.makeDirectory(PathsLoader.getProjectPath() + PathTools.asFolder("output"));
-		dir = PathTools.makeDirectory(dir + PathsLoader.getScenario());
+		String dir = PathTools.makeDirectory(ProjectLoader.getProjectPath() + PathTools.asFolder("output"));
+		dir = PathTools.makeDirectory(dir + ProjectLoader.getScenario());
 		dir = PathTools.makeDirectory(dir + File.separator + ConfigLoader.config.output_folder_name);
 		ConfigLoader.config.output_folder_name = dir;
 	}

@@ -12,9 +12,9 @@ import javafx.scene.paint.Color;
  *
  */
 
-public class Manager extends AbstractManager{
+public class Aft extends AbstractAft {
 
-	public Manager() {
+	public Aft() {
 		label = "";
 		completeName = "";
 		CellsLoader.getCapitalsList().forEach((Cn) -> {
@@ -22,30 +22,35 @@ public class Manager extends AbstractManager{
 				sensitivity.put((Cn + "_" + Sn), 0.);
 			});
 		});
-		ServiceSet.getServicesList().forEach(servicename->{
+		ServiceSet.getServicesList().forEach(servicename -> {
 			productivityLevel.put(servicename, 0.0);
 		});
 	}
 
-	public Manager(Manager other) {
+	public Aft(Aft other) {
 		if (other != null) {
 			this.label = other.label;
 			this.color = other.color;
 			other.sensitivity.forEach((n, v) -> {
-				this.sensitivity.put(n, v * (1 + ConfigLoader.config.mutation_interval * (2*new Random().nextDouble() - 1)));
+				this.sensitivity.put(n,
+						v * (1 + ConfigLoader.config.mutation_interval * (2 * new Random().nextDouble() - 1)));
 
 			});
 			other.productivityLevel.forEach((n, v) -> {
-				this.productivityLevel.put(n, v * (1 + ConfigLoader.config.mutation_interval * (2*new Random().nextDouble() - 1)));
+				this.productivityLevel.put(n,
+						v * (1 + ConfigLoader.config.mutation_interval * (2 * new Random().nextDouble() - 1)));
 			});
-			this.giveInMean = other.giveInMean * (1 + ConfigLoader.config.mutation_interval * (2*new Random().nextDouble() - 1));
-			this.giveUpMean = other.giveUpMean * (1 + ConfigLoader.config.mutation_interval * (2*new Random().nextDouble() - 1));
-			this.giveUpProbabilty = other.giveUpProbabilty * (1 + ConfigLoader.config.mutation_interval * (2*new Random().nextDouble() - 1));
+			this.giveInMean = other.giveInMean
+					* (1 + ConfigLoader.config.mutation_interval * (2 * new Random().nextDouble() - 1));
+			this.giveUpMean = other.giveUpMean
+					* (1 + ConfigLoader.config.mutation_interval * (2 * new Random().nextDouble() - 1));
+			this.giveUpProbabilty = other.giveUpProbabilty
+					* (1 + ConfigLoader.config.mutation_interval * (2 * new Random().nextDouble() - 1));
 		}
 
 	}
 
-	public Manager(String label, double LevelIntervale) {
+	public Aft(String label, double LevelIntervale) {
 		this.label = label;
 		this.color = Color.color(Math.random(), Math.random(), Math.random());// ColorsTools.colorlist(new
 																				// Random().nextInt(17));
@@ -62,17 +67,21 @@ public class Manager extends AbstractManager{
 		this.giveUpProbabilty = Math.random();
 	}
 
-
-	public Manager(String label) {
+	public Aft(String label) {
 		this.label = label;
 	}
 
-
-
 	@Override
 	public String toString() {
-		return "AFT [label=" + label + " ,\n sensitivty=" + sensitivity + ",\n productivityLevel=" + productivityLevel
-				+ ",\n giveIn=" + giveInMean + ", giveUp=" + giveUpMean + ", giveUpProbabilty=" + giveUpProbabilty
-				+ "]";
+		return "Aft [label=" + label + ", type=" + type + ", category=" + category + "]";
 	}
+
+//	@Override
+//	public String toString() {
+//		return "AFT [label=" + label + " ,\n sensitivty=" + sensitivity + ",\n productivityLevel=" + productivityLevel
+//				+ ",\n giveIn=" + giveInMean + ", giveUp=" + giveUpMean + ", giveUpProbabilty=" + giveUpProbabilty
+//				+ "]";
+//	}
+//	
+
 }

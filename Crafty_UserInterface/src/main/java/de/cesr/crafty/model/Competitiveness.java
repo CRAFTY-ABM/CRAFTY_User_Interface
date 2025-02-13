@@ -7,13 +7,13 @@ import java.util.Random;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 
 public class Competitiveness {
 	static boolean utilityUsingPrice = true;
 
-	static double utility(Cell c, Manager a, RegionalModelRunner r) {
+	static double utility(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
 			return 0;
 		}
@@ -21,11 +21,11 @@ public class Competitiveness {
 				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
 	}
 
-	static double utilityPrice(Cell c, Manager a, RegionalModelRunner r) {
+	static double utilityPrice(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
 			return 0;
 		}
-		int tick = PathsLoader.getCurrentYear() - PathsLoader.getStartYear();
+		int tick = ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear();
 		return ServiceSet.getServicesList().stream()
 				.mapToDouble(sname -> (r.R.getServicesHash().get(sname).getWeights().get(tick)
 						/ r.R.getServicesHash().get(sname).getCalibration_Factor()) * c.productivity(a, sname))
@@ -41,13 +41,13 @@ public class Competitiveness {
 //		}
 //	}
 
-	static Manager mostCompetitiveAgent(Cell c, Collection<Manager> setAfts, RegionalModelRunner r) {
+	static Aft mostCompetitiveAgent(Cell c, Collection<Aft> setAfts, RegionalModelRunner r) {
 		if (setAfts.size() == 0) {
 			return c.owner;
 		}
 		double uti = 0;
-		Manager theBestAFT = setAfts.iterator().next();
-		for (Manager agent : setAfts) {
+		Aft theBestAFT = setAfts.iterator().next();
+		for (Aft agent : setAfts) {
 			double u = utility(c, agent, r);
 			if (u > uti) {
 				uti = u;
@@ -57,7 +57,7 @@ public class Competitiveness {
 		return theBestAFT;
 	}
 
-	private static void Competition(Cell c, Manager competitor, RegionalModelRunner r) {
+	private static void Competition(Cell c, Aft competitor, RegionalModelRunner r) {
 		if (competitor == null || !competitor.isInteract()) {
 			return;
 		}
@@ -81,14 +81,14 @@ public class Competitiveness {
 
 			if (c.owner == null || c.owner.isAbandoned()) {
 				if (uC > 0)
-					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Manager(competitor) : competitor;
+					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(competitor) : competitor;
 			} else {
 				double nbr = r.distributionMean != null
 						? (r.distributionMean.get(c.owner)
 								* (c.owner.getGiveInMean() + c.owner.getGiveInSD() * new Random().nextGaussian()))
 						: 0;
 				if ((uC - uO > nbr) && uC > 0) {
-					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Manager(competitor) : competitor;
+					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(competitor) : competitor;
 				}
 			}
 		}
@@ -97,7 +97,7 @@ public class Competitiveness {
 	static void competition(Cell c, RegionalModelRunner r) {
 		boolean Neighboor = ConfigLoader.config.use_neighbor_priority
 				&& ConfigLoader.config.neighbor_priority_probability > Math.random();
-		Collection<Manager> afts = Neighboor
+		Collection<Aft> afts = Neighboor
 				? CellsSubSets.detectExtendedNeighboringAFTs(c, ConfigLoader.config.neighbor_radius)
 				: AFTsLoader.getActivateAFTsHash().values();
 

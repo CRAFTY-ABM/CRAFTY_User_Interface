@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -15,7 +17,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.cli.ConfigLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.utils.file.PathTools;
 import de.cesr.crafty.utils.graphical.ColorsTools;
@@ -28,6 +31,9 @@ public class MenuBarController {
 	@FXML
 	private Menu recent;
 
+
+
+
 	public void initialize() {
 		updateRecentFilesMenu();
 	}
@@ -37,7 +43,7 @@ public class MenuBarController {
 	public void open(ActionEvent event) {
 		openProject();
 
-		if (!PathsLoader.getProjectPath().equals("")) {
+		if (!ProjectLoader.getProjectPath().equals("")) {
 			initialsePAnes();
 		}
 	}
@@ -98,7 +104,10 @@ public class MenuBarController {
 		}
 
 		if (selectedDirectory != null) {
-			PathsLoader.initialisation(Paths.get(selectedDirectory.getAbsolutePath()));
+			ConfigLoader.config.project_path = selectedDirectory.getAbsolutePath();
+			ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+			ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
+			ProjectLoader.modelInitialisation();
 		}
 		System.out.println();
 	}
@@ -106,8 +115,8 @@ public class MenuBarController {
 	void initialsePAnes() {
 		WarningWindowes.showWaitingDialog(x -> {
 			try {
-				FxMain.anchor.getChildren()
-						.add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
+				FxMain.anchor.setCenter(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
+				//FxMain.anchor.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
 			} catch (IOException en) {
 				// TODO Auto-generated catch block
 				en.printStackTrace();
@@ -137,7 +146,10 @@ public class MenuBarController {
 				MenuItem item = new MenuItem(paths[i]);
 				int j = i;
 				item.setOnAction(event -> {
-					PathsLoader.initialisation(Paths.get(paths[j]));
+					ConfigLoader.config.project_path = paths[j];
+					ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+					ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
+					ProjectLoader.modelInitialisation();
 					initialsePAnes();
 				});
 				recent.getItems().add(item);

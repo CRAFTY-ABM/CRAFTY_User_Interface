@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import javafx.stage.DirectoryChooser;
@@ -72,7 +72,7 @@ public class PathTools {
 	}
 
 	public static ArrayList<Path> fileFilter(boolean ignoreIfFileNotExists, String... condition) {
-		return fileFilter(PathsLoader.getAllfilesPathInData(), ignoreIfFileNotExists, condition);
+		return fileFilter(ProjectLoader.getAllfilesPathInData(), ignoreIfFileNotExists, condition);
 	}
 
 	public static ArrayList<Path> fileFilter(ArrayList<Path> getAllfilesPathInFolder, String... condition) {

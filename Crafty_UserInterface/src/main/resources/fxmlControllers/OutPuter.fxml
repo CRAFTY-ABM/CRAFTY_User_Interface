@@ -32,8 +32,7 @@
 								<Tooltip text="Supply and Demand Evolution" />
 							</tooltip>
 							<content>
-								<ScrollPane fx:id="scroll" prefHeight="700.0"
-									prefWidth="700.0">
+								<ScrollPane fx:id="scroll" >
 									<GridPane fx:id="gridChart" />
 								</ScrollPane>
 							</content>
@@ -47,7 +46,7 @@
 								<Tooltip text="Results analysis" />
 							</tooltip>
 							<content>
-								<VBox spacing="5.0">
+								<VBox spacing="5.0" fx:id="borderPane">
 									<HBox spacing="15.0">
 										<Label text="generate a Sankey graph"
 											style="-fx-text-fill: blue;" />
@@ -69,7 +68,6 @@
 											</tooltip>
 										</Button>
 									</HBox>
-									<VBox fx:id="borderPane" />
 								</VBox>
 							</content>
 						</Tab>
@@ -86,8 +84,7 @@
 								<VBox spacing="2.0">
 									<ChoiceBox fx:id="regionsBox"
 										onAction="#regionsBoxAction" />
-									<ScrollPane fx:id="scrollRegions" prefHeight="700.0"
-										prefWidth="700.0">
+									<ScrollPane fx:id="scrollRegions" >
 										<GridPane fx:id="regionalGridChart"
 											style="-fx-background-color: #edf5f7;" />
 									</ScrollPane>

@@ -21,10 +21,10 @@ public class ServiceWeightLoader {
 	private static Path weighWolrldtPath() {
 		AtomicReference<String> path = new AtomicReference<>("");
 		try {
-			path.set(PathTools.fileFilter(PathsLoader.getScenario(), PathTools.asFolder("Service_Utility_Weights"),
-					PathsLoader.WorldName).get(0).toString());
+			path.set(PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("Service_Utility_Weights"),
+					ProjectLoader.WorldName).get(0).toString());
 		} catch (NullPointerException e) {
-			LOGGER.warn("No Weight file fund for region: |" + PathsLoader.WorldName
+			LOGGER.warn("No Weight file fund for region: |" + ProjectLoader.WorldName
 					+ "| will use 1 for all Service Utility Weights ");
 			return null;
 		}
@@ -39,22 +39,22 @@ public class ServiceWeightLoader {
 				LOGGER.info("Update Demand: " + path);
 				hashDemand.forEach((name, vect) -> {
 					if (ServiceSet.getServicesList().contains(name)) {
-						for (int i = 0; i < PathsLoader.getEndtYear() - PathsLoader.getStartYear() + 1; i++) {
+						for (int i = 0; i < ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 1; i++) {
 							if (i < vect.size()) {
 								ServiceSet.worldService.get(name).getWeights().put(i, Tools.sToD(vect.get(i)));
 							} else {
 								ServiceSet.worldService.get(name).getWeights().put(i,
 										Tools.sToD(vect.get(vect.size() - 1)));
 								LOGGER.info("There are no demand \'" + name + "\' for this year: \""
-										+ (i + PathsLoader.getStartYear()) + "\" using the latest available demands "
-										+ (vect.size() - 1 + PathsLoader.getStartYear()));
+										+ (i + ProjectLoader.getStartYear()) + "\" using the latest available demands "
+										+ (vect.size() - 1 + ProjectLoader.getStartYear()));
 							}
 						}
 					}
 				});
 			} else {
 				ServiceSet.getServicesList().forEach((serviceName) -> {
-					for (int i = 0; i < PathsLoader.getEndtYear() - PathsLoader.getStartYear() + 1; i++) {
+					for (int i = 0; i < ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 1; i++) {
 						ServiceSet.worldService.get(serviceName).getWeights().put(i, 1.);
 					}
 
@@ -76,15 +76,15 @@ public class ServiceWeightLoader {
 		Path path;
 		try {
 			path = PathTools
-					.fileFilter(PathsLoader.getScenario(), PathTools.asFolder("Service_Utility_Weights"), R.getName())
+					.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("Service_Utility_Weights"), R.getName())
 					.get(0);
 		} catch (NullPointerException e) {
 			LOGGER.warn("No Weight file fund for region: |" + R.getName()
 					+ "|  will use 1 for all Service Utility Weights ");
 			ServiceSet.getServicesList().forEach((serviceName) -> {
 				ConcurrentHashMap<Integer, Double> dv = new ConcurrentHashMap<>();
-				for (int i = 0; i < PathsLoader.getEndtYear() - PathsLoader.getStartYear() + 1; i++) {
-					dv.put(i+PathsLoader.getStartYear(), 1.);
+				for (int i = 0; i < ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 1; i++) {
+					dv.put(i+ProjectLoader.getStartYear(), 1.);
 				}
 				R.getServicesHash().get(serviceName).setWeights(dv);
 
@@ -97,9 +97,9 @@ public class ServiceWeightLoader {
 		hashWeight.forEach((serviceName, vect) -> {
 			if (ServiceSet.getServicesList().contains(serviceName)) {
 				ConcurrentHashMap<Integer, Double> dv = new ConcurrentHashMap<>();
-				for (int i = 0; i < PathsLoader.getEndtYear() - PathsLoader.getStartYear() + 1; i++) {
+				for (int i = 0; i < ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 1; i++) {
 					if (i < vect.size()) {
-						dv.put(i+PathsLoader.getStartYear(), Tools.sToD(vect.get(i)));
+						dv.put(i+ProjectLoader.getStartYear(), Tools.sToD(vect.get(i)));
 					}
 				}
 				R.getServicesHash().get(serviceName).setWeights(dv);

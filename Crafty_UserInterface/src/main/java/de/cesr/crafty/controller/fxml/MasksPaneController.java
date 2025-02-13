@@ -7,7 +7,8 @@ import java.util.List;
 
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
+import de.cesr.crafty.main.FxMain;
 import de.cesr.crafty.model.CellsSet;
 import de.cesr.crafty.utils.graphical.MousePressed;
 import de.cesr.crafty.utils.graphical.Tools;
@@ -18,7 +19,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -28,8 +28,7 @@ import javafx.stage.Screen;
 public class MasksPaneController {
 	@FXML
 	private VBox boxMaskTypes;
-	@FXML
-	ScrollPane scroll;
+
 	public static MaskRestrictionDataLoader Maskloader = new MaskRestrictionDataLoader();
 	static ArrayList<CheckBox> radioListOfMasks;
 	// cell.getMaskTyp->hash(owner_competitor-> true or false)
@@ -50,14 +49,10 @@ public class MasksPaneController {
 	@SuppressWarnings("unchecked")
 	public void initialize() {
 		radioListOfMasks = new ArrayList<>();
-		scroll.setPrefHeight(Screen.getPrimary().getBounds().getHeight() * .9);
-		// Maskloader.MaskAndRistrictionLaoder();
-		MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
-		MaskRestrictionDataLoader.hashMasksPaths.keySet().forEach(n -> {
-			CheckBox r = new CheckBox(n);
-			radioListOfMasks.add(r);
-			boxMaskTypes.getChildren().add(r);
-		});
+
+
+		initializeBoxs();
+
 		circularPlot = new CircularPlot[radioListOfMasks.size()];
 		TitledPane[] T = new TitledPane[radioListOfMasks.size()];
 		radioListOfMasks.forEach(r -> {
@@ -65,36 +60,28 @@ public class MasksPaneController {
 				MaskRestrictionDataLoader.maskAndRistrictionLaoder(r.getText());
 				int i = radioListOfMasks.indexOf(r);
 				if (r.isSelected()) {
-					List<String> listOfyears = filePathToYear(r.getText());
-					ChoiceBox<String> boxYears = Tools.choiceBox(listOfyears);
-					// boxYearslist.add(boxYears);
+					// initial nodes
+					ChoiceBox<String> boxYears = Tools.choiceBox(filePathToYear(r.getText()));
 					ArrayList<CheckBox> radioListOfAFTs = new ArrayList<>();
+					VBox boxOfAftRadios = initilazeAFTboxs(radioListOfAFTs);
 					ArrayList<PlotItem> itemsList = initPlotItem();
-					HashMap<String, Boolean> restrictionsRul = Maskloader.restrictionsInitialize(r.getText());
-					boxYears.setOnAction(e2 -> {
-						Maskloader.CellSetToMaskLoader(r.getText(), (int) Tools.sToD(boxYears.getValue()));
-						CellsSet.colorMap("Mask");
-						Maskloader.updateRestrections(r.getText(), boxYears.getValue(), restrictionsRul);
-						radioListOfAFTs.get(0).setSelected(true);
-					});
 
-					VBox boxOfAftRadios = new VBox();
-					AFTsLoader.getAftHash().keySet().forEach(n -> {
-						CheckBox radio = new CheckBox(n);
-						radioListOfAFTs.add(radio);
-						boxOfAftRadios.getChildren().add(radio);
-					});
-
-					MaskRestrictionDataLoader.restrictions.put(r.getText(), restrictionsRul);
-
-					radioListOfAFTs.get(0).setSelected(true);
+					MaskRestrictionDataLoader.restrictionsInitialize(r.getText());
+					HashMap<String, Boolean> restrictionsRul = MaskRestrictionDataLoader.restrictions.get(r.getText());
+					// default circular plot
 					List<PlotItem> items = circularPlot(itemsList, restrictionsRul, radioListOfAFTs.get(0).getText(),
 							true);
 					circularPlot[i] = CircularPlotBuilder.create().items(items).decimals(0).connectionOpacity(0.9)
 							.minorTickMarksVisible(false).build();
+
+					boxYears.setOnAction(e2 -> {
+						yearAction(r, boxYears, restrictionsRul, radioListOfAFTs);
+					});
 					boxYears.fireEvent(e);
+
 					VBox boxMask = new VBox();
 					T[i] = Tools.T("  Possible transitions for " + r.getText() + " Restriction ", true, boxMask);
+					
 					Text text = Tools.text(
 							"Select the AFT (landowner) to display the possible transitions from this AFT to other AFTs (competitors):",
 							Color.BLUE);
@@ -111,24 +98,59 @@ public class MasksPaneController {
 					int place = boxMaskTypes.getChildren().indexOf(r) + 1;
 					boxMaskTypes.getChildren().add(place, T[i]);
 				} else {
-					Maskloader.cleanMaskType(r.getText());
-					MaskRestrictionDataLoader.restrictions.remove(r.getText());
-					boxMaskTypes.getChildren().removeAll(T[i]);
-					MaskRestrictionDataLoader.hashMasksPaths.remove(r.getText());
-
+					removeMask(r, T[i]);
 				}
-				if (iscolored)
+				if (iscolored) {
 					CellsSet.colorMap("Mask");
+				}
 			});
 		});
 		initialiseMask();
+		
+		double scale = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY);
+		boxMaskTypes.setMaxHeight(scale);
+		boxMaskTypes.setMinHeight(scale);
+		boxMaskTypes.setPrefHeight(scale);
+	}
 
+	private void removeMask(CheckBox r, TitledPane T) {
+		Maskloader.cleanMaskType(r.getText());
+		MaskRestrictionDataLoader.restrictions.remove(r.getText());
+		boxMaskTypes.getChildren().removeAll(T);
+		MaskRestrictionDataLoader.hashMasksPaths.remove(r.getText());
+	}
+
+	private void initializeBoxs() {
+		MaskRestrictionDataLoader.hashMasksPaths.keySet().forEach(maskName -> {
+			CheckBox r = new CheckBox(maskName);
+			radioListOfMasks.add(r);
+			boxMaskTypes.getChildren().add(r);
+		});
+	}
+
+	private VBox initilazeAFTboxs(ArrayList<CheckBox> radioListOfAFTs) {
+		VBox boxOfAftRadios = new VBox();
+		AFTsLoader.getAftHash().keySet().forEach(n -> {
+			CheckBox radio = new CheckBox(n);
+			radioListOfAFTs.add(radio);
+			boxOfAftRadios.getChildren().add(radio);
+		});
+		radioListOfAFTs.get(0).setSelected(true);
+		return boxOfAftRadios;
+	}
+
+	private void yearAction(CheckBox r, ChoiceBox<String> boxYears, HashMap<String, Boolean> restrictionsRul,
+			ArrayList<CheckBox> radioListOfAFTs) {
+		Maskloader.CellSetToMaskLoader(r.getText(), (int) Tools.sToD(boxYears.getValue()));
+		CellsSet.colorMap("Mask");
+		Maskloader.updateRestrections(r.getText(), boxYears.getValue(), restrictionsRul);
+		radioListOfAFTs.get(0).setSelected(true);
 	}
 
 	private List<String> filePathToYear(String maskType) {
 		List<String> years = new ArrayList<>();
 		MaskRestrictionDataLoader.hashMasksPaths.get(maskType).forEach(path -> {
-			for (int i = PathsLoader.getStartYear(); i < PathsLoader.getEndtYear(); i++) {
+			for (int i = ProjectLoader.getStartYear(); i < ProjectLoader.getEndtYear(); i++) {
 				if (path.toString().contains(i + "")) {
 					years.add(i + "");
 					break;
@@ -159,7 +181,7 @@ public class MasksPaneController {
 
 	private ArrayList<PlotItem> initPlotItem() {
 		ArrayList<PlotItem> itemsList = new ArrayList<>();
-		TabPaneController.cellsLoader.AFtsSet.forEach(a -> {
+		ProjectLoader.cellsLoader.AFtsSet.forEach(a -> {
 			itemsList.add(new PlotItem(a.getLabel(), 10, a.getColor()));
 		});
 		return itemsList;

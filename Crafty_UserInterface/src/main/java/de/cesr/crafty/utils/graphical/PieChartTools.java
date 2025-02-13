@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.controller.fxml.TabPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.model.CellsSet;
-//import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ColorPicker;
@@ -23,7 +22,6 @@ public class PieChartTools {
 	public void updateChart(ConcurrentHashMap<String, Double> hash, PieChart chart) {
 
 		chart.getData().clear();
-//		data.clear();
 		if (hash != null)
 			hash.forEach((k, v) -> {
 				PieChart.Data d = new PieChart.Data(k, v);
@@ -54,7 +52,7 @@ public class PieChartTools {
 			}
 		}
 
-		legendColorPicker(TabPaneController.cellsLoader,color, chart);
+		legendColorPicker(ProjectLoader.cellsLoader,color, chart);
 
 	}
 	

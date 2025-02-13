@@ -10,10 +10,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.transform.Scale;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -23,40 +23,48 @@ import javafx.stage.Stage;
  */
 
 public class FxMain extends Application {
-	public static Camera camera = new Camera();
-	public static SubScene subScene;
-	public static Group root = new Group();
-	public static ImageView imageView = new ImageView();
-	public static Stage primaryStage;
-	public static AnchorPane anchor = new AnchorPane();
-	public static Scene scene = new Scene(anchor);
+
 	private static final CustomLogger LOGGER = new CustomLogger(FxMain.class);
+
+	public static Stage primaryStage;
+	public static Scene scene;
+	public static VBox topLevelBox = new VBox();
+	public static BorderPane anchor = new BorderPane();
+	public static Camera camera = new Camera();
+	public static double graphicScaleX, graphicScaleY;
+	public static final double defaultWidth = 2800, defaultHeight = 1550;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		LOGGER.info("--Starting CRAFTY execution--");
-		double w = Screen.getPrimary().getBounds().getWidth();
-		double h = Screen.getPrimary().getBounds().getHeight();
 		FxMain.primaryStage = primaryStage;
-		subScene = new SubScene(root, w * .45, h * .95);
-		InputStream imageStream = getClass().getResourceAsStream("/graphic/craftylogo.png");
-		imageView = Tools.logo(imageStream, w / 3, h / 3, 0.65);
-		anchor.getChildren().add(imageView);
+		graphicScaleX = Screen.getPrimary().getBounds().getWidth() / defaultWidth;
+		graphicScaleY = Screen.getPrimary().getBounds().getHeight() / defaultHeight;
 
-		primaryStage.setTitle(" CRAFTY User Interface ");
+		topLevelBox.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/MenuBar.fxml")));
+		topLevelBox.getChildren().add(anchor);
+		scaler();
+		addLogo();
 
-		VBox vbox = new VBox();
-
-		vbox.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/MenuBar.fxml")));
-
-		vbox.getChildren().add(anchor);
-		scene = new Scene(vbox, w * .8, h * .8);
+		scene = new Scene(new Group(topLevelBox));
 		scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
+		primaryStage.setTitle(" CRAFTY User Interface ");
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(event -> Platform.exit());
+	}
+
+	private void addLogo() {
+		InputStream imageStream = getClass().getResourceAsStream("/graphic/craftylogo.png");
+		ImageView imageView = Tools.logo(imageStream, 1);
+		anchor.setCenter(imageView);
+	}
+
+	private static void scaler() {
+		Scale scaleTransform = new Scale(graphicScaleX, graphicScaleX, 0, 0);
+		anchor.getTransforms().add(scaleTransform);
 	}
 
 	public static void main(String[] args) {

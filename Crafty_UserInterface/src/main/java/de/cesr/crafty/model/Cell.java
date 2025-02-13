@@ -27,7 +27,7 @@ public class Cell extends AbstractCell {
 	}
 
 	// ----------------------------------//
-	public double productivity(Manager a, String service) {
+	public double productivity(Aft a, String service) {
 		if (a == null || !a.isInteract())
 			return 0;
 		double product = capitals.entrySet().stream()
@@ -57,7 +57,7 @@ public class Cell extends AbstractCell {
 		});
 	}
 
-	void giveUp(RegionalModelRunner r, ConcurrentHashMap<Manager, Double> distributionMean) {
+	void giveUp(RegionalModelRunner r, ConcurrentHashMap<Aft, Double> distributionMean) {
 		if (getOwner() != null && getOwner().isInteract()) {
 			double utility = Competitiveness.utility(this, owner, r);
 			double averageutility = distributionMean.get(getOwner());

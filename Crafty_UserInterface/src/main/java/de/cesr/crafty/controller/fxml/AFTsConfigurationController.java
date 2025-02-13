@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.model.CellsSet;
-import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.utils.analysis.CapitalsAnalyzer;
 import de.cesr.crafty.utils.file.CsvTools;
@@ -37,13 +37,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
@@ -75,82 +73,42 @@ public class AFTsConfigurationController {
 	private Button ResetBtn;
 	@FXML
 	private Button AFTAnalisisBtn;
-	@FXML
-	private TableView<ObservableList<String>> productivityTable;
-	@FXML
-	private Label SNoiseMaxS;
-	@FXML
-	private Slider GiveInSDS;
-	@FXML
-	private Slider GiveUpMeanS;
-	@FXML
-	private Slider GiveUpSDS;
-	@FXML
-	private Slider SNoiseMinS;
-	@FXML
-	private Slider ServiceLevelNoiseMaxS;
-	@FXML
-	private Slider GiveUpProbabiltyS;
-	@FXML
-	private TextField GiveInMeanT;
-	@FXML
-	private TextField GiveInSDT;
-	@FXML
-	private TextField GiveUpMeanT;
-	@FXML
-	private TextField GiveUpSDT;
-	@FXML
-	private TextField SNoiseMinT;
-	@FXML
-	private TextField ServiceLevelNoiseMaxT;
-	@FXML
-	private TextField GiveUpProbabiltyT;
-	@FXML
-	private Slider GiveInMeanS;
-	@FXML
-	private BarChart<String, Number> histogramePlevel;
-	@FXML
-	private TableView<ObservableList<String>> sensitivtyTable;
-	@FXML
-	private GridPane radarChartsGridPane;
-	@FXML
-	private GridPane gridBehevoirButtons;
-	@FXML
-	private ScrollPane scrollgrid;
-	@FXML
-	private ScrollPane scrollProduction;
 
-	public CellsLoader M;
 	NewAFT_Controller newAftPane;
 	RadioButton plotInitialDistrebution = new RadioButton("  Distribution map ");
 	RadioButton plotOptimalLandon = new RadioButton("Cumulative expected service productivity");
-	NewWindow Analysewin = new NewWindow();;
-	Button productionFire = new Button();
-	Button sensitivtyFire = new Button();
+	NewWindow Analysewin = new NewWindow();
 	private boolean isNotInitialsation = false;
+
+	private static AFTsConfigurationController instance;
+
+	public AFTsConfigurationController() {
+		instance = this;
+	}
+
+	public static AFTsConfigurationController getInstance() {
+		return instance;
+	}
+
+	public ChoiceBox<String> getAFTChoisButton() {
+		return AFTChoisButton;
+	}
 
 	public void initialize() {
 		System.out.println("initialize " + getClass().getSimpleName());
-		M = TabPaneController.cellsLoader;
 		newAftPane = new NewAFT_Controller(this);
-		sensitivtyTable.setEditable(true);
-		productivityTable.setEditable(true);
+//		sensitivtyTable.setEditable(true);
+//		productivityTable.setEditable(true);
 
-		ConcurrentHashMap<String, Manager> InteractAFTs = new ConcurrentHashMap<>();
+		ConcurrentHashMap<String, Aft> InteractAFTs = new ConcurrentHashMap<>();
 		AFTsLoader.getActivateAFTsHash().entrySet().stream().filter(entry -> entry.getValue().isInteract())
 				.forEach(entry -> InteractAFTs.put(entry.getKey(), entry.getValue()));
 		Tools.choiceBox(AFTChoisButton, new ArrayList<>(InteractAFTs.keySet()));
 
-		sensitivtyFire.setOnAction(e2 -> {
-			updateSensitivty(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), radarChartsGridPane,
-					sensitivtyTable);
-		});
-		productionFire.setOnAction(e3 -> {
-			updateProduction(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), productivityTable);
-			Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
-					AFTsLoader.getAftHash().get(AFTChoisButton.getValue()).getProductivityLevel());
-
-		});
+//		sensitivtyFire.setOnAction(e2 -> {
+//			updateSensitivty(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), radarChartsGridPane,
+//					sensitivtyTable);
+//		});
 
 		plotOptimalLandon.setOnAction(e2 -> {
 			plotInitialDistrebution.setSelected(false);
@@ -159,13 +117,13 @@ public class AFTsConfigurationController {
 		isNotInitialsation = true;
 
 		// scrollgrid.setPrefHeight(Screen.getPrimary().getBounds().getHeight()*0.8);
-		radarChartsGridPane.prefWidthProperty().bind(scrollgrid.widthProperty());
+		// radarChartsGridPane.prefWidthProperty().bind(scrollgrid.widthProperty());
 
 	}
 
 	@FXML
 	public void choiceAgnetSetOnAction() {
-		Manager a = AFTsLoader.getAftHash().get(AFTChoisButton.getValue());
+		Aft a = AFTsLoader.getAftHash().get(AFTChoisButton.getValue());
 		AFTNameLabel.setText(a.getCompleteName());
 		rectangleColor.setFill(a.getColor());
 		if (isNotInitialsation) {
@@ -173,29 +131,27 @@ public class AFTsConfigurationController {
 			CellsSet.showOnlyOneAFT(a);
 
 		}
+		BarChart<String, Number> histogramePlevel = AFTsProductionController.getInstance().getHistogramePlevel();
 		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
 				a.getProductivityLevel());
-		ubdateRadarchart(a, radarChartsGridPane);
-		AgentParametre(a, gridBehevoirButtons);
-		CSVTableView.updateTableView(sensitivityTable(a), x -> sensitivtyFire.fire(), sensitivtyTable);
-		CSVTableView.updateTableView(productionTable(a), x -> productionFire.fire(), productivityTable);
+		VBox box = AFTsProductionController.getInstance().getBoxCharts();
+		box.getChildren().clear();
+		LineChart<Number, Number> chart1 = AFTsProductionController.productivitySampleChart(a.getLabel());
+		LineChart<Number, Number> chart2 = AFTsProductionController.productivitySampleChartIntensity(a.getLabel());
+		if (chart1 != null)
+			box.getChildren().add(chart1);
+		if (chart2 != null)
+			box.getChildren().add(chart2);
 	}
 
-	void colorland(Manager a) {
+	void colorland(Aft a) {
 		CellsLoader.hashCell.values().forEach(C -> {
 			// C.landStored(a);
 		});
 		CellsSet.colorMap("tmp");
 	}
 
-	static void updateProduction(Manager newAFT, TableView<ObservableList<String>> tabV) {
-		String[][] tab = CSVTableView.tableViewToArray(tabV);
-		for (int i = 0; i < tab[0].length; i++) {
-			newAFT.getProductivityLevel().put(tab[0][i], Tools.sToD(tab[1][i]));
-		}
-	}
-
-	static void updateSensitivty(Manager newAFT, GridPane grid, TableView<ObservableList<String>> tabV) {
+	static void updateSensitivty(Aft newAFT, GridPane grid, TableView<ObservableList<String>> tabV) {
 		String[][] tab = CSVTableView.tableViewToArray(tabV);
 		for (int i = 1; i < tab.length; i++) {
 			for (int j = 1; j < tab[0].length; j++) {
@@ -222,19 +178,6 @@ public class AFTsConfigurationController {
 	@FXML
 	public void saveModefication() {
 		// creatCsvFiles(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), "");
-
-		String thisAFT = AFTChoisButton.getValue().replace("Int", "").replace("VExt", "").replace("Ext", "");
-		List<Manager> aList = new ArrayList<>();
-		AFTsLoader.getAftHash().forEach((label, agent) -> {
-			String AFTtype = label.replace("Int", "").replace("VExt", "").replace("Ext", "");
-			if (thisAFT.equals(AFTtype))
-				aList.add(agent);
-		});
-		Map<String, ArrayList<Double>> data = AftAnalyzer.productivitySample(1000, 100, aList.toArray(new Manager[0]));
-		AftAnalyzer.generateChart(thisAFT, data);
-
-		Map<String, ArrayList<Double>> data2 =  AftAnalyzer.productivitySample(1000, 100, AFTsLoader.getAftHash().get(AFTChoisButton.getValue()));
-		AftAnalyzer.generateChart(AFTChoisButton.getValue(), data2);
 	}
 
 	@FXML
@@ -243,7 +186,7 @@ public class AFTsConfigurationController {
 		Analysewin.creatwindows("", v);
 	};
 
-	static void ubdateRadarchart(Manager newAFT, GridPane grid) {
+	static void ubdateRadarchart(Aft newAFT, GridPane grid) {
 		grid.getChildren().clear();
 		int j = 0, k = 0, nbrColumn = 4;
 
@@ -266,7 +209,7 @@ public class AFTsConfigurationController {
 
 	}
 
-	public static YChart<ValueChartItem> ychart(Pane box, Manager agent, String servicesName) {
+	public static YChart<ValueChartItem> ychart(Pane box, Aft agent, String servicesName) {
 		List<ValueChartItem> listvalues = new ArrayList<>();
 		CellsLoader.getCapitalsList().forEach(cname -> {
 			double y = Math.min(100, agent.getSensitivity().get(cname + "_" + servicesName) * 100);
@@ -287,7 +230,7 @@ public class AFTsConfigurationController {
 		return chart;
 	}
 
-	String[][] sensitivityTable(Manager a) {
+	String[][] sensitivityTable(Aft a) {
 		String[][] sensetivtyTable = new String[ServiceSet.getServicesList().size()
 				+ 1][CellsLoader.getCapitalsList().size() + 1];
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
@@ -302,7 +245,7 @@ public class AFTsConfigurationController {
 		return sensetivtyTable;
 	}
 
-	String[][] productionTable(Manager a) {
+	String[][] productionTable(Aft a) {
 		String[][] production = new String[2][ServiceSet.getServicesList().size()];
 		for (int j = 0; j < ServiceSet.getServicesList().size(); j++) {
 			production[0][j] = ServiceSet.getServicesList().get(j);
@@ -311,71 +254,7 @@ public class AFTsConfigurationController {
 		return production;
 	}
 
-	static void AgentParametre(Manager agent, GridPane grid) {
-
-		grid.getChildren().clear();
-
-		Slider[] parametrSlider = new Slider[7];
-		TextField[] parametrValue = new TextField[7];
-		parametrSlider[0] = new Slider(0, 100, agent.getGiveInMean());
-		parametrSlider[1] = new Slider(0, 100, agent.getGiveInSD());
-		parametrSlider[2] = new Slider(0, 100, agent.getGiveUpMean());
-		parametrSlider[3] = new Slider(0, 100, agent.getGiveUpSD());
-		parametrSlider[4] = new Slider(0, 1, agent.getServiceLevelNoiseMin());
-		parametrSlider[5] = new Slider(0, 1, agent.getServiceLevelNoiseMax());
-		parametrSlider[6] = new Slider(0, 1, agent.getGiveUpProbabilty());
-
-		grid.add(new Text(" GiveIn Mean "), 0, 0);
-		grid.add(new Text(" GiveIn Standard Deviation"), 0, 1);
-		grid.add(new Text(" GiveUp Mean "), 0, 2);
-		grid.add(new Text(" GiveUp Standard Deviation"), 0, 3);
-		grid.add(new Text(" Service Level Noise Min"), 0, 4);
-		grid.add(new Text(" Service Level Noise Max"), 0, 5);
-		grid.add(new Text(" GiveUp Probabilty"), 0, 6);
-		for (int i = 0; i < parametrValue.length; i++) {
-			parametrValue[i] = new TextField(parametrSlider[i].getValue() + "");
-			grid.add(parametrSlider[i], 1, i);
-			grid.add(parametrValue[i], 2, i);
-
-			int k = i;
-			parametrSlider[i].valueProperty().addListener((ov, oldval, newval) -> {
-				parametrValue[k].setText("" + parametrSlider[k].getValue());
-				switch (k) {
-				case 0:
-					agent.setGiveInMean(parametrSlider[k].getValue());
-					break;
-				case 1:
-					agent.setGiveInSD(parametrSlider[k].getValue());
-					break;
-				case 2:
-					agent.setGiveUpMean(parametrSlider[k].getValue());
-					break;
-				case 3:
-					agent.setGiveUpSD(parametrSlider[k].getValue());
-					break;
-				case 4:
-					agent.setServiceLevelNoiseMin(parametrSlider[k].getValue());
-					break;
-				case 5:
-					agent.setServiceLevelNoiseMax(parametrSlider[k].getValue());
-					break;
-				case 6:
-					agent.setGiveUpProbabilty(parametrSlider[k].getValue());
-					break;
-				default:
-					break;
-				}
-			});
-			parametrValue[i].setOnKeyPressed(event -> {
-				if (event.getCode().equals(KeyCode.ENTER)) {
-					parametrSlider[k].setValue(Tools.sToD(parametrValue[k].getText()));
-					parametrSlider[k].fireEvent(event);
-				}
-			});
-		}
-	}
-
-	static void creatCsvFiles(Manager a, String descreption) {
+	static void creatCsvFiles(Aft a, String descreption) {
 		String[][] tab = new String[ServiceSet.getServicesList().size() + 1][CellsLoader.getCapitalsList().size() + 2];
 		tab[0][0] = "";
 		tab[0][CellsLoader.getCapitalsList().size() + 1] = "Production";
@@ -391,8 +270,9 @@ public class AFTsConfigurationController {
 			}
 		}
 
-		String folder = PathTools.fileFilter(File.separator + "production" + File.separator, PathsLoader.getScenario())
-				.get(0).toFile().getParent();
+		String folder = PathTools
+				.fileFilter(File.separator + "production" + File.separator, ProjectLoader.getScenario()).get(0).toFile()
+				.getParent();
 		CsvTools.writeCSVfile(tab, Paths.get(folder + File.separator + a.getLabel() + ".csv"));
 		String[][] tab2 = new String[2][7];
 		tab2[0] = "givingInDistributionMean,givingInDistributionSD,givingUpDistributionMean,givingUpDistributionSD,serviceLevelNoiseMin,serviceLevelNoiseMax,givingUpProb"
@@ -404,7 +284,7 @@ public class AFTsConfigurationController {
 		tab2[1][4] = a.getServiceLevelNoiseMin() + "";
 		tab2[1][5] = a.getServiceLevelNoiseMax() + "";
 		tab2[1][6] = a.getGiveUpProbabilty() + "";
-		String folder2 = PathTools.fileFilter(File.separator + "agents" + File.separator, PathsLoader.getScenario())
+		String folder2 = PathTools.fileFilter(File.separator + "agents" + File.separator, ProjectLoader.getScenario())
 				.get(0).toFile().getParent();
 		CsvTools.writeCSVfile(tab2, Paths.get(folder2 + File.separator + "AftParams_" + a.getLabel() + ".csv"));
 		// add also in csv folder

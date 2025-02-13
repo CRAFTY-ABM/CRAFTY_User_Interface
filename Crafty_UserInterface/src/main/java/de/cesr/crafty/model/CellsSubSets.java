@@ -33,8 +33,8 @@ public class CellsSubSets {
 		});
 	}
 
-	static Collection<Manager> detectNeighboringAFTs(Cell c) {
-		Set<Manager> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
+	static Collection<Aft> detectNeighboringAFTs(Cell c) {
+		Set<Aft> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
 		Set<Cell> neighborhoodCells = getMooreNeighborhood(c);
 		neighborhoodCells.forEach(vc -> {
 			if (vc.getOwner() != null && vc.getOwner().isInteract())
@@ -57,8 +57,8 @@ public class CellsSubSets {
 		return neighborhood;
 	}
 
-	static Collection<Manager> detectExtendedNeighboringAFTs(Cell c, int r) {
-		Set<Manager> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
+	static Collection<Aft> detectExtendedNeighboringAFTs(Cell c, int r) {
+		Set<Aft> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
 		Set<Cell> neighborhoodCells = getExtendedMooreNeighborhood(c, r);
 		neighborhoodCells.forEach(vc -> {
 			if (vc.getOwner() != null && vc.getOwner().isInteract())

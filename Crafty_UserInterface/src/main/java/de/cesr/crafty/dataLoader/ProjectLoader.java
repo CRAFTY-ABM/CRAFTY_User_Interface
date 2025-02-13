@@ -1,5 +1,8 @@
 package de.cesr.crafty.dataLoader;
 
+import de.cesr.crafty.cli.ConfigLoader;
+import de.cesr.crafty.model.CellsSet;
+import de.cesr.crafty.model.RegionClassifier;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.file.PathTools;
 import de.cesr.crafty.utils.file.ReaderFile;
@@ -7,6 +10,7 @@ import de.cesr.crafty.utils.graphical.Tools;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,8 +19,8 @@ import java.util.HashMap;
  *
  */
 
-public final class PathsLoader {
-	private static final CustomLogger LOGGER = new CustomLogger(PathsLoader.class);
+public final class ProjectLoader {
+	private static final CustomLogger LOGGER = new CustomLogger(ProjectLoader.class);
 	private static int startYear;
 	private static int endtYear;
 	private static int currentYear = startYear;
@@ -27,11 +31,27 @@ public final class PathsLoader {
 	static ArrayList<Path> allfilesPathInData;
 	private static String scenario;
 	public static String WorldName = "";
+	
+	public static CellsLoader cellsLoader = new CellsLoader();
 
-	public static void initialisation(Path p) {
+	public static void pathInitialisation(Path p) {
 		projectPath = p;
 		allfilesPathInData = PathTools.findAllFiles(projectPath);
 		initialSenarios();
+	}
+
+	public static void modelInitialisation() {
+		pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+		setScenario(ConfigLoader.config.scenario);
+		
+		CellsLoader.loadCapitalsList();
+		ServiceSet.loadServiceList();
+		cellsLoader.loadMap();
+		RegionClassifier.initialation();
+		ServiceWeightLoader.updateWorldWeight();
+		AFTsLoader.hashAgentNbrRegions();
+		CellsSet.setCellsSet(cellsLoader);
+		MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
 	}
 
 	static void initialSenarios() {
@@ -61,7 +81,7 @@ public final class PathsLoader {
 	}
 
 	public static void setStartYear(int startYear) {
-		PathsLoader.startYear = startYear;
+		ProjectLoader.startYear = startYear;
 	}
 
 	public static int getEndtYear() {
@@ -69,7 +89,7 @@ public final class PathsLoader {
 	}
 
 	public static void setEndtYear(int endtYear) {
-		PathsLoader.endtYear = endtYear;
+		ProjectLoader.endtYear = endtYear;
 	}
 
 	public static int getCurrentYear() {
@@ -77,7 +97,7 @@ public final class PathsLoader {
 	}
 
 	public static void setCurrentYear(int currentYear) {
-		PathsLoader.currentYear = currentYear;
+		ProjectLoader.currentYear = currentYear;
 	}
 
 	public static Path getProjectPath() {
@@ -93,7 +113,7 @@ public final class PathsLoader {
 	}
 
 	public static void setAllfilesPathInData(ArrayList<Path> allfilesPathInData) {
-		PathsLoader.allfilesPathInData = allfilesPathInData;
+		ProjectLoader.allfilesPathInData = allfilesPathInData;
 	}
 
 	public static String getScenario() {
@@ -101,7 +121,7 @@ public final class PathsLoader {
 	}
 
 	public static void setScenario(String scenario) {
-		PathsLoader.scenario = scenario;
+		ProjectLoader.scenario = scenario;
 		String[] temp = scenariosHash.get(scenario).split("_");
 		startYear = (int) Tools.sToD(temp[0]);
 		endtYear = (int) Tools.sToD(temp[1]);

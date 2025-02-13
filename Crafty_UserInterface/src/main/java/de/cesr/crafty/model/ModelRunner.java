@@ -5,9 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.cesr.crafty.cli.Config;
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.controller.fxml.MasksPaneController;
-import de.cesr.crafty.controller.fxml.TabPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.output.Listener;
 import de.cesr.crafty.utils.analysis.Tracker;
@@ -36,11 +35,11 @@ public class ModelRunner {
 	}
 
 	public void step() {
-		int year = Math.min(Math.max(PathsLoader.getCurrentYear(), PathsLoader.getStartYear()),
-				PathsLoader.getEndtYear());
+		int year = Math.min(Math.max(ProjectLoader.getCurrentYear(), ProjectLoader.getStartYear()),
+				ProjectLoader.getEndtYear());
 
 		totalSupply = new ConcurrentHashMap<>();
-		TabPaneController.cellsLoader.updateCapitals(year);
+		ProjectLoader.cellsLoader.updateCapitals(year);
 		AFTsLoader.updateAFTs();
 		MasksPaneController.Maskloader.CellSetToMaskLoader(year);
 		aggregateTotalSupply();
@@ -54,9 +53,9 @@ public class ModelRunner {
 
 	private void mapSynchronisation() {
 		if (Config.mapSynchronisation
-				&& ((PathsLoader.getCurrentYear() - PathsLoader.getStartYear()) % Config.mapSynchronisationGap == 0
-						|| PathsLoader.getCurrentYear() == PathsLoader.getEndtYear())) {
-			CellsSet.colorMap(colorDisplay);
+				&& ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % Config.mapSynchronisationGap == 0
+						|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
+			CellsSet.colorMap(colorDisplay);// "Categories"
 		}
 	}
 
@@ -93,6 +92,7 @@ public class ModelRunner {
 	}
 
 	private static void RegionalDemandEquilibrium_calculation() {
+		ProjectLoader.cellsLoader.updateCapitals(ProjectLoader.getStartYear());
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.initialDSEquilibriumFactorCalculation();
 		});

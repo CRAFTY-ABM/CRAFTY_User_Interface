@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 
 import dataLoader.CellsLoaderTest;
 import de.cesr.crafty.model.Cell;
-import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.model.ModelRunner;
 
 class ModelRunnerTest {
@@ -56,8 +56,8 @@ class ModelRunnerTest {
 		// owner, String service)
 		Cell cell1 = mock(Cell.class);
 		Cell cell2 = mock(Cell.class);
-		Manager Owner1 = mock(Manager.class);
-		Manager Owner2 = mock(Manager.class);
+		Aft Owner1 = mock(Aft.class);
+		Aft Owner2 = mock(Aft.class);
 
 		Mockito.when(cell1.getOwner()).thenReturn(Owner1);
 		Mockito.when(cell2.getOwner()).thenReturn(Owner2);

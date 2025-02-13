@@ -83,7 +83,7 @@ public class ReaderFile {
 		try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
 			String[] line1 = br.readLine().split(",");
 			for (int i = 0; i < line1.length; i++) {
-				indexof.put(line1[i].replace("Service:", "").replace("\"", "").toUpperCase(), i);
+				indexof.put(line1[i].toUpperCase(), i);
 			}
 
 			String line;
@@ -126,13 +126,16 @@ public class ReaderFile {
 	}
 
 	static void associateCapitalsToCells(ConcurrentHashMap<String, Integer> indexof, String data) {
-		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
-		int x = (int) Tools.sToD(immutableList.get(indexof.get("X")));
-		int y = (int) Tools.sToD(immutableList.get(indexof.get("Y")));
-		CellsLoader.getCapitalsList().forEach(capital_name -> {
-			double capital_value = Tools.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-			CellsSet.getCellsSet().getCell(x, y).getCapitals().put(capital_name, capital_value);
-		});
+	    List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
+	    int x = (int) Tools.sToD(immutableList.get(indexof.get("X")));
+	    int y = (int) Tools.sToD(immutableList.get(indexof.get("Y")));
+	    CellsLoader.getCapitalsList().forEach(capital_name -> {
+	        if (indexof.get(capital_name.toUpperCase()) == null) {
+	            CellsSet.getCellsSet().getCell(x, y).getCapitals().put(capital_name, 0.);
+	        }else {
+	        double capital_value = Tools.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
+	        CellsSet.getCellsSet().getCell(x, y).getCapitals().put(capital_name, capital_value);}
+	    });
 	}
 
 	static void createCells(CellsLoader cells, ConcurrentHashMap<String, Integer> indexof, String data) {

@@ -6,9 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.cesr.crafty.controller.fxml.TabPaneController;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -33,7 +32,7 @@ public class LineChartTools {
 		if (hash == null) {
 			return;
 		}
-		configurexAxis(lineChart, PathsLoader.getStartYear(), PathsLoader.getEndtYear());
+		configurexAxis(lineChart, ProjectLoader.getStartYear(), ProjectLoader.getEndtYear());
 		lineChart.getData().clear();
 		Series<Number, Number>[] series = new XYChart.Series[hash.size()];
 
@@ -103,7 +102,7 @@ public class LineChartTools {
 					K.getAndIncrement();
 				}
 			});
-			if (TabPaneController.cellsLoader != null)
+			if (ProjectLoader.cellsLoader != null)
 				labelcolor( lineChart);
 			lineChart.setCreateSymbols(false);
 		}

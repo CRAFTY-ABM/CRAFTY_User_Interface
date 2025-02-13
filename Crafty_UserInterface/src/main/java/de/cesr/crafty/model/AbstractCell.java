@@ -16,7 +16,7 @@ public abstract class AbstractCell {
 	ConcurrentHashMap<String, Double> capitals = new ConcurrentHashMap<>();
 	ConcurrentHashMap<String, Double> currentProductivity = new ConcurrentHashMap<>();
 	String CurrentRegion;
-	Manager owner;
+	Aft owner;
 	protected Color color = Color.TRANSPARENT;
 	private String maskType;
 
@@ -60,11 +60,11 @@ public abstract class AbstractCell {
 		this.y = y;
 	}
 
-	public Manager getOwner() {
+	public Aft getOwner() {
 		return owner;
 	}
 
-	public void setOwner(Manager owner) {
+	public void setOwner(Aft owner) {
 		this.owner = owner;
 	}
 
@@ -91,12 +91,14 @@ public abstract class AbstractCell {
 	public void setID(int index) {
 		this.id = index;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Cell [index=" + id + ", x=" + x + ", y=" + y + ", CurrentRegion=" + CurrentRegion + "\n, Mask="
-				+ getMaskType() + ", getOwner()=" + (getOwner() != null ? getOwner().getLabel() : "Unmanaged")
-				+ ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" + getCurrentProductivity() + "]";
+				+ getMaskType() + ", getOwner()=" + (getOwner() != null ? getOwner().getLabel() : "Unmanaged") 
+				+(getOwner() != null ? getOwner().category: "null") 
+			//	+ ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" + getCurrentProductivity() 
+				+ "]";
 	}
 
 }

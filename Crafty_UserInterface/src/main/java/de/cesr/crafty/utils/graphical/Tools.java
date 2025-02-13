@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,6 +23,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Scale;
+import javafx.stage.Screen;
 
 import java.util.stream.Collectors;
 
@@ -68,7 +71,6 @@ public class Tools {
 		return choice;
 	}
 
-
 	public static void choiceBox(ChoiceBox<String> choice, List<String> list) {
 		if (list.size() == 0) {
 			list.add("Empty");
@@ -105,7 +107,8 @@ public class Tools {
 	}
 
 	public static double sToD(String str) {
-		if(str==null) return 0;
+		if (str == null)
+			return 0;
 		try {
 			return Double.parseDouble(str);
 		} catch (NumberFormatException e) {
@@ -129,9 +132,9 @@ public class Tools {
 		int insertIndex = indexPath.get(indexPath.size() - 1);
 
 		if (currentParent instanceof Pane) {
-		    ((Pane) currentParent).getChildren().set(insertIndex, child);
+			((Pane) currentParent).getChildren().set(insertIndex, child);
 		} else if (currentParent instanceof Group) {
-		    ((Group) currentParent).getChildren().set(insertIndex, child);
+			((Group) currentParent).getChildren().set(insertIndex, child);
 		} else {
 			LOGGER.error("The parent is neither a Pane nor a Group, cannot modify children.");
 		}
@@ -162,16 +165,28 @@ public class Tools {
 		return Arrays.asList(tmp).indexOf(s);
 	}
 
-	public static ImageView logo (InputStream imageStream, double translateX,double translateY, double scale) {
-		ImageView imageView = new ImageView();;
+	public static ImageView logo(InputStream imageStream, double scale) {
+		ImageView imageView = new ImageView();
 		Image image = new Image(imageStream);
 		imageView.setImage(image);
-		imageView.setTranslateX(translateX);
-		imageView.setTranslateY(translateY);
-		imageView.setScaleX(scale);
-		imageView.setScaleY(scale);
-		
-		return imageView;} 
+		Scale scaleTransform = new Scale(scale, scale, Screen.getPrimary().getBounds().getWidth(),
+				Screen.getPrimary().getBounds().getWidth());
+		imageView.getTransforms().add(scaleTransform);
 
+		return imageView;
+	}
+
+	public static  GridPane initializeGridpane(int colmunNBR, List<Node> nodes) {
+		GridPane grid = new GridPane();
+		int j = 0, k = 0;
+		for (int m = 0; m < nodes.size(); m++) {
+			grid.add(Tools.hBox(nodes.get(m)), j++, k);
+			if (j % colmunNBR == 0) {
+				k++;
+				j = 0;
+			}
+		}
+		return grid;
+	}
 
 }

@@ -25,12 +25,6 @@
 						<FontIcon iconLiteral="far-play-circle" iconSize="22" />
 					</graphic>
 				</Button>
-				<Button fx:id="pause" mnemonicParsing="false"
-					onAction="#pause" text="Pause" styleClass="button-icon">
-					<graphic>
-						<FontIcon iconLiteral="far-pause-circle" iconSize="22" />
-					</graphic>
-				</Button>
 				<Button fx:id="stop" mnemonicParsing="false" onAction="#stop"
 					text="Stop &amp; Reset" styleClass="button-icon">
 					<graphic>
@@ -46,8 +40,7 @@
 				<Label fx:id="tickTxt" text="year" />
 			</children>
 		</HBox>
-		<ScrollPane fx:id="scroll" prefHeight="700.0"
-			prefWidth="700.0">
+		<ScrollPane fx:id="scroll" >
 			<GridPane fx:id="gridPaneLinnChart" />
 		</ScrollPane>
 

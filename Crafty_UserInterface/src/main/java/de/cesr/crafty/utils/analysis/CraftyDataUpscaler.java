@@ -15,16 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.cesr.crafty.cli.ConfigLoader;
-import de.cesr.crafty.controller.fxml.TabPaneController;
-import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.CellsLoader;
-import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
-import de.cesr.crafty.dataLoader.ServiceWeightLoader;
-import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.model.CellsSet;
-import de.cesr.crafty.model.RegionClassifier;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.utils.file.CsvTools;
 import de.cesr.crafty.utils.file.PathTools;
 import de.cesr.crafty.utils.file.ReaderFile;
@@ -35,12 +26,12 @@ public class CraftyDataUpscaler {
 	static String DataFolderPath;
 
 	static void createDataTemplate() {
-		copyFolder(PathsLoader.getProjectPath() + File.separator + "agents",
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "agents",
 				DataFolderPath + File.separator + "agents");
-		copyFolder(PathsLoader.getProjectPath() + File.separator + "csv", DataFolderPath + File.separator + "csv");
-		copyFolder(PathsLoader.getProjectPath() + File.separator + "production",
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "csv", DataFolderPath + File.separator + "csv");
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "production",
 				DataFolderPath + File.separator + "production");
-		copyFolder(PathsLoader.getProjectPath() + File.separator + "services",
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "services",
 				DataFolderPath + File.separator + "services");
 		PathTools.makeDirectory(DataFolderPath + File.separator + "output");
 	}
@@ -89,27 +80,16 @@ public class CraftyDataUpscaler {
 		CsvTools.writeCSVfile(csv, pathoutput);
 	}
 
-	static void modelInitialisation() {
-		PathsLoader.initialisation(Paths.get(ConfigLoader.config.project_path));
-		PathsLoader.setScenario(ConfigLoader.config.scenario);
-		CellsLoader.loadCapitalsList();
-		ServiceSet.loadServiceList();
-		TabPaneController.cellsLoader.loadMap();
-		RegionClassifier.initialation();
-		ServiceWeightLoader.updateWorldWeight();
-		AFTsLoader.hashAgentNbrRegions();
-		CellsSet.setCellsSet(TabPaneController.cellsLoader);
-		MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
-	}
+
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		modelInitialisation();
-		DataFolderPath = PathTools.makeDirectory(PathsLoader.getProjectPath() + "_upscaled_" + scale);
+		ProjectLoader.modelInitialisation();
+		DataFolderPath = PathTools.makeDirectory(ProjectLoader.getProjectPath() + "_upscaled_" + scale);
 		createDataTemplate();
 		System.out.println(DataFolderPath);
-		folderUpscaler(PathsLoader.getProjectPath() + PathTools.asFolder("worlds"));
-		folderUpscaler(PathsLoader.getProjectPath() + PathTools.asFolder("GIS"));
+		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("worlds"));
+		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("GIS"));
 
 	}
 
@@ -127,7 +107,7 @@ public class CraftyDataUpscaler {
 	}
 
 	static String oToUp(String path) {
-		return path.replace(PathsLoader.getProjectPath().toString(), DataFolderPath);
+		return path.replace(ProjectLoader.getProjectPath().toString(), DataFolderPath);
 	}
 
 	public static void copyFolder(String sourcePath, String destinationPath) {

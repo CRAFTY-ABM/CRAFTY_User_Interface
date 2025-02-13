@@ -16,11 +16,12 @@ import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.main.MainHeadless;
 import de.cesr.crafty.model.Cell;
-import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.utils.file.SaveAs;
 import de.cesr.crafty.utils.graphical.LineChartTools;
 import de.cesr.crafty.utils.graphical.MousePressed;
 import de.cesr.crafty.utils.graphical.NewWindow;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -44,14 +45,14 @@ public class AftAnalyzer {
 		return RadnomCapitalSample;
 	}
 
-	static ConcurrentHashMap<String, Double> productivityCalculator(Manager... a) {
+	static ConcurrentHashMap<String, Double> productivityCalculator(Aft... a) {
 		ConcurrentHashMap<String, Double> CapitalVector = capitalRandomGenerator();
 		if (a != null) {
 			Cell c = new Cell(0, 0);
 			c.getCapitals().putAll(CapitalVector);
 			ConcurrentHashMap<String, Double> services = new ConcurrentHashMap<>();
 			for (int i = 0; i < a.length; i++) {
-				Manager manager = a[i];
+				Aft manager = a[i];
 				ServiceSet.getServicesList().forEach(s -> {
 					double product = c.getCapitals().entrySet().stream()
 							.mapToDouble(
@@ -65,14 +66,14 @@ public class AftAnalyzer {
 		return null;
 	}
 
-	public static Map<String, ArrayList<Double>> productivitySample(int sampleSize, int subIntervalNbr, Manager... a) {
+	public static Map<String, ArrayList<Double>> productivitySample(int sampleSize, int subIntervalNbr, Aft... a) {
 		Set<ConcurrentHashMap<String, Double>> set = new HashSet<>();
 		for (int i = 0; i < sampleSize; i++) {
 			set.add(productivityCalculator(a));
 		}
 		Map<String, ArrayList<Double>> fq = new HashMap<>();
 		for (int i = 0; i < a.length; i++) {
-			Manager manager = a[i];
+			Aft manager = a[i];
 
 			ServiceSet.getServicesList().forEach(s -> {
 				ArrayList<Double> numbers = new ArrayList<>();
@@ -87,7 +88,6 @@ public class AftAnalyzer {
 		}
 		return fq;
 	}
-
 
 	public static ArrayList<Double> logNumbersInIntervals(ArrayList<Double> numbers, int intervalNBR) {
 		int[] counts = new int[intervalNBR + 1];
@@ -111,7 +111,7 @@ public class AftAnalyzer {
 		return true;
 	}
 
-	public static void generateChart(String titel, Map<String, ArrayList<Double>> data) {
+	public static LineChart<Number, Number> generateChart(String titel, Map<String, ArrayList<Double>> data) {
 		LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
 		chart.setTitle(titel);
 		lineChart(chart, data, titel);
@@ -122,10 +122,12 @@ public class AftAnalyzer {
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
 		othersMenuItems.put(ItemName, action);
 		MousePressed.mouseControle((Pane) chart.getParent(), chart, othersMenuItems);
-		
+
 		LineChartTools.strokeColor(chart, data);
-		NewWindow win = new NewWindow();
-		win.creatwindows("", chart);
+		return chart;
+
+//		NewWindow win = new NewWindow();
+//		win.creatwindows("", chart);
 	}
 
 	public static void lineChart(LineChart<Number, Number> lineChart, Map<String, ArrayList<Double>> hash,

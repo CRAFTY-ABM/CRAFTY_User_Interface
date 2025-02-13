@@ -11,14 +11,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.model.ManagerTypes;
 import de.cesr.crafty.model.RegionClassifier;
 import de.cesr.crafty.utils.analysis.CustomLogger;
 import de.cesr.crafty.utils.file.CsvTools;
 import de.cesr.crafty.utils.file.PathTools;
 import de.cesr.crafty.utils.file.ReaderFile;
-import de.cesr.crafty.utils.graphical.ColorsTools;
 import de.cesr.crafty.utils.graphical.Tools;
 import javafx.scene.paint.Color;
 import tech.tablesaw.api.Table;
@@ -29,12 +28,12 @@ import tech.tablesaw.io.csv.CsvReadOptions;
  *
  */
 
-public class AFTsLoader extends HashSet<Manager> {
+public class AFTsLoader extends HashSet<Aft> {
 
 	private static final CustomLogger LOGGER = new CustomLogger(AFTsLoader.class);
 	private static final long serialVersionUID = 1L;
-	private static ConcurrentHashMap<String, Manager> hashAFTs = new ConcurrentHashMap<>();
-	private static ConcurrentHashMap<String, Manager> activateAFTsHash = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, Aft> hashAFTs = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, Aft> activateAFTsHash = new ConcurrentHashMap<>();
 	public static ConcurrentHashMap<String, Integer> hashAgentNbr = new ConcurrentHashMap<>();
 	public static ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> hashAgentNbrRegions = new ConcurrentHashMap<>();
 	public static String unmanagedManagerLabel = "Abandoned";
@@ -72,43 +71,18 @@ public class AFTsLoader extends HashSet<Manager> {
 
 	}
 
-	public void updateColorsInputData() {
-		List<Path> colorFiles = PathTools.fileFilter(PathTools.asFolder("csv"), "AFTsMetaData");
-		if (colorFiles.size() > 0) {
-			HashMap<String, ArrayList<String>> T = ReaderFile.ReadAsaHash(colorFiles.iterator().next());
-			ArrayList<String> tmp = new ArrayList<>();
-			forEach(a -> {
-				for (int i = 0; i < T.get("Color").size(); i++) {
-					if (T.get("Label").get(i).replace("	", "").equalsIgnoreCase(a.getLabel())) {
-						tmp.add(ColorsTools.toHex(a.getColor()));
-					}
-				}
-			});
-			T.put("Color", tmp);
-			String[][] writer = new String[size() + 1][T.size()];
-			for (int i = 0; i < writer[0].length; i++) {
-				writer[0][i] = (String) T.keySet().toArray()[i];
-			}
-			for (int i = 0; i < writer[0].length; i++) {
-				for (int j = 0; j < size(); j++) {
-					writer[j + 1][i] = T.get(writer[0][i]).get(j).replace(",", ".");
-				}
-			}
-			CsvTools.writeCSVfile(writer, colorFiles.iterator().next());
-		}
-	}
-
 	void initializeAFTs() {
 		updateAftTypes();
+		AftCategorised.CategoriesLoader();
 		hashAFTs.forEach((Label, a) -> {
 			if (a.isInteract()) {
 				Path pFile = null;
 				try {
 					pFile = PathTools.fileFilter(PathTools.asFolder("default_production"),
-							PathTools.asFolder("production"), PathsLoader.getScenario(), Label + ".csv").get(0);
+							PathTools.asFolder("production"), ProjectLoader.getScenario(), Label + ".csv").get(0);
 				} catch (NullPointerException e) {
 					pFile = PathTools
-							.fileFilter(PathTools.asFolder("production"), PathsLoader.getScenario(), Label + ".csv")
+							.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(), Label + ".csv")
 							.get(0);
 					LOGGER.warn("Default productivity folder not fund, will use: " + pFile);
 				}
@@ -117,10 +91,10 @@ public class AFTsLoader extends HashSet<Manager> {
 				Path bFile = null;
 				try {
 					bFile = PathTools.fileFilter(PathTools.asFolder("default_behaviour"), PathTools.asFolder("agents"),
-							PathsLoader.getScenario(), Label + ".csv").get(0);
+							ProjectLoader.getScenario(), Label + ".csv").get(0);
 				} catch (NullPointerException e) {
 					bFile = PathTools
-							.fileFilter(PathTools.asFolder("agents"), PathsLoader.getScenario(), Label + ".csv").get(0);
+							.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), Label + ".csv").get(0);
 					LOGGER.warn("Default behaviour folder not fund, will use: " + bFile);
 				}
 				initializeAFTBehevoir(bFile);
@@ -130,12 +104,12 @@ public class AFTsLoader extends HashSet<Manager> {
 	}
 
 	public void updateAFTsForsenario() {
-		List<Path> pFiles = PathTools.fileFilter(PathTools.asFolder("production"), PathsLoader.getScenario(), ".csv");
+		List<Path> pFiles = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(), ".csv");
 		pFiles.forEach(f -> {
 			File file = f.toFile();
 			updateAFTProduction(hashAFTs.get(file.getName().replace(".csv", "")), file);
 		});
-		List<Path> bFiles = PathTools.fileFilter(PathTools.asFolder("agents"), PathsLoader.getScenario(), ".csv");
+		List<Path> bFiles = PathTools.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), ".csv");
 		bFiles.forEach(f -> {
 			File file = f.toFile();
 			try {
@@ -148,8 +122,8 @@ public class AFTsLoader extends HashSet<Manager> {
 	}
 
 	public static void updateAFTs() {
-		Path pFolderToUpdate = PathsLoader.getProjectPath().resolve("production").resolve(PathsLoader.getScenario())
-				.resolve("update_production_" + PathsLoader.getCurrentYear());
+		Path pFolderToUpdate = ProjectLoader.getProjectPath().resolve("production").resolve(ProjectLoader.getScenario())
+				.resolve("update_production_" + ProjectLoader.getCurrentYear());
 		if (pFolderToUpdate.toFile().exists()) {
 			List<Path> pFiles = PathTools.fileFilter(pFolderToUpdate.toString());
 			pFiles.forEach(f -> {
@@ -160,8 +134,8 @@ public class AFTsLoader extends HashSet<Manager> {
 			LOGGER.info("AFT production parameters not updated (no folder found:" + pFolderToUpdate + ")");
 		}
 
-		Path bFolderToUpdate = PathsLoader.getProjectPath().resolve("agents").resolve(PathsLoader.getScenario())
-				.resolve("update_behaviour_" + PathsLoader.getCurrentYear());
+		Path bFolderToUpdate = ProjectLoader.getProjectPath().resolve("agents").resolve(ProjectLoader.getScenario())
+				.resolve("update_behaviour_" + ProjectLoader.getCurrentYear());
 		if (bFolderToUpdate.toFile().exists()) {
 			List<Path> bFiles = PathTools.fileFilter(bFolderToUpdate.toString());
 			bFiles.forEach(f -> {
@@ -179,7 +153,7 @@ public class AFTsLoader extends HashSet<Manager> {
 
 	public void initializeAFTBehevoir(Path aftPath) {
 		File file = aftPath.toFile();
-		Manager a = hashAFTs.get(file.getName().replace(".csv", "").replace("AftParams_", ""));
+		Aft a = hashAFTs.get(file.getName().replace(".csv", "").replace("AftParams_", ""));
 		updateAFTBehevoir(a, file);
 	}
 
@@ -195,7 +169,7 @@ public class AFTsLoader extends HashSet<Manager> {
 		});
 	}
 
-	public static void updateAFTBehevoir(Manager a, File file) {
+	public static void updateAFTBehevoir(Aft a, File file) {
 		HashMap<String, ArrayList<String>> reder = ReaderFile.ReadAsaHash(file.toPath());
 		a.setGiveInMean(Tools.sToD(reder.get("givingInDistributionMean").get(0)));
 		a.setGiveUpMean(Tools.sToD(reder.get("givingUpDistributionMean").get(0)));
@@ -218,7 +192,7 @@ public class AFTsLoader extends HashSet<Manager> {
 		if (matrix.get("Type") != null) {
 			for (int i = 0; i < matrix.get("Label").size(); i++) {
 				String label = matrix.get("Label").get(i);
-				Manager a = new Manager(label);
+				Aft a = new Aft(label);
 				hashAFTs.put(label, a);
 				switch (matrix.get("Type").get(i)) {
 				case "Mask":
@@ -237,14 +211,14 @@ public class AFTsLoader extends HashSet<Manager> {
 	}
 
 	void addAbandonedAftIfNotExiste() {
-		Manager a = new Manager("Abandoned");
+		Aft a = new Aft("Abandoned");
 		a.setType(ManagerTypes.Abandoned);
 		unmanagedManagerLabel = a.getLabel();
 		a.setColor(Color.GREY);
 		hashAFTs.put(a.getLabel(), a);
 	}
 
-	public static void updateSensitivty(Manager a, File file) {
+	public static void updateSensitivty(Aft a, File file) {
 		try {
 			CsvReadOptions options = CsvReadOptions.builder(file).separator(',').build();
 			Table T = Table.read().usingOptions(options);
@@ -264,7 +238,7 @@ public class AFTsLoader extends HashSet<Manager> {
 		}
 	}
 
-	public static void updateAFTProduction(Manager a, File file) {
+	public static void updateAFTProduction(Aft a, File file) {
 		String[][] m = CsvTools.csvReader(file.toPath());
 		for (int i = 0; i < m.length; i++) {
 			if (ServiceSet.getServicesList().contains(m[i][0])) {
@@ -290,7 +264,6 @@ public class AFTsLoader extends HashSet<Manager> {
 		if (!hashAgentNbr.containsKey("Abandoned") || !hashAgentNbr.containsKey(unmanagedManagerLabel)) {
 			hashAgentNbr.put(unmanagedManagerLabel, 0);
 		}
-
 	}
 
 	public static void hashAgentNbrRegions() {
@@ -319,22 +292,22 @@ public class AFTsLoader extends HashSet<Manager> {
 		// hashAgentNbrRegions.get(regionName));
 	}
 
-	public static ConcurrentHashMap<String, Manager> getAftHash() {
+	public static ConcurrentHashMap<String, Aft> getAftHash() {
 		return hashAFTs;
 	}
 
-	public static ConcurrentHashMap<String, Manager> getActivateAFTsHash() {
+	public static ConcurrentHashMap<String, Aft> getActivateAFTsHash() {
 		return activateAFTsHash;
 	}
 
-	public static Manager getRandomAFT() {
+	public static Aft getRandomAFT() {
 		return getRandomAFT(activateAFTsHash.values());
 	}
 
-	public static Manager getRandomAFT(Collection<Manager> afts) {
+	public static Aft getRandomAFT(Collection<Aft> afts) {
 		if (afts.size() != 0) {
 			int index = ThreadLocalRandom.current().nextInt(afts.size());
-			Manager aft = afts.stream().skip(index).findFirst().orElse(null);
+			Aft aft = afts.stream().skip(index).findFirst().orElse(null);
 			return aft;
 		}
 		return null;// select from outside "hash"

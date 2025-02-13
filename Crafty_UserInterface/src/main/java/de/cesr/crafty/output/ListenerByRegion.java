@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.cli.ConfigLoader;
 import de.cesr.crafty.dataLoader.AFTsLoader;
-import de.cesr.crafty.dataLoader.PathsLoader;
+import de.cesr.crafty.dataLoader.ProjectLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
 import de.cesr.crafty.model.Region;
 import de.cesr.crafty.model.RegionClassifier;
@@ -29,9 +29,9 @@ public class ListenerByRegion {
 	}
 
 	public void initializeListeners() {
-		compositionAftListener = new String[PathsLoader.getEndtYear() - PathsLoader.getStartYear()
+		compositionAftListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
 				+ 2][AFTsLoader.getAftHash().size() + 1];
-		servicedemandListener = new String[PathsLoader.getEndtYear() - PathsLoader.getStartYear()
+		servicedemandListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
 				+ 2][ServiceSet.getServicesList().size() * 2 + 1];
 		servicedemandListener[0][0] = "Year";
 		for (int i = 1; i < ServiceSet.getServicesList().size() + 1; i++) {
@@ -59,7 +59,7 @@ public class ListenerByRegion {
 
 	private void servicedemandListener(int year, ConcurrentHashMap<String, Double> regionalSupply) {
 		AtomicInteger m = new AtomicInteger(1);
-		int y = year - PathsLoader.getStartYear() + 1;
+		int y = year - ProjectLoader.getStartYear() + 1;
 		servicedemandListener[y][0] = year + "";
 		ServiceSet.getServicesList().forEach(name -> {
 			servicedemandListener[y][m.get()] = regionalSupply.get(name) + "";
@@ -70,7 +70,7 @@ public class ListenerByRegion {
 	}
 
 	private void compositionAFTListener(int year) {
-		int y = year - PathsLoader.getStartYear() + 1;
+		int y = year - ProjectLoader.getStartYear() + 1;
 		compositionAftListener[y][0] = year + "";
 		AFTsLoader.hashAgentNbrRegions.get(R.getName()).forEach((name, value) -> {
 			compositionAftListener[y][Tools.indexof(name, compositionAftListener[0])] = value + "";

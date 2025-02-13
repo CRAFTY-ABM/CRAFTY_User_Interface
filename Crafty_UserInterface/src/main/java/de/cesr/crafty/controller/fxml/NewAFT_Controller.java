@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import de.cesr.crafty.dataLoader.AFTsLoader;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
-import de.cesr.crafty.model.Manager;
+import de.cesr.crafty.model.Aft;
 import de.cesr.crafty.utils.graphical.CSVTableView;
 import de.cesr.crafty.utils.graphical.Histogram;
 import de.cesr.crafty.utils.graphical.NewWindow;
@@ -47,7 +47,7 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 		TextArea textArea = new TextArea();
 		
 		windowAddAFT.creatwindows("Add New Agent Functional Type", 0.7, 0.9, rootPane);
-		Manager newAFT = new Manager();
+		Aft newAFT = new Aft();
 		newAFT.setLabel("newAFT");
 		
 		colorPicker.setOnAction(e -> {
@@ -68,10 +68,10 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 		TableView<ObservableList<String>> tableProduction = CSVTableView.newtable(production, actionP);
 		BarChart<String, Number> histogram = new BarChart<String, Number>(new CategoryAxis(), new NumberAxis());
 
-		productionFire.setOnAction(e -> {
-			updateProduction(newAFT, tableProduction);
-			Histogram.histo(vbox, "Productivity levels", histogram, newAFT.getProductivityLevel());
-		});
+//		productionFire.setOnAction(e -> {
+//			updateProduction(newAFT, tableProduction);
+//			Histogram.histo(vbox, "Productivity levels", histogram, newAFT.getProductivityLevel());
+//		});
 
 		String[][] sensetivtyTable = new String[ServiceSet.getServicesList().size() + 1][CellsLoader.getCapitalsList().size() + 1];
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
@@ -87,7 +87,7 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 		};
 
 		GridPane gridBehevoir = new GridPane();
-		AgentParametre(newAFT, gridBehevoir);
+	//	AgentParametre(newAFT, gridBehevoir);
 
 		TableView<ObservableList<String>> tableSensetivty = CSVTableView.newtable(sensetivtyTable, action);
 		

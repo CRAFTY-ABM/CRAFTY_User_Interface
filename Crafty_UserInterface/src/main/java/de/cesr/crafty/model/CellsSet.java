@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import de.cesr.crafty.dataLoader.AftCategorised;
 import de.cesr.crafty.dataLoader.CellsLoader;
 import de.cesr.crafty.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.dataLoader.ServiceSet;
@@ -20,6 +21,8 @@ import de.cesr.crafty.utils.file.SaveAs;
 import de.cesr.crafty.utils.graphical.ColorsTools;
 import de.cesr.crafty.utils.graphical.NewWindow;
 import de.cesr.crafty.utils.graphical.Tools;
+import javafx.scene.Group;
+import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -49,6 +52,9 @@ public class CellsSet {
 	private static String colortype = "AFT";
 	private static CellsLoader cellsSet;
 
+	public static Group root = new Group();
+	public static SubScene subScene = new SubScene(root, FxMain.defaultWidth/2, FxMain.defaultHeight);
+
 	public static void plotCells() {
 		isPlotedMap = true;
 		ArrayList<Integer> X = new ArrayList<>();
@@ -66,10 +72,11 @@ public class CellsSet {
 		gc = canvas.getGraphicsContext2D();
 		writableImage = new WritableImage(maxX, maxY);
 		pixelWriter = writableImage.getPixelWriter();
-		FxMain.root.getChildren().clear();
-		FxMain.root.getChildren().add(canvas);
-		FxMain.subScene.setCamera(FxMain.camera);
-		FxMain.camera.defaultcamera(canvas, FxMain.subScene);
+		root.getChildren().clear();
+		root.getChildren().add(canvas);
+
+		subScene.setCamera(FxMain.camera);
+		FxMain.camera.defaultcamera(canvas, subScene);
 		LOGGER.info("Number of cells = " + CellsLoader.hashCell.size());
 		MapControlerBymouse();
 	}
@@ -104,7 +111,7 @@ public class CellsSet {
 		colorMap();
 	}
 
-	public static void showOnlyOneAFT(Manager a) {
+	public static void showOnlyOneAFT(Aft a) {
 		CellsLoader.hashCell.values().parallelStream().forEach(cell -> {
 			if (cell.getOwner() == null || !cell.getOwner().getLabel().equals(a.getLabel())) {
 				cell.ColorP(Color.gray(0.65));
@@ -121,7 +128,7 @@ public class CellsSet {
 		}
 		LOGGER.info("Changing the map colors...");
 		Set<Double> values = Collections.synchronizedSet(new HashSet<>());
-		if (colortype.equalsIgnoreCase("FR") || colortype.equalsIgnoreCase("Agent")
+		if (colortype.equalsIgnoreCase("Agent") || colortype.equalsIgnoreCase("AFT")
 				|| colortype.equalsIgnoreCase("AFT")) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				if (c.getOwner() != null) {
@@ -160,11 +167,18 @@ public class CellsSet {
 					c.ColorP(Color.gray(0.75));
 				}
 			});
+		} else if (colortype.equalsIgnoreCase("Categories")) {
+			if (AftCategorised.aftCategories.size() != 0) {
+				CellsLoader.hashCell.values().parallelStream().forEach(c -> {
+					if (c.owner != null)
+						c.ColorP(AftCategorised.categoriesColor.get(c.owner.getCategory().getName()));
+				});
+			}
 		} else {
 			HashMap<String, Color> colorGis = new HashMap<>();
 
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
-				colorGis.put(c.getCurrentRegion()/* .get(colortype) */, ColorsTools.RandomColor());
+				colorGis.put(c.getCurrentRegion()/* .get(colortype) */ , ColorsTools.RandomColor());
 			});
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				c.ColorP(colorGis.get(c.getCurrentRegion()/* .getGisNameValue().get(colortype) */));
@@ -194,8 +208,8 @@ public class CellsSet {
 					});
 					menu.put("Detach", (x) -> {
 						try {
-							VBox mapBox = (VBox) FxMain.subScene.getParent();
-							VBox parent = (VBox) FxMain.subScene.getParent().getParent();
+							VBox mapBox = (VBox) subScene.getParent();
+							VBox parent = (VBox) subScene.getParent().getParent();
 							List<Integer> findpath = Tools.findIndexPath(mapBox, parent);
 							Tools.reInsertChildAtIndexPath(new Separator(), parent, findpath);
 							NewWindow win = new NewWindow();

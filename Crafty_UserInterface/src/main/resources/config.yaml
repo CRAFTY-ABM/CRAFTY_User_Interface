@@ -1,9 +1,9 @@
 # Configuration for CRAFTY Model
 
 # Paths and Data # if linux used /mnt/c/Users/byari-m/Desktop/CRAFTY_DATA/CRAFTY-EU-1km_upscaled_16
-project_path: 'C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_16' 
+project_path: 'C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DE_3kmgrid' 
 
-scenario: 'ssp126'                            #Scenario identifier
+scenario: 'ssp1a26'                            #Scenario identifier
 regionalization: false						  # Only works if regional data is available (regional demands and GIS cell specificity).
 # CRAFTY Mechanisms
 initial_demand_supply_equilibrium: true       # Ensure balanced eco-service supply and demand during initial tick
@@ -30,6 +30,6 @@ output_folder_name: ''                        #if left empty defaults to timesta
 csv_output_frequency: 10                      # Ticks interval for CSV output of land use and service supply
 track_changes: false                          # Enable change tracking in output
 export_LOGGER: true
-LOGGER_info: true
+LOGGER_info: false
 LOGGER_warn: false
 LOGGER_trace: false
