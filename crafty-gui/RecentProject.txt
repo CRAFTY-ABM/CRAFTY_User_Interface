@@ -1,0 +1,5 @@
+
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_16
+C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DE_3kmgrid
+C:\Users\byari-m\Desktop\CRAFTY_DATA\data_UK
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-5km-data

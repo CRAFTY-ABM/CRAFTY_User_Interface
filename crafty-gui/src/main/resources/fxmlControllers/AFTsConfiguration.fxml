@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.ScrollPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Tooltip?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsConfigurationController">
+	<children>
+		<VBox>
+			<children>
+				<HBox spacing="10.0">
+					<children>
+						<Label text="Agent Functional Type  (AFT)"
+							style="-fx-text-fill: blue;" />
+						<ChoiceBox fx:id="AFTChoisButton"
+							onAction="#choiceAgnetSetOnAction">
+							<tooltip>
+								<Tooltip text="List of AFTs considered in this project" />
+							</tooltip>
+						</ChoiceBox>
+						<Label fx:id="AFTNameLabel" text="Label"
+							style="-fx-text-fill: blue;" />
+						<Rectangle fx:id="rectangleColor" arcHeight="5.0"
+							arcWidth="5.0" height="26.0" stroke="BLACK" strokeType="INSIDE"
+							width="39.0" />
+					</children>
+				</HBox>
+				<HBox spacing="10.0">
+					<children>
+
+						<Button fx:id="removeBtn" onAction="#removeBtnSetOnAction"
+							text="Remove" styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-trash-alt" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Remove Current AFT from the list" />
+							</tooltip>
+						</Button>
+
+						<Button fx:id="saveModeficationBtn"
+							onAction="#saveModefication" text="Save modifications"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-save" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Save modifications for the Current AFT" />
+							</tooltip>
+						</Button>
+						<Button fx:id="ResetBtn" mnemonicParsing="false"
+							text="Reset" styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="fas-redo-alt" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Reset Current AFT Configuration" />
+							</tooltip>
+						</Button>
+						<Button fx:id="addNewAftBtn" mnemonicParsing="false"
+							onAction="#addAFTSetOnAction" text="Add new AFT"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-plus-square" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Add new AFT to the list" />
+							</tooltip>
+						</Button>
+						<Button fx:id="AFTAnalisisBtn" mnemonicParsing="false"
+							onAction="#AftAnalyseSetOnAction" text="AFT analysis"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-chart-bar" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Current AFT analysis" />
+							</tooltip>
+						</Button>
+					</children>
+				</HBox>
+
+				<TabPane tabClosingPolicy="UNAVAILABLE">
+					<tabs>
+						<Tab text="AFTs Distribution">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="AFTs Behaviour" />
+							</tooltip>
+							<content>
+								<fx:include
+									source="/fxmlControllers/AFTsProduction.fxml" />
+							</content>
+						</Tab>
+						<Tab text="AFTs Distribution">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="AFTs Behaviour" />
+							</tooltip>
+							<content>
+								<fx:include
+									source="/fxmlControllers/AFTsBehaviour.fxml" />
+							</content>
+						</Tab>
+					</tabs>
+				</TabPane>
+			</children>
+		</VBox>
+	</children>
+</VBox>
