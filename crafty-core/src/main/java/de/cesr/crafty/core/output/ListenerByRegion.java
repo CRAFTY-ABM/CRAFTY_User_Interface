@@ -93,8 +93,8 @@ public class ListenerByRegion {
 	public void exportFiles(int year, ConcurrentHashMap<String, Double> regionalSupply) {
 		if (ConfigLoader.config.generate_csv_files && RegionClassifier.regions.size() > 1) {
 			servicedemandListener(year, regionalSupply);
-			Tracker.trackSupply(year, R.getName());
 			compositionAFTListener(year);
+			Tracker.trackSupply(year, R.getName());
 			CSVFilesWriter();
 		}
 	}

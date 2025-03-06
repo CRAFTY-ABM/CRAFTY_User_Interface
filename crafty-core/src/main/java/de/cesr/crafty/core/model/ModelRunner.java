@@ -41,6 +41,7 @@ public class ModelRunner {
 		AFTsLoader.updateAFTs();
 		ProjectLoader.Maskloader.CellSetToMaskLoader(year);
 		aggregateTotalSupply();
+		Tracker.trackSupply(year);
 		regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.step(year);
 		});
@@ -50,7 +51,6 @@ public class ModelRunner {
 
 	private void listnerOutput(int year) {
 		if (ConfigLoader.config.generate_csv_files) {
-			Tracker.trackSupply(year);
 			listner.compositionAFT(year);
 			listner.outPutserviceDemandToCsv(year, totalSupply);
 			listner.writOutPutMap(year);
