@@ -3,7 +3,6 @@ package de.cesr.crafty.core.cli;
 import org.apache.commons.cli.*;
 
 
-
 public class OptionsParser {
 
 	/**
@@ -27,6 +26,12 @@ public class OptionsParser {
 				.desc("scenario name to override the scenario name in the config file.").hasArg(true)
 				.argName("SCENARIO_NAME").required(false).build();
 		options.addOption(scenarioOption);
+		
+		Option outputPathOption = Option.builder("o").longOpt("output-path")
+				.desc("CRAFTY output path, used to manually define the output file that will replace the default output folder."
+						+ " It is optional and if no path is defined, the default output folder will be used.").hasArg(true)
+				.argName("OUTPUT_Path").required(false).build();
+		options.addOption(outputPathOption);
 
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
@@ -42,6 +47,9 @@ public class OptionsParser {
 			}
 			if (cmd.hasOption("scenario-name")) {
 				craftyOptions.setScenario_Name(cmd.getOptionValue("scenario-name"));
+			}
+			if (cmd.hasOption("output-path")) {
+				craftyOptions.setOutput_path(cmd.getOptionValue("output-path"));
 			}
 
 		} catch (ParseException e) {

@@ -1,6 +1,7 @@
 package de.cesr.crafty.core.dataLoader;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,11 +11,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import de.cesr.crafty.core.model.Aft;
 import de.cesr.crafty.core.model.Cell;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -122,16 +125,17 @@ public class ReaderFile {
 	}
 
 	static void associateCapitalsToCells(ConcurrentHashMap<String, Integer> indexof, String data) {
-	    List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
-	    int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
-	    int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
-	    CellsLoader.getCapitalsList().forEach(capital_name -> {
-	        if (indexof.get(capital_name.toUpperCase()) == null) {
-	        	ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, 0.);
-	        }else {
-	        double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-	        ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, capital_value);}
-	    });
+		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
+		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
+		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
+		CellsLoader.getCapitalsList().forEach(capital_name -> {
+			if (indexof.get(capital_name.toUpperCase()) == null) {
+				ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, 0.);
+			} else {
+				double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
+				ProjectLoader.cellsSet.getCell(x, y).getCapitals().put(capital_name, capital_value);
+			}
+		});
 	}
 
 	static void createCells(CellsLoader cells, ConcurrentHashMap<String, Integer> indexof, String data) {
@@ -169,7 +173,34 @@ public class ReaderFile {
 			double service_value = Utils.sToD(immutableList.get(indexof.get(service_name.toUpperCase())));
 			c.getCurrentProductivity().put(service_name, service_value);
 		});
+	}
 
+	public static HashMap<String, Double> readCsvToMatrixMap(Path csvFilePath) {
+		// Read the CSV with headers enabled
+		CsvReadOptions options = CsvReadOptions.builder(csvFilePath.toFile()).header(true).separator(',').build();
+		Table table = null;
+		try {
+			table = Table.read().usingOptions(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<String> columnNames = table.columnNames();
+
+		HashMap<String, Double> matrixMap = new HashMap<>();
+
+		for (int rowIndex = 0; rowIndex < table.rowCount(); rowIndex++) {
+			String rowLabel = table.getString(rowIndex, 0);
+
+			for (int colIndex = 1; colIndex < table.columnCount(); colIndex++) {
+				String colName = columnNames.get(colIndex);
+				String cellValue = table.getString(rowIndex, colIndex);
+				String key = rowLabel + "|" + colName;
+				matrixMap.put(key, Utils.sToD(cellValue));
+			}
+		}
+
+		return matrixMap;
 	}
 
 }

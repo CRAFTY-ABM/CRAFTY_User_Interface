@@ -18,7 +18,7 @@ public class Aft extends AbstractAft {
 		completeName = "";
 		CellsLoader.getCapitalsList().forEach((Cn) -> {
 			ServiceSet.getServicesList().forEach((Sn) -> {
-				sensitivity.put((Cn + "_" + Sn), 0.);
+				sensitivity.put((Cn + "|" + Sn), 0.);
 			});
 		});
 		ServiceSet.getServicesList().forEach(servicename -> {
@@ -54,7 +54,7 @@ public class Aft extends AbstractAft {
 		this.color = "#848484";
 		CellsLoader.getCapitalsList().forEach((Cn) -> {
 			ServiceSet.getServicesList().forEach((Sn) -> {
-				this.sensitivity.put((Cn + "_" + Sn), Math.random() > 0.5 ? Math.random() : 0);
+				this.sensitivity.put((Cn + "|" + Sn), Math.random() > 0.5 ? Math.random() : 0);
 			});
 		});
 		ServiceSet.getServicesList().forEach((Sn) -> {

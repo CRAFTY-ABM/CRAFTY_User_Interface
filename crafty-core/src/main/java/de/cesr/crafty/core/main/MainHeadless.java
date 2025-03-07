@@ -33,14 +33,15 @@ public class MainHeadless {
 			ConfigLoader.config.scenario = scenarioName;
 		}
 		ProjectLoader.modelInitialisation();
-		runHeadless();
+		runHeadless(options.getOutput_path());
 	}
 
-	static void runHeadless() {
+	static void runHeadless(String outputPath) {
 		ModelRunner runner = new ModelRunner();
 		ModelRunner.setup();
 		AtomicInteger tick = new AtomicInteger(ProjectLoader.getStartYear());
-		Listener.outputfolderPath(ConfigLoader.config.output_folder_name);
+		String generatedPath = PathTools.makeDirectory(outputPath);
+		Listener.outputfolderPath(generatedPath, ConfigLoader.config.output_folder_name);
 		if (ConfigLoader.config.export_LOGGER) {
 			CustomLogger
 					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));

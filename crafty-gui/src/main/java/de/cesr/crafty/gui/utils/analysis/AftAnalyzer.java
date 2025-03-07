@@ -52,7 +52,7 @@ public class AftAnalyzer {
 				ServiceSet.getServicesList().forEach(s -> {
 					double product = c.getCapitals().entrySet().stream()
 							.mapToDouble(
-									e -> Math.pow(e.getValue(), manager.getSensitivity().get(e.getKey() + "_" + s)))
+									e -> Math.pow(e.getValue(), manager.getSensitivity().get(e.getKey() + "|" + s)))
 							.reduce(1.0, (x, y) -> x * y);
 					services.put(manager.getLabel() + "_" + s, product * manager.getProductivityLevel().get(s));
 				});

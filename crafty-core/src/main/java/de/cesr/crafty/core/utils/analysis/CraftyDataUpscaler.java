@@ -80,8 +80,6 @@ public class CraftyDataUpscaler {
 		CsvTools.writeCSVfile(csv, pathoutput);
 	}
 
-
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ProjectLoader.modelInitialisation();
@@ -102,7 +100,8 @@ public class CraftyDataUpscaler {
 		});
 		ArrayList<Path> foldersinCapitals = PathTools.fileFilter(folderPath);
 		foldersinCapitals.forEach(path -> {
-			upscaleCsvMap(path, Paths.get(oToUp(path.toString())));
+			if (path.toString().contains(".csv") && !path.toString().contains("Restrictions"))
+				upscaleCsvMap(path, Paths.get(oToUp(path.toString())));
 		});
 	}
 
@@ -114,18 +113,15 @@ public class CraftyDataUpscaler {
 		try {
 			Path sourceDirectory = Paths.get(sourcePath);
 			Path destinationDirectory = Paths.get(destinationPath);
-
 			// Ensure source exists
 			if (!Files.exists(sourceDirectory)) {
 				throw new IllegalArgumentException("Source path does not exist: " + sourcePath);
 			}
-
 			// Create the destination directory if it does not exist
 			if (!Files.exists(destinationDirectory)) {
 
 				Files.createDirectories(destinationDirectory);
 			}
-
 			// Walk through the source directory and copy each file/directory
 			Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>() {
 				@Override
@@ -136,7 +132,6 @@ public class CraftyDataUpscaler {
 					}
 					return FileVisitResult.CONTINUE;
 				}
-
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					Path targetFile = destinationDirectory.resolve(sourceDirectory.relativize(file));

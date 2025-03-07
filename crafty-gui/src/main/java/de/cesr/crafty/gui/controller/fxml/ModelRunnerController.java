@@ -334,7 +334,7 @@ public class ModelRunnerController {
 
 		alert.showAndWait().ifPresent(response -> {
 			if (response == ButtonType.OK) {
-				Listener.outputfolderPath(textField.getText());
+				Listener.outputfolderPath(null,textField.getText());
 				PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "readme.txt",
 						textArea.getText(), false);
 				startRunin = true;

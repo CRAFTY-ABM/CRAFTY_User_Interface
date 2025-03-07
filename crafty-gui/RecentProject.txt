@@ -4,3 +4,4 @@ C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DE_3kmgrid
 C:\Users\byari-m\Desktop\CRAFTY_DATA\data_UK
 C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-5km-data
 C:\Users\byari-m\Desktop\CRAFTY-EU-1km_upscaled_16.0
+C:\Users\byari-m\Desktop\Behaviour_Model\CRAFTY-EU_16_behaviour

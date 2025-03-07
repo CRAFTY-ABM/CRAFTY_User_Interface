@@ -153,7 +153,7 @@ public class AFTsConfigurationController {
 		String[][] tab = CSVTableView.tableViewToArray(tabV);
 		for (int i = 1; i < tab.length; i++) {
 			for (int j = 1; j < tab[0].length; j++) {
-				newAFT.getSensitivity().put(tab[0][j] + "_" + tab[i][0], Utils.sToD(tab[i][j]));
+				newAFT.getSensitivity().put(tab[0][j] + "|" + tab[i][0], Utils.sToD(tab[i][j]));
 			}
 		}
 		ubdateRadarchart(newAFT, grid);
@@ -210,7 +210,7 @@ public class AFTsConfigurationController {
 	public static YChart<ValueChartItem> ychart(Pane box, Aft agent, String servicesName) {
 		List<ValueChartItem> listvalues = new ArrayList<>();
 		CellsLoader.getCapitalsList().forEach(cname -> {
-			double y = Math.min(100, agent.getSensitivity().get(cname + "_" + servicesName) * 100);
+			double y = Math.min(100, agent.getSensitivity().get(cname + "|" + servicesName) * 100);
 			listvalues.add(new ValueChartItem(y, ""));
 		});
 
@@ -236,7 +236,7 @@ public class AFTsConfigurationController {
 			for (int j = 0; j < CellsLoader.getCapitalsList().size(); j++) {
 				sensetivtyTable[0][j + 1] = CellsLoader.getCapitalsList().get(j);
 				sensetivtyTable[i + 1][j + 1] = a.getSensitivity()
-						.get(CellsLoader.getCapitalsList().get(j) + "_" + ServiceSet.getServicesList().get(i)) + "";
+						.get(CellsLoader.getCapitalsList().get(j) + "|" + ServiceSet.getServicesList().get(i)) + "";
 			}
 
 		}
@@ -262,7 +262,7 @@ public class AFTsConfigurationController {
 			for (int j = 0; j < ServiceSet.getServicesList().size(); j++) {
 				tab[j + 1][0] = ServiceSet.getServicesList().get(j);
 				tab[j + 1][i + 1] = a.getSensitivity()
-						.get(CellsLoader.getCapitalsList().get(i) + "_" + ServiceSet.getServicesList().get(j)) + "";
+						.get(CellsLoader.getCapitalsList().get(i) + "|" + ServiceSet.getServicesList().get(j)) + "";
 				tab[j + 1][CellsLoader.getCapitalsList().size() + 1] = a.getProductivityLevel()
 						.get(ServiceSet.getServicesList().get(j)) + "";
 			}

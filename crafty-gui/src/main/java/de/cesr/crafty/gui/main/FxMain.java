@@ -48,7 +48,6 @@ public class FxMain extends Application {
 
 		scene = new Scene(new Group(topLevelBox));
 		scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-
 		primaryStage.setTitle(" CRAFTY User Interface ");
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true);

@@ -26,8 +26,6 @@ import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
-
-
 public class Listener {
 	public static String[][] compositionAftListener;
 	public static String[][] servicedemandListener;
@@ -104,28 +102,30 @@ public class Listener {
 	}
 
 	public void writOutPutMap(int year) {
-		if ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % ConfigLoader.config.csv_output_frequency == 0
+		if ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
+				% ConfigLoader.config.csv_output_frequency == 0
 				|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear()) {
 			CsvTools.exportToCSV(ConfigLoader.config.output_folder_name + File.separator + ProjectLoader.getScenario()
 					+ "-Cell-" + year + ".csv");
 		}
 	}
 
-	public static void outputfolderPath(String textFieldGetText) {
-		if (textFieldGetText.equals("") || textFieldGetText.equalsIgnoreCase("Default")) {
+	public static void outputfolderPath(String outputpath, String outputName) {
+		if (outputName.equals("") || outputName.equalsIgnoreCase("Default")) {
 			ConfigLoader.config.output_folder_name = "Default simulation folder";
 			LocalDateTime now = LocalDateTime.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 			String formattedDate = now.format(formatter);
 			ConfigLoader.config.output_folder_name = "Default_Run_Output_" + formattedDate;
 		} else {
-			ConfigLoader.config.output_folder_name = textFieldGetText;
+			ConfigLoader.config.output_folder_name = outputName;
 		}
-
-		String dir = PathTools.makeDirectory(ProjectLoader.getProjectPath() + PathTools.asFolder("output"));
-		dir = PathTools.makeDirectory(dir + ProjectLoader.getScenario());
-		dir = PathTools.makeDirectory(dir + File.separator + ConfigLoader.config.output_folder_name);
-		ConfigLoader.config.output_folder_name = dir;
+		if (outputpath == null) {
+			outputpath = PathTools.makeDirectory(ProjectLoader.getProjectPath()+ File.separator + "output");
+		} 
+		outputpath = PathTools.makeDirectory(outputpath  + File.separator+ ProjectLoader.getScenario());
+		outputpath = PathTools.makeDirectory(outputpath + File.separator + ConfigLoader.config.output_folder_name);
+		ConfigLoader.config.output_folder_name = outputpath;
 	}
 
 	public static String exportConfigurationFile() {

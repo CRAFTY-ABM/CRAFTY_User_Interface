@@ -24,7 +24,7 @@ public class Cell extends AbstractCell {
 			return 0;
 		}
 		double product = capitals.entrySet().stream()
-				.mapToDouble(e -> Math.pow(e.getValue(), a.getSensitivity().get(e.getKey() + "_" + service)))
+				.mapToDouble(e -> Math.pow(e.getValue(), a.getSensitivity().get(e.getKey() + "|" + service)))
 				.reduce(1.0, (x, y) -> x * y);
 		return product * a.getProductivityLevel().get(service);
 	}
@@ -35,7 +35,7 @@ public class Cell extends AbstractCell {
 		double pr = 1.0;
 		for (Map.Entry<String, Double> entry : capitals.entrySet()) {
 			double value = Math.pow(entry.getValue(),
-					owner.getSensitivity().get(entry.getKey() + "_" + service.getName()));
+					owner.getSensitivity().get(entry.getKey() + "|" + service.getName()));
 			pr *= value;
 		}
 		pr = pr * owner.getProductivityLevel().get(service.getName());

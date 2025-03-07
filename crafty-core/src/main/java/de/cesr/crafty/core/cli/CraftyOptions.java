@@ -4,6 +4,7 @@ public class CraftyOptions {
 	private String yamlConfigFilePath;
 	private String project_path;
 	private String scenario_Name;
+	private String output_path;
 	
 
 	public String getConfigFilePath() {
@@ -28,6 +29,14 @@ public class CraftyOptions {
 
 	public void setScenario_Name(String scenario_Name) {
 		this.scenario_Name = scenario_Name;
+	}
+
+	public String getOutput_path() {
+		return output_path;
+	}
+
+	public void setOutput_path(String output_path) {
+		this.output_path = output_path;
 	}
 	
 }

@@ -6,6 +6,8 @@ import java.util.Random;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.AftCategorised;
+import de.cesr.crafty.core.dataLoader.BehaviourLoader;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
@@ -74,7 +76,6 @@ public class Competitiveness {
 				}
 			}
 		}
-
 		if (makeCopetition) {
 			double uC = utility(c, competitor, r);
 			double uO = utility(c, c.owner, r);
@@ -84,14 +85,29 @@ public class Competitiveness {
 					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(competitor) : competitor;
 			} else {
 				double nbr = r.distributionMean != null
-						? (r.distributionMean.get(c.owner)
-								* (c.owner.getGiveInMean() + c.owner.getGiveInSD() * new Random().nextGaussian()))
+						? (r.distributionMean.get(c.owner) * (giveInThreshold(c.owner, competitor)))
 						: 0;
 				if ((uC - uO > nbr) && uC > 0) {
 					c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(competitor) : competitor;
 				}
 			}
 		}
+	}
+
+	private static double giveInThreshold(Aft owner, Aft competitor) {
+		if (AftCategorised.aftCategories.size() != 0) {
+			String key = owner.getCategory().getName() + "|" + competitor.getCategory().getName();
+			Double mean = BehaviourLoader.getMean().get(key);
+			Double sd = BehaviourLoader.getSD().get(key);
+			// Only use the BehaviorLoader-based mean & sd if BOTH are present AND the
+			// categories differ.
+			if (mean != null && sd != null
+					&& !owner.getCategory().getName().equals(competitor.getCategory().getName())) {
+				return mean + sd * new Random().nextGaussian();
+			}
+		}
+		// else Fallback to the owner's giveInMean
+		return owner.getGiveInMean() + owner.getGiveInSD() * new Random().nextGaussian();
 	}
 
 	static void competition(Cell c, RegionalModelRunner r) {

@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 
-
 /**
  * @author Mohamed Byari
  *
@@ -130,8 +129,6 @@ public class PathTools {
 		return line;
 	}
 
-
-
 	static public void writeFile(String path, String text, boolean keepTxt) {
 		File file = new File(path);
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, keepTxt))) {
@@ -191,9 +188,16 @@ public class PathTools {
 	}
 
 	public static String makeDirectory(String dir) {
+		if (dir == null) {
+			return null;
+		}
 		File directory = new File(dir);
 		if (!directory.exists()) {
-			directory.mkdir();
+			// Use mkdirs() if you want to create all parent dirs automatically
+			boolean created = directory.mkdirs();
+			if (!created) {
+				return null;
+			}
 		}
 		return dir;
 	}

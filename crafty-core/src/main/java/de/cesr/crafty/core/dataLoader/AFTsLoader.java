@@ -72,6 +72,7 @@ public class AFTsLoader extends HashSet<Aft> {
 	void initializeAFTs() {
 		updateAftTypes();
 		AftCategorised.CategoriesLoader();
+		BehaviourLoader.initializeBehevoirByCategories();
 		hashAFTs.forEach((Label, a) -> {
 			if (a.isInteract()) {
 				Path pFile = null;
@@ -92,7 +93,8 @@ public class AFTsLoader extends HashSet<Aft> {
 							ProjectLoader.getScenario(), Label + ".csv").get(0);
 				} catch (NullPointerException e) {
 					bFile = PathTools
-							.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), Label + ".csv").get(0);
+							.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), Label + ".csv")
+							.get(0);
 					LOGGER.warn("Default behaviour folder not fund, will use: " + bFile);
 				}
 				initializeAFTBehevoir(bFile);
@@ -224,9 +226,9 @@ public class AFTsLoader extends HashSet<Aft> {
 				ServiceSet.getServicesList().forEach((Sn) -> {
 					Object s = T.column(Cn).get(T.column(0).indexOf(Sn));
 					if (s instanceof Double) {
-						a.getSensitivity().put((Cn + "_" + Sn), (double) s);
+						a.getSensitivity().put((Cn + "|" + Sn), (double) s);
 					} else if (s instanceof Integer) {
-						a.getSensitivity().put((Cn + "_" + Sn), ((Integer) s).doubleValue());
+						a.getSensitivity().put((Cn + "|" + Sn), ((Integer) s).doubleValue());
 					}
 				});
 			});
