@@ -18,6 +18,12 @@ public class MainHeadless {
 
 	public static void main(String[] args) {
 		System.out.println("--Starting CRAFTY execution--");
+		initializeConfig(args);
+		ProjectLoader.modelInitialisation();
+		runHeadless();
+	}
+
+	public static void initializeConfig(String[] args) {
 		LOGGER.info("--Starting CRAFTY execution--");
 		// Load config using the path from CraftyOptions
 		CraftyOptions options = OptionsParser.parseArguments(args);
@@ -33,17 +39,13 @@ public class MainHeadless {
 		if (scenarioName != null) {
 			ConfigLoader.config.scenario = scenarioName;
 		}
-		ProjectLoader.modelInitialisation();
-//		runHeadless(options.getOutput_path());
 	}
-	
-	
 
-	static void runHeadless(String outputPath) {
+	static void runHeadless() {
 		ModelRunner runner = new ModelRunner();
 		ModelRunner.setup();
 		AtomicInteger tick = new AtomicInteger(ProjectLoader.getStartYear());
-		String generatedPath = PathTools.makeDirectory(outputPath);
+		String generatedPath = PathTools.makeDirectory(ConfigLoader.config.Output_path);
 		Listener.outputfolderPath(generatedPath, ConfigLoader.config.output_folder_name);
 		if (ConfigLoader.config.export_LOGGER) {
 			CustomLogger

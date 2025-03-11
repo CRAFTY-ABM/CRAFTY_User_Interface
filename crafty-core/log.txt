@@ -1,0 +1,43 @@
+Build version: null
+
+Error: Failed in reading commodity demand fits
+java.io.FileNotFoundException: null\data\base_consump.csv (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:152)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:106)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at ac.ed.lurg.demand.BaseConsumpManager.read(BaseConsumpManager.java:29)
+	at ac.ed.lurg.demand.BaseConsumpManager.<init>(BaseConsumpManager.java:23)
+	at ac.ed.lurg.ModelMain.setup(ModelMain.java:66)
+	at ac.ed.lurg.ModelMain.main(ModelMain.java:56)
+	at de.cesr.crafty.core.plumLinking.CouplingRunner.main(CouplingRunner.java:18)
+Processed null\data\base_consump.csv, create 0 base consumption values
+Error: Failed in reading country specific calorie per t values
+java.io.FileNotFoundException: null\data\calories_per_t.csv (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:152)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:106)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at ac.ed.lurg.demand.CalorieManager.read(CalorieManager.java:30)
+	at ac.ed.lurg.demand.CalorieManager.<init>(CalorieManager.java:24)
+	at ac.ed.lurg.ModelMain.setup(ModelMain.java:67)
+	at ac.ed.lurg.ModelMain.main(ModelMain.java:56)
+	at de.cesr.crafty.core.plumLinking.CouplingRunner.main(CouplingRunner.java:18)
+Processed null\data\calories_per_t.csv, create 0 calorie per t values
+Not shocking yields as SHOCKS_POSSIBLE false
+Error: AbstractTabularReader: Failed in reading file null\data\animal_numbers.csv
+java.io.FileNotFoundException: null\data\animal_numbers.csv (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:152)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:106)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at ac.ed.lurg.utils.StringTabularReader.read(StringTabularReader.java:40)
+	at ac.ed.lurg.country.AnimalRateManager.<init>(AnimalRateManager.java:18)
+	at ac.ed.lurg.ModelMain.setup(ModelMain.java:70)
+	at ac.ed.lurg.ModelMain.main(ModelMain.java:56)
+	at de.cesr.crafty.core.plumLinking.CouplingRunner.main(CouplingRunner.java:18)
+Processed null\data\animal_numbers.csv, create 0 rows
+Error: Problem deserializing .\demandManager.ser

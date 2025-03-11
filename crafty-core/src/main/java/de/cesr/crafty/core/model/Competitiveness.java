@@ -108,8 +108,6 @@ public class Competitiveness {
 		double uO = utility(c, c.owner, r) / r.maximumUtility.get(c.owner);
 
 		double giveIn = CellBehaviourLoader.cellsBehevoir.get(c).give_In(competitor);
-		System.out.println(c.owner.getLabel() + "= " + uO + " | " + competitor.getLabel() + "= " + uC + "giveIn= "
-				+ giveIn + "==>" + (uC > uO + giveIn));
 		if ((uC > uO + giveIn)) {
 			takeOverAcell(c, competitor);
 		}
