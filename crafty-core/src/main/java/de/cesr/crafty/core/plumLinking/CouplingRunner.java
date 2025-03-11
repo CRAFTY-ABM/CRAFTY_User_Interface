@@ -1,13 +1,6 @@
 package de.cesr.crafty.core.plumLinking;
 
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.main.MainHeadless;
-import de.cesr.crafty.core.output.Listener;
-import de.cesr.crafty.core.utils.analysis.CustomLogger;
 
 
 
@@ -23,7 +16,7 @@ public class CouplingRunner {
 	//	System.out.println("----------Plum run first iteration ---------"+PathsLoader.getStartYear()+"\n\n\n\n\n");
 	//	ModelMain.theModel.runNTick(1);
 		System.out.println("----------PLUM Mapper and Crafty deamnds initial Calibration---------");
-		plumMaper.initialize();
+		//plumMaper.initialize();
 //		runHeadlessWithPlum();
 	}
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ac.ed.lurg.ModelConfig;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 

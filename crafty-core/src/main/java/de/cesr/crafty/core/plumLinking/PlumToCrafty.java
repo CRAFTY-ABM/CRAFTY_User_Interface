@@ -13,7 +13,7 @@ public class PlumToCrafty {
 		mapper.fromPlumTickToCraftyDemands(ProjectLoader.getStartYear());
 		replaceCraftyDemands(ProjectLoader.getStartYear());
 		System.out.println("Equilibrium...");
-		initialDSEquilibrium();
+//		initialDSEquilibrium();
 	}
 
 	public void iterative(int year) {
@@ -21,7 +21,7 @@ public class PlumToCrafty {
 		mapper.fromPlumTickToCraftyDemands(year);
 		System.out.println("	replaceCraftyDemands(year);..." + year);
 		replaceCraftyDemands(year);
-		//updateCalibrator();
+		// updateCalibrator();
 	}
 
 	void replaceCraftyDemands(int year) {
@@ -38,18 +38,18 @@ public class PlumToCrafty {
 		});
 	}
 
-	public void initialDSEquilibrium() {
-		ModelRunnerController.init();
-		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
-			rRunner.regionalSupply();
-			rRunner.initialDSEquilibrium();
-		});
-	}
-
-	public void updateCalibrator() {
-		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
-			rRunner.initialDSEquilibrium();
-		});
-	}
+//	public void initialDSEquilibrium() {
+//		ModelRunnerController.init();
+//		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
+//			rRunner.regionalSupply();
+//			rRunner.initialDSEquilibrium();
+//		});
+//	}
+//
+//	public void updateCalibrator() {
+//		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
+//			rRunner.initialDSEquilibrium();
+//		});
+//	}
 
 }

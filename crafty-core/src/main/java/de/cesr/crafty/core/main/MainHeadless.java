@@ -34,8 +34,10 @@ public class MainHeadless {
 			ConfigLoader.config.scenario = scenarioName;
 		}
 		ProjectLoader.modelInitialisation();
-		runHeadless(options.getOutput_path());
+//		runHeadless(options.getOutput_path());
 	}
+	
+	
 
 	static void runHeadless(String outputPath) {
 		ModelRunner runner = new ModelRunner();

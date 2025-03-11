@@ -3,8 +3,9 @@ package de.cesr.crafty.gui.plumLinking;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import ac.ed.lurg.ModelConfig;
+import ac.ed.lurg.ModelMain;
 import de.cesr.crafty.core.plumLinking.PlumToCrafty;
-import de.cesr.crafty.core.utils.general.Utils;
 import de.cesr.crafty.gui.utils.graphical.GraphicConsol;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.concurrent.Task;
