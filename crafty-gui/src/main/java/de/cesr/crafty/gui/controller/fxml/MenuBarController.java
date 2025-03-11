@@ -42,7 +42,7 @@ public class MenuBarController {
 	public void open(ActionEvent event) {
 		openProject();
 
-		if (!ProjectLoader.getProjectPath().equals("")) {
+		if (ProjectLoader.getProjectPath()!=null) {
 			initialsePAnes();
 		}
 	}
