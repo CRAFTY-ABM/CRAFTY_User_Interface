@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,8 +44,9 @@ public class CellsLoader {
 		}
 
 		loadGisData();
+		CellBehaviourLoader.initialize();
 		AFTsLoader.hashAgentNbr();
-
+// 
 		LOGGER.info("Number of cells for each AFT: " + AFTsLoader.hashAgentNbr);
 	}
 	
@@ -108,20 +108,7 @@ public class CellsLoader {
 		}
 	}
 	
-	public static ConcurrentHashMap<String, Cell> getRandomSubset(ConcurrentHashMap<String, Cell> cellsHash,
-			double percentage) {
 
-		int numberOfElementsToSelect = (int) (cellsHash.size() * (percentage));
-
-		// Use parallel stream for better performance on large maps
-		List<String> keys = new ArrayList<>(cellsHash.keySet());
-		ConcurrentHashMap<String, Cell> randomSubset = new ConcurrentHashMap<>();
-
-		Collections.shuffle(keys, new Random()); // Shuffling the keys for randomness
-		keys.parallelStream().unordered() // This improve performance by eliminating the need for maintaining order
-				.limit(numberOfElementsToSelect).forEach(key -> randomSubset.put(key, cellsHash.get(key)));
-		return randomSubset;
-	}
 	
 	
 

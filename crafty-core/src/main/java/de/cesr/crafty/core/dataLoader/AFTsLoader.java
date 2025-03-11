@@ -72,7 +72,7 @@ public class AFTsLoader extends HashSet<Aft> {
 	void initializeAFTs() {
 		updateAftTypes();
 		AftCategorised.CategoriesLoader();
-		BehaviourLoader.initializeBehevoirByCategories();
+		AftCategorised.initializeBehevoirByCategories();
 		hashAFTs.forEach((Label, a) -> {
 			if (a.isInteract()) {
 				Path pFile = null;
@@ -180,7 +180,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		a.setGiveUpProbabilty(Utils.sToD(reder.get("givingUpProb").get(0)));
 	}
 
-	public void initializeAFTProduction(Path aftPath) {
+	private void initializeAFTProduction(Path aftPath) {
 		File file = aftPath.toFile();
 		updateAFTProduction(hashAFTs.get(file.getName().replace(".csv", "")), file);
 	}
@@ -238,7 +238,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		}
 	}
 
-	public static void updateAFTProduction(Aft a, File file) {
+	private static void updateAFTProduction(Aft a, File file) {
 		String[][] m = CsvTools.csvReader(file.toPath());
 		for (int i = 0; i < m.length; i++) {
 			if (ServiceSet.getServicesList().contains(m[i][0])) {

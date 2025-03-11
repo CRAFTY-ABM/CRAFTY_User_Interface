@@ -17,6 +17,7 @@ public class MainHeadless {
 	private static final CustomLogger LOGGER = new CustomLogger(MainHeadless.class);
 
 	public static void main(String[] args) {
+		System.out.println("--Starting CRAFTY execution--");
 		LOGGER.info("--Starting CRAFTY execution--");
 		// Load config using the path from CraftyOptions
 		CraftyOptions options = OptionsParser.parseArguments(args);

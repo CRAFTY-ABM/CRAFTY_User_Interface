@@ -9,7 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
+import de.cesr.crafty.core.dataLoader.AftCategorised;
+import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.output.ListenerByRegion;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
@@ -25,6 +26,8 @@ public class RegionalModelRunner {
 	ConcurrentHashMap<String, Double> regionalSupply;
 	ConcurrentHashMap<String, Double> marginal = new ConcurrentHashMap<>();
 	ConcurrentHashMap<Aft, Double> distributionMean;
+	ConcurrentHashMap<Aft, Double> maximumUtility;
+
 	public Region R;
 
 	public ListenerByRegion listner;
@@ -37,7 +40,7 @@ public class RegionalModelRunner {
 
 	private void calculeRegionsSupply() {
 		regionalSupply = new ConcurrentHashMap<>();
-		R.getCells().values().parallelStream().forEach(c -> {
+		R.getCells().values()/**/.parallelStream().forEach(c -> {
 			c.currentProductivity.forEach((s, v) -> {
 				regionalSupply.merge(s, v, Double::sum);
 			});
@@ -45,13 +48,13 @@ public class RegionalModelRunner {
 	}
 
 	private void productivityForAll() {
-		R.getCells().values().parallelStream().forEach(cell -> cell.calculateCurrentProductivity(R));
+		R.getCells().values()/**/.parallelStream().forEach(cell -> cell.calculateCurrentProductivity(R));
 	}
 
 	private void calculeDistributionMean() {
-		LOGGER.info("Region: [" + R.getName() + "] Calculating Distribution Mean & Land abandonment");
+		LOGGER.info("Region: [" + R.getName() + "] Calculating Distribution Mean");
 		distributionMean = new ConcurrentHashMap<>();
-		R.getCells().values().parallelStream().forEach(c -> {
+		R.getCells().values()/**/.parallelStream().forEach(c -> {
 			if (c.getOwner() != null) {
 				distributionMean.merge(c.getOwner(), Competitiveness.utility(c, c.getOwner(), this), Double::sum);
 			}
@@ -60,8 +63,21 @@ public class RegionalModelRunner {
 
 		// Calculate the mean distribution
 		distributionMean.forEach((a, total) -> {
-			distributionMean.put(a, total / AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(a.label));
+			if (AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(a.label) != 0) {
+				distributionMean.put(a, total / AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(a.label));
+			}
 		});
+	}
+
+	private void calculeMaxUtility() {
+		LOGGER.info("Region: [" + R.getName() + "] Calculating Maximum");
+		maximumUtility = new ConcurrentHashMap<>();
+		R.getCells().values().parallelStream().forEach(c -> {
+			if (c.getOwner() != null) {
+				maximumUtility.merge(c.getOwner(), Competitiveness.utility(c, c.getOwner(), this), Double::max);
+			}
+		});
+		AFTsLoader.getActivateAFTsHash().values().forEach(a -> maximumUtility.computeIfAbsent(a, key -> 0.));
 	}
 
 	private void calculeMarginal(int year) {
@@ -82,7 +98,7 @@ public class RegionalModelRunner {
 
 	void takeOverUnmanageCells() {
 		LOGGER.trace("Region: [" + R.getName() + "] Take over unmanaged cells & Launching the competition process...");
-		R.getUnmanageCellsR().parallelStream().forEach(c -> {
+		R.getUnmanageCellsR()/**/.parallelStream().forEach(c -> {
 			Competitiveness.competition(c, this);
 			if (c.getOwner() != null && !c.getOwner().isAbandoned()) {
 				R.getUnmanageCellsR().remove(c);
@@ -130,7 +146,12 @@ public class RegionalModelRunner {
 
 		calculeMarginal(year);
 		calculeDistributionMean();
-		calculeMarginal(year);
+		if (AftCategorised.useCategorisationGivIn && CellBehaviourLoader.behaviourUsed) {
+			calculeMaxUtility();
+			maximumUtility.forEach((a, v) -> {
+				System.out.println(a.getLabel() + "=>" + v + "  ?   " + distributionMean.get(a));
+			});
+		}
 		giveUp();
 		takeOverUnmanageCells();
 		competition(year);
@@ -139,10 +160,10 @@ public class RegionalModelRunner {
 
 	private void giveUp() {
 		if (ConfigLoader.config.use_abandonment_threshold) {
-			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsLoader.getRandomSubset(R.getCells(),
+			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsSubSets.getRandomSubset(R.getCells(),
 					ConfigLoader.config.land_abandonment_percentage);
 			if (randomCellsubSetForGiveUp != null) {
-				randomCellsubSetForGiveUp.values().parallelStream().forEach(c -> {
+				randomCellsubSetForGiveUp.values()/**/ .parallelStream().forEach(c -> {
 					c.giveUp(this, distributionMean);
 				});
 			}
@@ -151,7 +172,7 @@ public class RegionalModelRunner {
 
 	private void competition(int year) {
 		// Randomly select % of the land available for competition
-		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsLoader.getRandomSubset(R.getCells(),
+		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsSubSets.getRandomSubset(R.getCells(),
 				ConfigLoader.config.participating_cells_percentage);
 		if (randomCellsubSet != null) {
 			List<ConcurrentHashMap<String, Cell>> subsubsets = Utils.splitIntoSubsets(randomCellsubSet,
@@ -160,7 +181,7 @@ public class RegionalModelRunner {
 			ConcurrentHashMap<String, Double> servicesAfterCompetition = new ConcurrentHashMap<>();
 			subsubsets.forEach(subsubset -> {
 				if (subsubset != null) {
-					subsubset.values().parallelStream().forEach(c -> {
+					subsubset.values()/**/.parallelStream().forEach(c -> {
 						if (c.getOwner() != null && c.getOwner().isActive()) {
 							if (c.getCurrentProductivity().size() > 0) {
 								c.getCurrentProductivity().forEach(
@@ -180,15 +201,14 @@ public class RegionalModelRunner {
 		}
 	}
 
-	private void productivityForAllExecutor() {
+	private void productivityForAllExecutor() {// double multithreding
 		LOGGER.info("Productivity calculation for all cells ");
 		final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		List<Map<String, Cell>> partitions = Utils.partitionMap(R.getCells(), 10); // Partition into 10
 																					// sub-maps
 		try {
 			for (Map<String, Cell> subMap : partitions) {
-				executor.submit(
-						() -> subMap.values().parallelStream().forEach(c -> c.calculateCurrentProductivity(R)));
+				executor.submit(() -> subMap.values().parallelStream().forEach(c -> c.calculateCurrentProductivity(R)));
 			}
 		} finally {
 			executor.shutdown();
@@ -198,5 +218,51 @@ public class RegionalModelRunner {
 			} // Wait for all tasks to complete
 		}
 	}
+
+//	private void productivityForAllExecutor() {//  multithreding
+//	    LOGGER.info("Productivity calculation for all cells.");
+//
+//	    // Create a pool sized to the available processors
+//	    final ExecutorService executor = Executors.newFixedThreadPool(
+//	        Runtime.getRuntime().availableProcessors()
+//	    );
+//
+//	    // Partition the cell map into 10 sub-maps (tweak this number as needed)
+//	    List<Map<String, Cell>> partitions = Utils.partitionMap(R.getCells(), 1);
+//
+//	    try {
+//	        // Submit one task per sub-map
+//	        for (Map<String, Cell> subMap : partitions) {
+//	            executor.submit(() -> {
+//	                for (Cell c : subMap.values()) {
+//	                    c.calculateCurrentProductivity(R);
+//	                }
+//	            });
+//	        }
+//	    } finally {
+//	        // Gracefully shut down the executor
+//	        executor.shutdown();
+//	        try {
+//	            executor.awaitTermination(10, TimeUnit.MINUTES);
+//	        } catch (InterruptedException e) {
+//	            // Restore interrupted status
+//	            Thread.currentThread().interrupt();
+//	        }
+//	    }
+//	}
+
+//	private void productivityForAllExecutor() {//singl thread
+//	    LOGGER.info("Productivity calculation for all cells.");
+//
+//	    // Partition the cell map into 1 sub-map chunk (or whichever size you need)
+//	    List<Map<String, Cell>> partitions = Utils.partitionMap(R.getCells(), 1);
+//
+//	    // Process each partition in a normal loop (no multithreading)
+//	    for (Map<String, Cell> subMap : partitions) {
+//	        for (Cell c : subMap.values()) {
+//	            c.calculateCurrentProductivity(R);
+//	        }
+//	    }
+//	}
 
 }

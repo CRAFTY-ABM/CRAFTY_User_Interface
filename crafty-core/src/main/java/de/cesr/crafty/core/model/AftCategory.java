@@ -4,6 +4,7 @@ public class AftCategory {
 
 	private String name;
 	private String intensity;
+	private int intensityLevel;
 
 	public AftCategory(String name) {
 		this.name = name;
@@ -25,9 +26,18 @@ public class AftCategory {
 		this.intensity = intensity;
 	}
 
-	@Override
-	public String toString() {
-		return "AftCategory [name=" + name + ", intensity=" + intensity + "]";
+	public int getIntensityLevel() {
+		return intensityLevel;
 	}
 
+	public void setIntensityLevel(int intensityLevel) {
+		this.intensityLevel = intensityLevel;
+	}
+
+	@Override
+	public String toString() {
+		return "AftCategory [name=" + name + ", intensity=" + intensity + ", intensityLevel=" + intensityLevel + "]";
+	}
+
+	
 }

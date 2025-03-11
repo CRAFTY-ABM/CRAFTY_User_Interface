@@ -21,7 +21,7 @@ public final class ProjectLoader {
 	private static final CustomLogger LOGGER = new CustomLogger(ProjectLoader.class);
 	private static int startYear;
 	private static int endtYear;
-	private static int currentYear = startYear;
+	private static int currentYear;
 	private static Path projectPath;
 
 	private static ArrayList<String> scenariosList = new ArrayList<>();
@@ -124,6 +124,7 @@ public final class ProjectLoader {
 		ProjectLoader.scenario = scenario;
 		String[] temp = scenariosHash.get(scenario).split("_");
 		startYear = (int) Utils.sToD(temp[0]);
+		currentYear = startYear;
 		endtYear = (int) Utils.sToD(temp[1]);
 		LOGGER.info(scenario + "--> startYear= " + startYear + ", endtYear " + endtYear);
 	}

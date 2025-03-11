@@ -40,7 +40,7 @@ public class Utils {
 		}
 
 		// Distribute keys randomly across the n subsets
-		cellsHash.keySet().parallelStream().forEach(key -> {
+		cellsHash.keySet()/* */ .parallelStream().forEach(key -> {
 			int subsetIndex = ThreadLocalRandom.current().nextInt(n);
 			subsets.get(subsetIndex).put(key, cellsHash.get(key));
 		});

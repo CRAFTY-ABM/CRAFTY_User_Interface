@@ -34,11 +34,19 @@ public class Cell extends AbstractCell {
 			return;
 		double pr = 1.0;
 		for (Map.Entry<String, Double> entry : capitals.entrySet()) {
-			double value = Math.pow(entry.getValue(),
-					owner.getSensitivity().get(entry.getKey() + "|" + service.getName()));
-			pr *= value;
+			Double sensitivity = owner.getSensitivity().get(entry.getKey() + "|" + service.getName());
+			if (sensitivity != null) {
+				double value = Math.pow(entry.getValue(), sensitivity);
+				pr *= value;
+			} else {
+				return;
+			}
 		}
-		pr = pr * owner.getProductivityLevel().get(service.getName());
+		if (owner.getProductivityLevel().get(service.getName()) != null) {
+			pr = pr * owner.getProductivityLevel().get(service.getName());
+		} else {
+			return;
+		}
 
 		currentProductivity.put(service.getName(), pr);
 	}

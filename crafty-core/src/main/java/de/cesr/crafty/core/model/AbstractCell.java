@@ -2,7 +2,7 @@ package de.cesr.crafty.core.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-
+import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 
 //import javafx.scene.paint.Color;
 
@@ -101,7 +101,7 @@ public abstract class AbstractCell {
 				+ (getOwner() != null ? getOwner().category : "null")
 				// + ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" +
 				// getCurrentProductivity()
-				+ "]";
+				+ "] \n " + CellBehaviourLoader.cellsBehevoir.get(this);
 	}
 
 }

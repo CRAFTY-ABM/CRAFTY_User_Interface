@@ -1,9 +1,13 @@
 package de.cesr.crafty.core.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -13,28 +17,7 @@ import de.cesr.crafty.core.dataLoader.ProjectLoader;
 
 public class CellsSubSets {
 
-	public static void actionInNeighboorSameLabel(Cell c) {
-		if (c.getOwner() != null) {
-			AtomicInteger sum = new AtomicInteger();
-			neighborhoodOnAction(c, vc -> {
-				if (vc.owner != null)
-					if (vc.owner.getLabel().equals(c.owner.getLabel())) {
-						sum.getAndIncrement();
-					}
-			});
-			c.owner.setGiveInMean(c.owner.getGiveInMean() + sum.get());
 
-//			owner.productivityLevel.forEach((n, v) -> {
-//				owner.productivityLevel.put(n, v +  (sum.get()));
-//			});
-		}
-	}
-
-	static void neighborhoodOnAction(Cell c, Consumer<Cell> action) {
-		getMooreNeighborhood(c).forEach(c0 -> {
-			action.accept(c0);
-		});
-	}
 
 	static Collection<Aft> detectNeighboringAFTs(Cell c) {
 		Set<Aft> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
@@ -60,9 +43,9 @@ public class CellsSubSets {
 		return neighborhood;
 	}
 
-	static Collection<Aft> detectExtendedNeighboringAFTs(Cell c, int r) {
+	static Collection<Aft> detectExtendedNeighboringAFTs(Cell c, int raduis) {
 		Set<Aft> neighborhoodAFts = Collections.synchronizedSet(new HashSet<>());
-		Set<Cell> neighborhoodCells = getExtendedMooreNeighborhood(c, r);
+		Set<Cell> neighborhoodCells = getExtendedMooreNeighborhood(c, raduis);
 		neighborhoodCells.forEach(vc -> {
 			if (vc.getOwner() != null && vc.getOwner().isInteract())
 				neighborhoodAFts.add(vc.getOwner());
@@ -84,6 +67,21 @@ public class CellsSubSets {
 			}
 		}
 		return neighborhood;
+	}
+	
+	public static ConcurrentHashMap<String, Cell> getRandomSubset(ConcurrentHashMap<String, Cell> cellsHash,
+			double percentage) {
+
+		int numberOfElementsToSelect = (int) (cellsHash.size() * (percentage));
+
+		// Use parallel stream for better performance on large maps
+		List<String> keys = new ArrayList<>(cellsHash.keySet());
+		ConcurrentHashMap<String, Cell> randomSubset = new ConcurrentHashMap<>();
+
+		Collections.shuffle(keys, new Random()); // Shuffling the keys for randomness
+		keys.stream()/* .parallelStream() */.unordered() // This improve performance by eliminating the need for maintaining order
+				.limit(numberOfElementsToSelect).forEach(key -> randomSubset.put(key, cellsHash.get(key)));
+		return randomSubset;
 	}
 
 //	public static void selectZone(Cell patch, String zonetype) {

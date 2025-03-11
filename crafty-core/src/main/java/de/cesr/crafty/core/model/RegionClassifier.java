@@ -22,7 +22,7 @@ public class RegionClassifier {
 			CellsLoader.regionsNamesSet.forEach(regionName -> {
 				regions.put(regionName, new Region(regionName));
 			});
-			CellsLoader.hashCell.values()/* .parallelStream() */.forEach(c -> {
+			CellsLoader.hashCell.values() .parallelStream() /**/.forEach(c -> {
 				if (c.getCurrentRegion() != null) {
 					regions.get(c.getCurrentRegion()).getCells().put(c.getX() + "," + c.getY(), c);
 				}

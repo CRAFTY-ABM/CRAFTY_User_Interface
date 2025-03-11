@@ -1,7 +1,6 @@
 package de.cesr.crafty.core.dataLoader;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,13 +10,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import de.cesr.crafty.core.model.Aft;
 import de.cesr.crafty.core.model.Cell;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -84,7 +81,6 @@ public class ReaderFile {
 			for (int i = 0; i < line1.length; i++) {
 				indexof.put(line1[i].toUpperCase(), i);
 			}
-
 			String line;
 			while ((line = br.readLine()) != null) {
 				final String data = line;
@@ -102,7 +98,6 @@ public class ReaderFile {
 					case "Baseline":
 						createCells(cells, indexof, data);
 						break;
-
 					}
 				});
 			}
@@ -123,6 +118,39 @@ public class ReaderFile {
 			}
 		}
 	}
+
+//	public static void processCSV(CellsLoader cells, Path filePath, String type) {// not multithred
+//	    LOGGER.info("Importing data for " + type + " from : " + filePath + "...");
+//
+//	    ConcurrentHashMap<String, Integer> indexof = new ConcurrentHashMap<>();
+//
+//	    try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
+//	        // Read the first line (column headers)
+//	        String[] line1 = br.readLine().split(",");
+//	        for (int i = 0; i < line1.length; i++) {
+//	            indexof.put(line1[i].toUpperCase(), i);
+//	        }
+//
+//	        // Read each subsequent line and process directly
+//	        String line;
+//	        while ((line = br.readLine()) != null) {
+//	            // No executor; just do the switch logic on the current thread
+//	            switch (type) {
+//	                case "Capitals":
+//	                    associateCapitalsToCells(indexof, line);
+//	                    break;
+//	                case "Services":
+//	                    associateOutPutServicesToCells(cells, indexof, line);
+//	                    break;
+//	                case "Baseline":
+//	                    createCells(cells, indexof, line);
+//	                    break;
+//	            }
+//	        }
+//	    } catch (IOException e) {
+//	        LOGGER.error(e.getMessage());
+//	    }
+//	}
 
 	static void associateCapitalsToCells(ConcurrentHashMap<String, Integer> indexof, String data) {
 		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));

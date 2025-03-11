@@ -89,7 +89,7 @@ public class CsvTools {
 		LOGGER.info("Processing data to write a csv file...");
 		List<String> serviceImmutableList = Collections.unmodifiableList(ServiceSet.getServicesList());
 		// Process the cells in parallel to transform each Cell into a CSV string
-		Set<String> csvLines = CellsLoader.hashCell.values().parallelStream().map(c -> {
+		Set<String> csvLines = CellsLoader.hashCell.values().stream()/*.parallelStream()*/ .map(c -> {
 			String servicesFlattened = flattenHashMap(c, serviceImmutableList);
 			return String.join(",", c.getID() + "", c.getX() + "", c.getY() + "",
 					c.getOwner() != null ? c.getOwner().getLabel() : "null", servicesFlattened);
