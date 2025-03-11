@@ -23,6 +23,7 @@ public class Config {
 	public double land_abandonment_percentage;
 	// Output Configurati
 	public String output_folder_name;
+	public String Output_path;
 	public boolean generate_csv_files;
 	public int csv_output_frequency;
 	public boolean track_changes;

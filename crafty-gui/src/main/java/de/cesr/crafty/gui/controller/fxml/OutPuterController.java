@@ -209,7 +209,7 @@ public class OutPuterController {
 						.makeDirectory(outputpath + File.separator + OutPutTabController.radioColor[ii].getText());
 				yearChoice.getItems().forEach(filepath -> {
 					ProjectLoader.cellsSet.servicesAndOwneroutPut(filepath, outputpath.toString());
-					OutPutTabController.radioColor[ii].fire();
+					CellsSet.colorMap(OutPutTabController.radioColor[ii].getText());
 					String fileyear = new File(filepath).getName().replace(".csv", "").replace("-Cell-", "");
 					for (String scenario : ProjectLoader.getScenariosList()) {
 						fileyear = fileyear.replace(scenario, "");

@@ -148,9 +148,6 @@ public class RegionalModelRunner {
 		calculeDistributionMean();
 		if (AftCategorised.useCategorisationGivIn && CellBehaviourLoader.behaviourUsed) {
 			calculeMaxUtility();
-			maximumUtility.forEach((a, v) -> {
-				System.out.println(a.getLabel() + "=>" + v + "  ?   " + distributionMean.get(a));
-			});
 		}
 		giveUp();
 		takeOverUnmanageCells();
