@@ -80,18 +80,20 @@ public class Competitiveness {
 	}
 
 	private static void landUsechange(Cell c, Aft competitor, RegionalModelRunner r) {
+
+		if (c.owner == null || c.owner.isAbandoned()) {
+			// if (uC > 0)
+			takeOverAcell(c, competitor);
+			System.out.println("taked Over By: " + c.owner);
+			return;
+		}
 		double uC = utility(c, competitor, r);
 		double uO = utility(c, c.owner, r);
-		if (c.owner == null || c.owner.isAbandoned()) {
-			if (uC > 0)
-				takeOverAcell(c, competitor);
-		} else {
-			double nbr = r.distributionMean != null
-					? (r.distributionMean.get(c.owner) * (giveInThreshold(c.owner, competitor)))
-					: 0;
-			if ((uC - uO > nbr) && uC > 0) {
-				takeOverAcell(c, competitor);
-			}
+		double nbr = r.distributionMean != null
+				? (r.distributionMean.get(c.owner) * (giveInThreshold(c.owner, competitor)))
+				: 0;
+		if ((uC - uO > nbr) && uC > 0) {
+			takeOverAcell(c, competitor);
 		}
 	}
 
@@ -141,6 +143,7 @@ public class Competitiveness {
 				: AFTsLoader.getActivateAFTsHash().values();
 
 		if (Math.random() < ConfigLoader.config.MostCompetitorAFTProbability) {
+			mostCompetitiveAgent(c, afts, r);
 			Competition(c, mostCompetitiveAgent(c, afts, r), r);
 		} else {
 			Competition(c, AFTsLoader.getRandomAFT(afts), r);

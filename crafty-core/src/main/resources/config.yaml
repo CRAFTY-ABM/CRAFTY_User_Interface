@@ -23,13 +23,13 @@ neighbor_radius: 2                            # Radius defining neighborhood if 
 participating_cells_percentage: 0.02          # Percentage of cells participating in competitiveness process
 marginal_utility_calculations_per_tick: 1     # Number of times the marginal utility calculated per tick
 land_abandonment_percentage: 0.02             # Percentage of land that can be abandoned per tick
-
+takeOverUnmanageCells_percentage: 0.5         # Percentage of take over of abandoned land
 # Output Configuration
 generate_csv_files: true                      # Enable CSV file output
 output_folder_name: ''                        #if left empty defaults to timestamped folder,project_path\output\scenario\output_folder_name
 csv_output_frequency: 10                      # Ticks interval for CSV output of land use and service supply
 track_changes: true                          # Enable change tracking in output
 export_LOGGER: true
-LOGGER_info: false
-LOGGER_warn: false
+LOGGER_info: true
+LOGGER_warn: true
 LOGGER_trace: false

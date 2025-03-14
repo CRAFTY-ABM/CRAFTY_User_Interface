@@ -21,6 +21,8 @@ public class Config {
 	public double participating_cells_percentage;
 	public int marginal_utility_calculations_per_tick;
 	public double land_abandonment_percentage;
+	public double takeOverUnmanageCells_percentage=1;
+	
 	// Output Configurati
 	public String output_folder_name;
 	public String Output_path;
