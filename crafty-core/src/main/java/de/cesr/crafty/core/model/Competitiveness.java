@@ -84,7 +84,6 @@ public class Competitiveness {
 		if (c.owner == null || c.owner.isAbandoned()) {
 			// if (uC > 0)
 			takeOverAcell(c, competitor);
-			System.out.println("taked Over By: " + c.owner);
 			return;
 		}
 		double uC = utility(c, competitor, r);
