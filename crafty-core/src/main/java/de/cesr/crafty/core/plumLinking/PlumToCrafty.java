@@ -32,6 +32,7 @@ public class PlumToCrafty {
 					if (ServiceSet.getServicesList().contains(serviceName)) {
 						Region R = RegionClassifier.regions.get(country);
 						R.getServicesHash().get(serviceName).getDemands().put(y, value);
+						
 					}
 				});
 			}

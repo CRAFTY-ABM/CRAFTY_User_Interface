@@ -23,6 +23,8 @@ public class PlumCommodityMapping {
 	private List<Map<String, String>> domestic;
 	private HashMap<String, Set<String>> FilterHash = new HashMap<>();
 	Map<String, String> countryShortNameMap = new HashMap<>();
+	public Map<String, Map<String, Double>> finalCountriesDemands = new HashMap<>();
+	public Map<String,  Double> aggregateFinalCountriesDemands = new HashMap<>();//here
 
 	void Eu_countries() {
 		String[] EuCountries = { "Cyprus", "Czechia", "Portugal", "Greece", "Austria", "Latvia", "Netherlands",
@@ -37,7 +39,7 @@ public class PlumCommodityMapping {
 		}
 	}
 
-	public Map<String, Map<String, Double>> finalCountriesDemands = new HashMap<>();
+
 
 	public void initialize() {
 		allpaths = PathTools.findAllFiles(Paths.get(ModelConfig.OUTPUT_DIR));
@@ -99,7 +101,6 @@ public class PlumCommodityMapping {
 			});
 			countriesDemands.put(countryShortNameMap.get(country), d);
 		}
-
 		countriesDemands.forEach((country, demandMap) -> {
 			Map<String, Double> map = new HashMap<>();
 			for (Map<String, String> line : demandMap) {
@@ -116,8 +117,8 @@ public class PlumCommodityMapping {
 				map.merge("BioenergyG1", Bioenergy1G, Double::sum);
 				map.merge("Pasture", getCrop(line, "pasture", "Rum_feed_produced"), Double::sum);
 				map.merge("C4crops", getCrop(line, "maize", "Food_produced"), Double::sum);
-				map.merge("C3rice", getCrop(line, "rice", "Food_produced"), Double::sum);//
-				map.merge("C3oilNFix", getCrop(line, "oilcropsNFix", "Food_produced"), Double::sum);//
+			//	map.merge("C3rice", getCrop(line, "rice", "Food_produced"), Double::sum);//
+			//	map.merge("C3oilNFix", getCrop(line, "oilcropsNFix", "Food_produced"), Double::sum);//
 				map.merge("C3oilcrops", getCrop(line, "oilcropsOther", "Food_produced"), Double::sum);
 				map.merge("C3starchyroots", getCrop(line, "starchyRoots", "Food_produced"), Double::sum);
 				map.merge("C3cereals", getCrop(line, "wheat", "Food_produced"), Double::sum);

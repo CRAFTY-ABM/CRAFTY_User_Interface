@@ -13,20 +13,19 @@ import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
 
-public class CouplingRunner {
+public class MainCoupling {
 
 	static PlumToCrafty plumMaper = new PlumToCrafty();
 
 	public static void main(String[] args) {
-		System.out.println("----------Crafty initialisation----------");
+	//	System.out.println("----------Crafty initialisation----------");
 		MainHeadless.initializeConfig(args);
 		ProjectLoader.modelInitialisation();
-		System.out.println("----------PLUM initialisation---------");
-		ModelMain.main(new String[] {});
-		System.out
-				.println("----------Plum run first iteration ---------" + ProjectLoader.getStartYear() + "\n\n\n\n\n");
-		ModelMain.theModel.runNTick(1);
-		System.out.println("----------PLUM Mapper and Crafty deamnds initial Calibration---------");
+//		System.out.println("----------PLUM initialisation---------");
+//		ModelMain.main(new String[] {});
+//		System.out.println("--------Plum run first iteration ------" + ProjectLoader.getStartYear() + "\n\n\n");
+//		ModelMain.theModel.runNTick(1);
+//		System.out.println("----------PLUM Mapper and Crafty deamnds initial Calibration---------");
 		plumMaper.initialize();
 		runHeadlessWithPlum();
 	}
@@ -48,9 +47,10 @@ public class CouplingRunner {
 		ModelRunner.demandEquilibrium();
 
 		for (int i = 0; i <= ProjectLoader.getEndtYear() - ProjectLoader.getStartYear(); i++) {
+			System.out.println("---------"+tick.get()+ "----------");
 			ProjectLoader.setCurrentYear(tick.get());
 			runner.step();
-			ModelMain.theModel.runNTick(1);
+//			ModelMain.theModel.runNTick(1);
 			plumMaper.iterative(tick.get());
 			tick.getAndIncrement();
 		}
