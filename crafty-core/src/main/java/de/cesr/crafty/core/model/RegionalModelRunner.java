@@ -99,9 +99,11 @@ public class RegionalModelRunner {
 	void takeOverUnmanageCells() {
 		LOGGER.trace("Region: [" + R.getName() + "] Take over unmanaged cells & Launching the competition process...");
 		R.getUnmanageCellsR()/**/.parallelStream().forEach(c -> {
-			Competitiveness.competition(c, this);
-			if (c.getOwner() != null && !c.getOwner().isAbandoned()) {
-				R.getUnmanageCellsR().remove(c);
+			if (Math.random() <ConfigLoader.config.takeOverUnmanageCells_percentage) {
+				Competitiveness.competition(c, this);
+				if (c.getOwner() != null && !c.getOwner().isAbandoned()) {
+					R.getUnmanageCellsR().remove(c);
+				}
 			}
 		});
 	}

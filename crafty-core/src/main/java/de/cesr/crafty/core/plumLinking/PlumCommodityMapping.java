@@ -21,9 +21,9 @@ public class PlumCommodityMapping {
 	private List<Map<String, String>> domestic;
 	private HashMap<String, Set<String>> FilterHash = new HashMap<>();
 	Map<String, String> countryShortNameMap = new HashMap<>();
-	public Map<String, Map<String, Double>> finalCountriesDemands = new HashMap<>();
+	public Map<String, Map<String, Double>> finalCountriesDemands;
 	public Map<String, Double> totalDemands = new HashMap<>();
-	public Map<String, Map<String, Double>> finalCountriesPrice = new HashMap<>();
+	public Map<String, Map<String, Double>> finalCountriesPrice;
 	public Map<String, Double> totalPrice = new HashMap<>();
 
 	void Eu_countries() {
@@ -114,6 +114,9 @@ public class PlumCommodityMapping {
 	}
 
 	private void getPriceFromData(Map<String, List<Map<String, String>>> countriesData) {
+		finalCountriesPrice = new HashMap<>();
+		totalPrice = new HashMap<>();
+
 		countriesData.forEach((country, data) -> {
 			Map<String, Double> map = new HashMap<>();
 			for (Map<String, String> line : data) {
@@ -140,6 +143,8 @@ public class PlumCommodityMapping {
 	}
 
 	private void getDemandsFromData(Map<String, List<Map<String, String>>> countriesData) {
+		finalCountriesDemands = new HashMap<>();
+		totalDemands = new HashMap<>();
 		countriesData.forEach((country, data) -> {
 			Map<String, Double> map = new HashMap<>();
 			for (Map<String, String> line : data) {

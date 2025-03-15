@@ -17,23 +17,24 @@ public class MainCoupling {
 	public static void main(String[] args) {
 		MainHeadless.initializeConfig(args);
 		ProjectLoader.modelInitialisation();
+		outputPathConfig();
+		ModelRunner.setup();
 		OfflineCoupling coupler = new OfflineCoupling();
 		coupler.replaceCraftyDemandsAndPrice();
 		run();
 	}
 
 	static void run() {
-		ModelRunner.setup();
-		outputPathConfig();
-		ModelRunner.demandEquilibrium();
 
-		for (int i = ProjectLoader.getStartYear(); i <= ProjectLoader.getEndtYear(); i++) {
+		 ModelRunner.demandEquilibrium();
+		int end = ProjectLoader.getEndtYear();
+
+		for (int i = ProjectLoader.getStartYear(); i <= end; i++) {
 			System.out.println("---------" + i + "----------");
 			ProjectLoader.setCurrentYear(i);
 			runner.step();
 
 		}
-
 	}
 
 	static private void outputPathConfig() {
