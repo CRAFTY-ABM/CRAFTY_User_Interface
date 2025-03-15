@@ -2,6 +2,7 @@ package de.cesr.crafty.core.plumLinking;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.model.ModelRunner;
 import de.cesr.crafty.core.model.Region;
 import de.cesr.crafty.core.model.RegionClassifier;
 
@@ -10,15 +11,17 @@ public class PlumToCrafty {
 
 	public void initialize() {
 		mapper.initialize();
-		mapper.fromPlumTickToCraftyDemands(ProjectLoader.getStartYear());
+		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
 		replaceCraftyDemands(ProjectLoader.getStartYear());
-		System.out.println("Equilibrium...");
-//		initialDSEquilibrium();
+
+		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
+			rRunner.initialDSEquilibriumFactorCalculation();
+		});
 	}
 
 	public void iterative(int year) {
 		System.out.println("mapper.fromPlumTickToCraftyDemands(year)..." + year);
-		mapper.fromPlumTickToCraftyDemands(year);
+		mapper.fromPlumToDemands(year);
 		System.out.println("	replaceCraftyDemands(year);..." + year);
 		replaceCraftyDemands(year);
 		// updateCalibrator();
@@ -39,13 +42,6 @@ public class PlumToCrafty {
 		});
 	}
 
-//	public void initialDSEquilibrium() {
-//		ModelRunnerController.init();
-//		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
-//			rRunner.regionalSupply();
-//			rRunner.initialDSEquilibrium();
-//		});
-//	}
 //
 //	public void updateCalibrator() {
 //		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {

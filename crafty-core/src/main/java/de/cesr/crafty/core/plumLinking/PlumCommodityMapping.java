@@ -13,8 +13,6 @@ import ac.ed.lurg.ModelConfig;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
-
-
 public class PlumCommodityMapping {
 	ArrayList<Path> allpaths;
 	private List<Map<String, String>> bio_fractions;
@@ -24,7 +22,9 @@ public class PlumCommodityMapping {
 	private HashMap<String, Set<String>> FilterHash = new HashMap<>();
 	Map<String, String> countryShortNameMap = new HashMap<>();
 	public Map<String, Map<String, Double>> finalCountriesDemands = new HashMap<>();
-	public Map<String,  Double> aggregateFinalCountriesDemands = new HashMap<>();//here
+	public Map<String, Double> totalDemands = new HashMap<>();
+	public Map<String, Map<String, Double>> finalCountriesPrice = new HashMap<>();
+	public Map<String, Double> totalPrice = new HashMap<>();
 
 	void Eu_countries() {
 		String[] EuCountries = { "Cyprus", "Czechia", "Portugal", "Greece", "Austria", "Latvia", "Netherlands",
@@ -39,8 +39,6 @@ public class PlumCommodityMapping {
 		}
 	}
 
-
-
 	public void initialize() {
 		allpaths = PathTools.findAllFiles(Paths.get(ModelConfig.OUTPUT_DIR));
 		Eu_countries();
@@ -49,7 +47,7 @@ public class PlumCommodityMapping {
 
 	}
 
-	void fromPlumTickToCraftyDemands(int tick) {
+	void fromPlumToDemands(int tick) {
 		iterativeFileReadingAndFilter(tick);
 		mappingDemands();
 	}
@@ -90,20 +88,61 @@ public class PlumCommodityMapping {
 
 	void mappingDemands() {
 		List<Map<String, String>> domistic = domestic_prod();
+
 		// split by countries
-		Map<String, List<Map<String, String>>> countriesDemands = new HashMap<>();
-			for(String country: countryShortNameMap.keySet()) {
+		Map<String, List<Map<String, String>>> countriesData = new HashMap<>();
+		for (String country : countryShortNameMap.keySet()) {
 			List<Map<String, String>> d = new ArrayList<>();
 			domistic.forEach(line -> {
 				if (line.get("Country").equals(country)) {
 					d.add(line);
 				}
 			});
-			countriesDemands.put(countryShortNameMap.get(country), d);
+			countriesData.put(countryShortNameMap.get(country), d);
 		}
-		countriesDemands.forEach((country, demandMap) -> {
+
+//		countriesData.forEach((country, data) -> {
+//			System.out.println(country+": ");
+//			data.forEach(m->{
+//				System.out.println(m+"=>");
+//				System.out.println(getCropPrice(m, "pasture"));
+//			});
+//		});
+
+		getDemandsFromData(countriesData);
+		getPriceFromData(countriesData);
+	}
+
+	private void getPriceFromData(Map<String, List<Map<String, String>>> countriesData) {
+		countriesData.forEach((country, data) -> {
 			Map<String, Double> map = new HashMap<>();
-			for (Map<String, String> line : demandMap) {
+			for (Map<String, String> line : data) {
+				double Fodder_price = (getCropPrice(line, "wheat") + getCropPrice(line, "maize")
+						+ getCropPrice(line, "rice") + getCropPrice(line, "oilcropsNFix")) / 4;
+				map.merge("Foddercrops", Fodder_price, Double::sum);
+				map.merge("BioenergyG1", Fodder_price, Double::sum);
+				map.merge("Pasture", getCropPrice(line, "pasture"), Double::sum);
+				map.merge("C4crops", getCropPrice(line, "maize"), Double::sum);
+				map.merge("C3oilcrops", getCropPrice(line, "oilcropsOther"), Double::sum);
+				map.merge("C3starchyroots", getCropPrice(line, "starchyRoots"), Double::sum);
+				map.merge("C3cereals", getCropPrice(line, "wheat"), Double::sum);
+				map.merge("C3fruitveg", getCropPrice(line, "fruitveg"), Double::sum);
+				map.merge("BioenergyG2", getCropPrice(line, "energycrops"), Double::sum);
+			}
+			finalCountriesPrice.put(country, map);
+		});
+		finalCountriesPrice.forEach((country, mp) -> {
+			mp.forEach((serviceName, value) -> {
+				totalPrice.merge(serviceName, value / finalCountriesPrice.size(), Double::sum);
+			});
+		});
+
+	}
+
+	private void getDemandsFromData(Map<String, List<Map<String, String>>> countriesData) {
+		countriesData.forEach((country, data) -> {
+			Map<String, Double> map = new HashMap<>();
+			for (Map<String, String> line : data) {
 				double Fodder_crops = getCrop(line, "wheat", "Rum_feed_produced")
 						+ getCrop(line, "wheat", "Mon_feed_produced") + getCrop(line, "maize", "Rum_feed_produced")
 						+ getCrop(line, "maize", "Mon_feed_produced") + getCrop(line, "rice", "Rum_feed_produced")
@@ -117,8 +156,9 @@ public class PlumCommodityMapping {
 				map.merge("BioenergyG1", Bioenergy1G, Double::sum);
 				map.merge("Pasture", getCrop(line, "pasture", "Rum_feed_produced"), Double::sum);
 				map.merge("C4crops", getCrop(line, "maize", "Food_produced"), Double::sum);
-			//	map.merge("C3rice", getCrop(line, "rice", "Food_produced"), Double::sum);//
-			//	map.merge("C3oilNFix", getCrop(line, "oilcropsNFix", "Food_produced"), Double::sum);//
+				// map.merge("C3rice", getCrop(line, "rice", "Food_produced"), Double::sum);//
+				// map.merge("C3oilNFix", getCrop(line, "oilcropsNFix", "Food_produced"),
+				// Double::sum);//
 				map.merge("C3oilcrops", getCrop(line, "oilcropsOther", "Food_produced"), Double::sum);
 				map.merge("C3starchyroots", getCrop(line, "starchyRoots", "Food_produced"), Double::sum);
 				map.merge("C3cereals", getCrop(line, "wheat", "Food_produced"), Double::sum);
@@ -126,6 +166,11 @@ public class PlumCommodityMapping {
 				map.merge("BioenergyG2", getCrop(line, "energycrops", "Bioenergy_produced"), Double::sum);
 			}
 			finalCountriesDemands.put(country, map);
+		});
+		finalCountriesDemands.forEach((country, mp) -> {
+			mp.forEach((serviceName, value) -> {
+				totalDemands.merge(serviceName, value, Double::sum);
+			});
 		});
 	}
 
@@ -159,7 +204,7 @@ public class PlumCommodityMapping {
 			map.put("Bioenergy", map.get("BioenergyDemand"));
 			map.remove("BioenergyDemand");
 			map.remove("Net_import_cost");
-			map.remove("Export_price");
+			// map.remove("Export_price");////
 			map.remove("Area");
 			map.remove("Production_cost");
 			map.put("Rum_feed", map.get("Rum_feed_amount"));
@@ -199,6 +244,9 @@ public class PlumCommodityMapping {
 
 	double getCrop(Map<String, String> map, String val1, String key2) {
 		return map.get("Crop").equals(val1) ? Utils.sToD(map.get(key2)) : 0;
+	}
 
+	double getCropPrice(Map<String, String> map, String val1) {
+		return map.get("Crop").equals(val1) ? Utils.sToD(map.get("Export_price")) : 0;
 	}
 }
