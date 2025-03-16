@@ -9,29 +9,29 @@ import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
 
 public class Competitiveness {
 	static boolean utilityUsingPrice = true;
 
-	static double utility(Cell c, Aft a, RegionalModelRunner r) {
+//	static double utility(Cell c, Aft a, RegionalModelRunner r) {
+//		if (a == null || !a.isInteract()) {
+//			return 0;
+//		}
+//		return ServiceSet.getServicesList().stream()
+//				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
+//	}
+
+	static double /*utilityOnlyPrice*/utility(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
 			return 0;
 		}
 		return ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
+				.mapToDouble(sname -> (r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.getCurrentYear())
+						* c.productivity(a, sname)))
+				.sum();
 	}
-
-//	static double utilityPrice(Cell c, Aft a, RegionalModelRunner r) {
-//		if (a == null || !a.isInteract()) {
-//			return 0;
-//		}
-//		int tick = ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear();
-//		return ServiceSet.getServicesList().stream()
-//				.mapToDouble(sname -> (r.R.getServicesHash().get(sname).getWeights().get(tick)
-//						/ r.R.getServicesHash().get(sname).getCalibration_Factor()) * c.productivity(a, sname))
-//				.sum();
-//	}
 
 	static Aft mostCompetitiveAgent(Cell c, Collection<Aft> setAfts, RegionalModelRunner r) {
 		if (setAfts.size() == 0) {

@@ -10,6 +10,7 @@ import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
 import de.cesr.crafty.core.model.ModelRunner;
+import de.cesr.crafty.core.model.RegionClassifier;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
@@ -23,9 +24,10 @@ public class OfflineCoupling {
 	public OfflineCoupling() {
 		mapper.initialize();
 		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
+		initializeContainres();
 	}
 
-	public void replaceCraftyDemandsAndPrice() {
+	private void initializeContainres() {
 		aggreDemandsAllyesrs = new HashMap<>();
 		aggrePricesAllyesrs = new HashMap<>();
 
@@ -33,26 +35,40 @@ public class OfflineCoupling {
 			aggreDemandsAllyesrs.put(serviceName, new ConcurrentHashMap<>());
 			aggrePricesAllyesrs.put(serviceName, new ConcurrentHashMap<>());
 		});
+	}
 
-		for (int year = ProjectLoader.getStartYear(); year <= ProjectLoader.getEndtYear(); year++) {
-			int y = year;
-			System.out.println("convert year: " + y);
-			mapper.fromPlumToDemands(year);
-			mapper.totalDemands.forEach((serviceName, demandValue) -> {
-				aggreDemandsAllyesrs.get(serviceName).put(y, demandValue);
-			});
-			mapper.totalPrice.forEach((serviceName, priceValue) -> {
-				aggrePricesAllyesrs.get(serviceName).put(y, priceValue);
-			});
-		}
-		
+	void initialPlumDemandEquilibriumFactor() {
+		int year = ProjectLoader.getStartYear();
+		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
-				service.setDemands(aggreDemandsAllyesrs.get(serviceName));
-		//		service.setWeights(aggrePricesAllyesrs.get(serviceName));
+				service.getDemands().put(year, mapper.totalDemands.get(serviceName));
+				service.getWeights().put(year, mapper.totalPrice.get(serviceName));
 			});
 		});
-		writeDemandAndPrice();
+		ModelRunner.demandEquilibrium();
+	}
+
+//	private void replaceCraftyDemandsAndPrice() {
+//		for (int year = ProjectLoader.getStartYear(); year <= ProjectLoader.getEndtYear(); year++) {
+//			yearlyPricesAndDemands(year);
+//		}
+//		writeDemandAndPrice();
+//	}
+
+	public void yearlyPricesAndDemands(int year) {
+		System.out.println("convert Demands and Price year: " + year);
+		mapper.fromPlumToDemands(year);
+		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
+			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
+				service.getDemands().put(year, mapper.totalDemands.get(serviceName) / service.getCalibration_Factor());
+				aggreDemandsAllyesrs.get(serviceName).put(year,
+						mapper.totalDemands.get(serviceName) / service.getCalibration_Factor());
+				service.getWeights().put(year, mapper.totalPrice.get(serviceName));
+				aggrePricesAllyesrs.get(serviceName).put(year, mapper.totalPrice.get(serviceName));
+			});
+		});
+		RegionClassifier.aggregateDemandToWorldServiceDemand();
 	}
 
 	void writeDemandAndPrice() {

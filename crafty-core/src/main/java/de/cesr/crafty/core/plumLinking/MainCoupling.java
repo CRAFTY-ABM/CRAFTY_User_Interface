@@ -20,21 +20,15 @@ public class MainCoupling {
 		outputPathConfig();
 		ModelRunner.setup();
 		OfflineCoupling coupler = new OfflineCoupling();
-		coupler.replaceCraftyDemandsAndPrice();
-		run();
-	}
+		coupler.initialPlumDemandEquilibriumFactor();
 
-	static void run() {
-
-		 ModelRunner.demandEquilibrium();
-		int end = ProjectLoader.getEndtYear();
-
-		for (int i = ProjectLoader.getStartYear(); i <= end; i++) {
-			System.out.println("---------" + i + "----------");
-			ProjectLoader.setCurrentYear(i);
+		for (int year = ProjectLoader.getStartYear(); year <= ProjectLoader.getEndtYear(); year++) {
+			System.out.println("--------- Run " + year + "----------");
+			ProjectLoader.setCurrentYear(year);
+			coupler.yearlyPricesAndDemands(year);
 			runner.step();
-
 		}
+		coupler.writeDemandAndPrice();
 	}
 
 	static private void outputPathConfig() {
