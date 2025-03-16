@@ -13,7 +13,6 @@ import de.cesr.crafty.core.model.Service;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
 
-
 public class ServiceSet {
 	private static final CustomLogger LOGGER = new CustomLogger(ServiceSet.class);
 	private static List<String> servicesList;
@@ -43,6 +42,7 @@ public class ServiceSet {
 		for (String r : RegionClassifier.regions.keySet()) {
 			ArrayList<Path> paths = PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"), r);
 			if (paths == null) {
+				LOGGER.warn("Demand file not fund, for Region |" + r+"|. Regionalisation Not Possible");
 				return false;
 			}
 		}
