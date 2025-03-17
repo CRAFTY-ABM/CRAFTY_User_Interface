@@ -17,7 +17,7 @@ public class PlumCommodityMapping {
 	ArrayList<Path> allpaths;
 	private List<Map<String, String>> bio_fractions;
 	private List<Map<String, String>> waste_df;
-	private List<Map<String, String>> country_demand;
+	private List<Map<String, String>> plumCountry_demandData;
 	private List<Map<String, String>> domestic;
 	private HashMap<String, Set<String>> FilterHash = new HashMap<>();
 	Map<String, String> countryShortNameMap = new HashMap<>();
@@ -61,15 +61,15 @@ public class PlumCommodityMapping {
 
 	void iterativeFileReadingAndFilter(int year) {
 		FilterHash.put("Year", Set.of(String.valueOf(year)));
-		country_demand = LinkingTools.filterMapsByCriteria(
+		plumCountry_demandData = LinkingTools.filterMapsByCriteria(
 				LinkingTools.readCsvIntoList(PathTools.fileFilter(allpaths, "countryDemand.txt").get(0)), FilterHash);
 		domestic = LinkingTools.filterMapsByCriteria(
 				LinkingTools.readCsvIntoList(PathTools.fileFilter(allpaths, "domestic.txt").get(0)), FilterHash);
 	}
 
 	List<Map<String, String>> bio_crop_demand_df() {
-		List<Map<String, String>> merge = LinkingTools.left_join_many_to_many(country_demand, bio_fractions, "Country",
-				"Commodity");
+		List<Map<String, String>> merge = LinkingTools.left_join_many_to_many(plumCountry_demandData, bio_fractions,
+				"Country", "Commodity");
 		merge = LinkingTools.left_join(merge, waste_df, "Crop");
 		merge.forEach(map -> {
 			double tmp = Utils.sToD(map.get("BioenergyDemand")) * Utils.sToD(map.get("BioFraction"))
@@ -248,7 +248,12 @@ public class PlumCommodityMapping {
 	}
 
 	double getCrop(Map<String, String> map, String val1, String key2) {
-		return map.get("Crop").equals(val1) ? Utils.sToD(map.get(key2)) : 0;
+		double tmp = map.get("Crop").equals(val1) ? Utils.sToD(map.get(key2)) : 0;
+		if (tmp < 0) {
+			return 0;
+		}
+
+		return tmp;
 	}
 
 	double getCropPrice(Map<String, String> map, String val1) {

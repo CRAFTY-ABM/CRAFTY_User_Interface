@@ -15,15 +15,15 @@ import de.cesr.crafty.core.dataLoader.ServiceSet;
 public class Competitiveness {
 	static boolean utilityUsingPrice = true;
 
-//	static double utility(Cell c, Aft a, RegionalModelRunner r) {
-//		if (a == null || !a.isInteract()) {
-//			return 0;
-//		}
-//		return ServiceSet.getServicesList().stream()
-//				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
-//	}
+	static double utility2(Cell c, Aft a, RegionalModelRunner r) {
+		if (a == null || !a.isInteract()) {
+			return 0;
+		}
+		return ServiceSet.getServicesList().stream()
+				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
+	}
 
-	static double /*utilityOnlyPrice*/utility(Cell c, Aft a, RegionalModelRunner r) {
+	static double /* utilityOnlyPrice */ utility(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
 			return 0;
 		}
