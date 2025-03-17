@@ -28,8 +28,7 @@ public class MainCoupling {
 			coupler.AssocietePricesAndDemand(year);
 			runner.step();
 		}
-		coupler.writeRegion();
-//		coupler.writeDemandAndPrice();
+		coupler.writeDandP();
 	}
 
 	static private void outputPathConfig() {
@@ -42,46 +41,5 @@ public class MainCoupling {
 					Listener.exportConfigurationFile(), false);
 		}
 	}
-
-//	public static void main(String[] args) {
-//	//	System.out.println("----------Crafty initialisation----------");
-//		MainHeadless.initializeConfig(args);
-//		ProjectLoader.modelInitialisation();
-////		System.out.println("----------PLUM initialisation---------");
-////		ModelMain.main(new String[] {});
-////		System.out.println("--------Plum run first iteration ------" + ProjectLoader.getStartYear() + "\n\n\n");
-////		ModelMain.theModel.runNTick(1);
-////		System.out.println("----------PLUM Mapper and Crafty deamnds initial Calibration---------");
-//		plumMaper.initialize();
-//		OfflineCoupling off = new OfflineCoupling(plumMaper);
-//		off.initialize();
-//		//runHeadlessWithPlum();
-//	}
-//
-//	static void runHeadlessWithPlum() {
-//	//	ModelRunner runner = new ModelRunner();
-//		ModelRunner.setup();
-//		AtomicInteger tick = new AtomicInteger(ProjectLoader.getStartYear());
-//
-//		String generatedPath = PathTools.makeDirectory(ConfigLoader.config.Output_path);
-//		Listener.outputfolderPath(generatedPath, ConfigLoader.config.output_folder_name);
-//		if (ConfigLoader.config.export_LOGGER) {
-//			CustomLogger
-//					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
-//			PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
-//					Listener.exportConfigurationFile(), false);
-//		}
-//
-//		ModelRunner.demandEquilibrium();
-//
-//		for (int i = 0; i <= ProjectLoader.getEndtYear() - ProjectLoader.getStartYear(); i++) {
-//			System.out.println("---------"+tick.get()+ "----------");
-//			ProjectLoader.setCurrentYear(tick.get());
-//			//runner.step();
-////			ModelMain.theModel.runNTick(1);
-//			plumMaper.iterative(tick.get());
-//			tick.getAndIncrement();
-//		}
-//	}
 
 }

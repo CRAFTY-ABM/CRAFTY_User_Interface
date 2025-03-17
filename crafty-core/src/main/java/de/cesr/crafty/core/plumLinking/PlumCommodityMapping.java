@@ -44,7 +44,6 @@ public class PlumCommodityMapping {
 		Eu_countries();
 		FilterHash.put("Country", new HashSet<>(countryShortNameMap.keySet()));
 		staticFilesinitialisation();
-
 	}
 
 	void fromPlumToDemands(int tick) {

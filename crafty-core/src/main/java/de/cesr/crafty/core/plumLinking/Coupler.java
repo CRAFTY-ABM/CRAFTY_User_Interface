@@ -130,7 +130,15 @@ public class Coupler {
 		RegionClassifier.aggregateDemandToWorldServiceDemand();
 	}
 
-	void writeDemandAndPrice() {
+	void writeDandP() {
+		if (ConfigLoader.config.regionalization) {
+			writeRegion();
+		} else {
+			writeDemandAndPrice();
+		}
+	}
+
+	private void writeDemandAndPrice() {
 		String[][] dem = new String[aggreDemandsAllyesrs.values().iterator().next().size()
 				+ 1][aggreDemandsAllyesrs.size() + 1];
 		dem[0][0] = "Year";
@@ -161,7 +169,7 @@ public class Coupler {
 				Paths.get(ConfigLoader.config.output_folder_name + File.separator + "PlumPriceMean.csv"));
 	}
 
-	void writeRegion() {
+	private void writeRegion() {
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			String country = RegionalRunner.R.getName();
 			Map<String, Map<Integer, Double>> dataDemand = aggreCountriesDemands.get(country);
