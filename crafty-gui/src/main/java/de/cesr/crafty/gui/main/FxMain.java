@@ -21,7 +21,7 @@ import javafx.stage.Stage;
  * @author Mohamed Byari
  *
  */
-
+ 
 public class FxMain extends Application {
 
 	private static final CustomLogger LOGGER = new CustomLogger(FxMain.class);

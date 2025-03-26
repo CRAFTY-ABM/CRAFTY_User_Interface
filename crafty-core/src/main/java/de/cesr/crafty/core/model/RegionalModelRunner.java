@@ -23,7 +23,7 @@ import de.cesr.crafty.core.utils.general.Utils;
 
 public class RegionalModelRunner {
 	private static final CustomLogger LOGGER = new CustomLogger(RegionalModelRunner.class);
-	ConcurrentHashMap<String, Double> regionalSupply;
+	public ConcurrentHashMap<String, Double> regionalSupply;
 	ConcurrentHashMap<String, Double> marginal = new ConcurrentHashMap<>();
 	ConcurrentHashMap<Aft, Double> distributionMean;
 	ConcurrentHashMap<Aft, Double> maximumUtility;
@@ -91,7 +91,7 @@ public class RegionalModelRunner {
 			if (ConfigLoader.config.averaged_residual_demand_per_cell) {
 				marg = marg / R.getCells().size();
 			}
-			marg = marg * s.getWeights().get(year);
+//			marg = marg * s.getWeights().get(year);
 			marginal.put(serviceName, marg);
 		});
 	}
@@ -99,7 +99,7 @@ public class RegionalModelRunner {
 	void takeOverUnmanageCells() {
 		LOGGER.trace("Region: [" + R.getName() + "] Take over unmanaged cells & Launching the competition process...");
 		R.getUnmanageCellsR()/**/.parallelStream().forEach(c -> {
-			if (Math.random() <ConfigLoader.config.takeOverUnmanageCells_percentage) {
+			if (Math.random() < ConfigLoader.config.takeOverUnmanageCells_percentage) {
 				Competitiveness.competition(c, this);
 				if (c.getOwner() != null && !c.getOwner().isAbandoned()) {
 					R.getUnmanageCellsR().remove(c);

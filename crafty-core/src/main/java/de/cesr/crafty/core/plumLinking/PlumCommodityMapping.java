@@ -20,7 +20,9 @@ public class PlumCommodityMapping {
 	private List<Map<String, String>> plumCountry_demandData;
 	private List<Map<String, String>> domestic;
 	private HashMap<String, Set<String>> FilterHash = new HashMap<>();
-	Map<String, String> countryShortNameMap = new HashMap<>();
+	public static Map<String, String> countryLongToShortName = new HashMap<>();
+	public static Map<String, String> countryShortToLongName = new HashMap<>();
+
 	public Map<String, Map<String, Double>> finalCountriesDemands;
 	public Map<String, Double> totalDemands = new HashMap<>();
 	public Map<String, Map<String, Double>> finalCountriesPrice;
@@ -35,14 +37,16 @@ public class PlumCommodityMapping {
 				"FR", "LT", "HR", "MT", "RO", "HU", "UK", "CH", "ES", "NO", "FI", "DK", "DE", "EE" };
 
 		for (int i = 0; i < EuCountries.length; i++) {
-			countryShortNameMap.put(EuCountries[i], shortNames[i]);
+			countryLongToShortName.put(EuCountries[i], shortNames[i]);
+			countryShortToLongName.put(shortNames[i], EuCountries[i]);
+
 		}
 	}
 
 	public void initialize() {
 		allpaths = PathTools.findAllFiles(Paths.get(ModelConfig.OUTPUT_DIR));
 		Eu_countries();
-		FilterHash.put("Country", new HashSet<>(countryShortNameMap.keySet()));
+		FilterHash.put("Country", new HashSet<>(countryLongToShortName.keySet()));
 		staticFilesinitialisation();
 	}
 
@@ -90,14 +94,14 @@ public class PlumCommodityMapping {
 
 		// split by countries
 		Map<String, List<Map<String, String>>> countriesData = new HashMap<>();
-		for (String country : countryShortNameMap.keySet()) {
+		for (String country : countryLongToShortName.keySet()) {
 			List<Map<String, String>> d = new ArrayList<>();
 			domistic.forEach(line -> {
 				if (line.get("Country").equals(country)) {
 					d.add(line);
 				}
 			});
-			countriesData.put(countryShortNameMap.get(country), d);
+			countriesData.put(countryLongToShortName.get(country), d);
 		}
 
 //		countriesData.forEach((country, data) -> {
@@ -121,9 +125,10 @@ public class PlumCommodityMapping {
 			for (Map<String, String> line : data) {
 				double Fodder_price = (getCropPrice(line, "wheat") + getCropPrice(line, "maize")
 						+ getCropPrice(line, "rice") + getCropPrice(line, "oilcropsNFix")) / 4;
+				double pasture = getCropPrice(line, "pasture") + getCropPrice(line, "ruminants");
+				map.merge("Pasture", pasture, Double::sum);
 				map.merge("Foddercrops", Fodder_price, Double::sum);
 				map.merge("BioenergyG1", Fodder_price, Double::sum);
-				map.merge("Pasture", getCropPrice(line, "pasture"), Double::sum);
 				map.merge("C4crops", getCropPrice(line, "maize"), Double::sum);
 				map.merge("C3oilcrops", getCropPrice(line, "oilcropsOther"), Double::sum);
 				map.merge("C3starchyroots", getCropPrice(line, "starchyRoots"), Double::sum);
@@ -147,6 +152,7 @@ public class PlumCommodityMapping {
 		countriesData.forEach((country, data) -> {
 			Map<String, Double> map = new HashMap<>();
 			for (Map<String, String> line : data) {
+
 				double Fodder_crops = getCrop(line, "wheat", "Rum_feed_produced")
 						+ getCrop(line, "wheat", "Mon_feed_produced") + getCrop(line, "maize", "Rum_feed_produced")
 						+ getCrop(line, "maize", "Mon_feed_produced") + getCrop(line, "rice", "Rum_feed_produced")
@@ -157,8 +163,12 @@ public class PlumCommodityMapping {
 				double Bioenergy1G = getCrop(line, "wheat", "Bioenergy_produced")
 						+ getCrop(line, "maize", "Bioenergy_produced") + getCrop(line, "rice", "Bioenergy_produced")
 						+ getCrop(line, "oilcropsNFix", "Bioenergy_produced");
+				double pasture = getCrop(line, "pasture", "Rum_feed_produced")
+						+ getCrop(line, "pasture", "Mon_feed_produced") + getCrop(line, "pasture", "Food_produced")
+						+ getCrop(line, "ruminants", "Mon_feed_produced")
+						+ getCrop(line, "ruminants", "Rum_feed_produced") + getCrop(line, "ruminants", "Food_produced");
+				map.merge("Pasture", pasture, Double::sum);
 				map.merge("BioenergyG1", Bioenergy1G, Double::sum);
-				map.merge("Pasture", getCrop(line, "pasture", "Rum_feed_produced"), Double::sum);
 				map.merge("C4crops", getCrop(line, "maize", "Food_produced"), Double::sum);
 				// map.merge("C3rice", getCrop(line, "rice", "Food_produced"), Double::sum);//
 				// map.merge("C3oilNFix", getCrop(line, "oilcropsNFix", "Food_produced"),
@@ -168,6 +178,7 @@ public class PlumCommodityMapping {
 				map.merge("C3cereals", getCrop(line, "wheat", "Food_produced"), Double::sum);
 				map.merge("C3fruitveg", getCrop(line, "fruitveg", "Food_produced"), Double::sum);
 				map.merge("BioenergyG2", getCrop(line, "energycrops", "Bioenergy_produced"), Double::sum);
+
 			}
 			finalCountriesDemands.put(country, map);
 		});

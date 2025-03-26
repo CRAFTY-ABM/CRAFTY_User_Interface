@@ -20,7 +20,11 @@ public class Competitiveness {
 			return 0;
 		}
 		return ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
+				.mapToDouble(sname -> /*
+										 * r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.
+										 * getCurrentYear())
+										 **/ r.marginal.get(sname) * c.productivity(a, sname))
+				.sum();
 	}
 
 	static double /* utilityOnlyPrice */ utility(Cell c, Aft a, RegionalModelRunner r) {
@@ -28,8 +32,10 @@ public class Competitiveness {
 			return 0;
 		}
 		return ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> (r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.getCurrentYear())
-						* c.productivity(a, sname)))
+				.mapToDouble(
+						sname -> ((r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.getCurrentYear())
+								/ r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.getStartYear()))
+								* c.productivity(a, sname)))
 				.sum();
 	}
 

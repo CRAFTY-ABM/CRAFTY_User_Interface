@@ -154,19 +154,27 @@ public class Coupler {
 			}
 		}
 		String[][] pri = new String[dem.length][dem[0].length];
+		String[][] priVar = new String[dem.length][dem[0].length];
+
 		for (int i = 0; i < dem[0].length; i++) {
 			for (int j = 0; j < dem.length; j++) {
 				if (i == 0 || j == 0) {
 					pri[j][i] = dem[j][i];
+					priVar[j][i] = dem[j][i];
 				} else {
-					pri[j][i] = aggrePricesAllyesrs.get(pri[0][i]).get((int) Utils.sToD(pri[j][0])) + "";
+					double val = aggrePricesAllyesrs.get(pri[0][i]).get((int) Utils.sToD(pri[j][0]));
+					pri[j][i] = val + "";
+					priVar[j][i] = (val / aggrePricesAllyesrs.get(pri[0][i]).get((int) Utils.sToD(pri[1][0]))) + "";
 				}
 			}
 		}
 		CsvTools.writeCSVfile(dem,
 				Paths.get(ConfigLoader.config.output_folder_name + File.separator + "PlumDemands.csv"));
 		CsvTools.writeCSVfile(pri,
-				Paths.get(ConfigLoader.config.output_folder_name + File.separator + "PlumPriceMean.csv"));
+				Paths.get(ConfigLoader.config.output_folder_name + File.separator + "PlumPrice.csv"));
+		CsvTools.writeCSVfile(priVar,
+				Paths.get(ConfigLoader.config.output_folder_name + File.separator + "PlumPriceVariation.csv"));
+
 	}
 
 	private void writeRegion() {

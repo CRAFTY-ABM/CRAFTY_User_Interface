@@ -64,7 +64,7 @@ public class Cell extends AbstractCell {
 			double averageutility = distributionMean.get(getOwner());
 			if ((utility < averageutility
 					* (getOwner().getGiveUpMean() + getOwner().getGiveUpSD() * new Random().nextGaussian())
-					&& getOwner().getGiveUpProbabilty() > Math.random())) {
+					&& getOwner().getGiveUpProbabilty() > Math.random()) || utility < 0) {
 				setOwner(null);
 				r.R.getUnmanageCellsR().add(this);
 			}

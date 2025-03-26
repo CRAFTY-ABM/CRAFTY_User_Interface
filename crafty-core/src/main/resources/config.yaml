@@ -32,4 +32,4 @@ track_changes: true                          # Enable change tracking in output
 export_LOGGER: true
 LOGGER_info: true
 LOGGER_warn: true
-LOGGER_trace: false
+LOGGER_trace: true
