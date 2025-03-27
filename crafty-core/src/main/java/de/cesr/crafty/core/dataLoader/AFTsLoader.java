@@ -74,17 +74,19 @@ public class AFTsLoader extends HashSet<Aft> {
 		AftCategorised.CategoriesLoader();
 		AftCategorised.initializeBehevoirByCategories();
 		hashAFTs.forEach((Label, a) -> {
+			LOGGER.trace("Import Production and behaviour for AFT: "+Label);
 			if (a.isInteract()) {
 				Path pFile = null;
 				try {
 					pFile = PathTools.fileFilter(PathTools.asFolder("default_production"),
 							PathTools.asFolder("production"), ProjectLoader.getScenario(), Label + ".csv").get(0);
 				} catch (NullPointerException e) {
-					pFile = PathTools
-							.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(), Label + ".csv")
-							.get(0);
+					ArrayList<Path> pFileList = PathTools.fileFilter(PathTools.asFolder("production"),
+							ProjectLoader.getScenario(), Label + ".csv");
+					pFile = pFileList.getFirst();
 					LOGGER.warn("Default productivity folder not fund, will use: " + pFile);
-				}
+				} 
+				LOGGER.trace("Production file Path: "+pFile);
 				initializeAFTProduction(pFile);
 
 				Path bFile = null;
@@ -95,8 +97,10 @@ public class AFTsLoader extends HashSet<Aft> {
 					bFile = PathTools
 							.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), Label + ".csv")
 							.get(0);
+					
 					LOGGER.warn("Default behaviour folder not fund, will use: " + bFile);
 				}
+				LOGGER.trace("Behaviour file Path: "+bFile);
 				initializeAFTBehevoir(bFile);
 			}
 		});
@@ -242,6 +246,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		String[][] m = CsvTools.csvReader(file.toPath());
 		for (int i = 0; i < m.length; i++) {
 			if (ServiceSet.getServicesList().contains(m[i][0])) {
+//				System.out.println(m[i][0]+"  "+Utils.indexof("Production", m[0]));
 				a.getProductivityLevel().put(m[i][0], Utils.sToD(m[i][Utils.indexof("Production", m[0])]));
 			} else {
 				LOGGER.warn(m[i][0] + "  is not existe in Services List, will be ignored");

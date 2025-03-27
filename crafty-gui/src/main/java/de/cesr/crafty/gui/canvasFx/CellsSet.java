@@ -76,8 +76,8 @@ public class CellsSet {
 		root.getChildren().clear();
 		root.getChildren().add(canvas);
 
-		subScene.setCamera(FxMain.camera);
-		FxMain.camera.defaultcamera(canvas, subScene);
+//		subScene.setCamera(FxMain.camera);
+//		FxMain.camera.defaultcamera(canvas, subScene);
 		LOGGER.info("Number of cells = " + CellsLoader.hashCell.size());
 		MapControlerBymouse();
 	}

@@ -20,7 +20,7 @@ public class MainHeadless {
 		System.out.println("--Starting CRAFTY execution--");
 		initializeConfig(args);
 		ProjectLoader.modelInitialisation();
-		runHeadless();
+//		runHeadless();
 	}
 
 	public static void initializeConfig(String[] args) {

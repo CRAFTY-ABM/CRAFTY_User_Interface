@@ -116,6 +116,7 @@ public class MaskRestrictionDataLoader {
 		if (restrictionsFile == null || restrictionsFile.isEmpty()) {
 			restrictionsFile = PathTools.fileFilter(def);
 		}
+		LOGGER.trace("Mask name:"+maskType+", restrictions File Path "+restrictionsFile);
 		restrictions.put(maskType, importResrection(restrictionsFile.get(0)));
 	}
 

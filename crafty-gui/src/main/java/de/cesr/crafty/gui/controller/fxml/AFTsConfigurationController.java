@@ -129,17 +129,17 @@ public class AFTsConfigurationController {
 			CellsSet.showOnlyOneAFT(a);
 
 		}
-		BarChart<String, Number> histogramePlevel = AFTsProductionController.getInstance().getHistogramePlevel();
-		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
-				a.getProductivityLevel());
-		VBox box = AFTsProductionController.getInstance().getBoxCharts();
-		box.getChildren().clear();
-		LineChart<Number, Number> chart1 = AFTsProductionController.productivitySampleChart(a.getLabel());
-		LineChart<Number, Number> chart2 = AFTsProductionController.productivitySampleChartIntensity(a.getLabel());
-		if (chart1 != null)
-			box.getChildren().add(chart1);
-		if (chart2 != null)
-			box.getChildren().add(chart2);
+//		BarChart<String, Number> histogramePlevel = AFTsProductionController.getInstance().getHistogramePlevel();
+//		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
+//				a.getProductivityLevel());
+//		VBox box = AFTsProductionController.getInstance().getBoxCharts();
+//		box.getChildren().clear();
+//		LineChart<Number, Number> chart1 = AFTsProductionController.productivitySampleChart(a.getLabel());
+//		LineChart<Number, Number> chart2 = AFTsProductionController.productivitySampleChartIntensity(a.getLabel());
+//		if (chart1 != null)
+//			box.getChildren().add(chart1);
+//		if (chart2 != null)
+//			box.getChildren().add(chart2);
 	}
 
 	void colorland(Aft a) {
