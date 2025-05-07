@@ -6,13 +6,17 @@ import java.util.function.Predicate;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 
+/**
+ * @author Mohamed Byari
+ *
+ */
 public class CellBehaviour {
 
 	double Attitude_intensification = 0;
 	double Weight_inertia = 0.2;
 	double weight_social = 0.5;
 	double Critical_mass = 0.5;
-	int neighborhood_size;
+	int neighborhood_size = 2;
 	double steepness_logistic_eq = 7;
 	double maxGive_in = 0.5;
 	private Cell c;
@@ -47,7 +51,7 @@ public class CellBehaviour {
 	}
 
 	private double fractionOfNeighbors(Predicate<Aft> neighborCondition) {
-		Collection<Aft> neighbors = CellsSubSets.detectExtendedNeighboringAFTs(c, 1);
+		Collection<Aft> neighbors = CellsSubSets.detectExtendedNeighboringAFTs(c, neighborhood_size);
 		int count = 0;
 		for (Aft neighbor : neighbors) {
 			if (neighbor.getCategory().getName().equals(c.owner.getCategory().getName())
@@ -104,8 +108,6 @@ public class CellBehaviour {
 	public void setNeighborhood_size(int neighborhood_size) {
 		this.neighborhood_size = neighborhood_size;
 	}
-	
-	
 
 	public double getMaxGive_in() {
 		return maxGive_in;
@@ -122,7 +124,5 @@ public class CellBehaviour {
 				+ ", neighborhood_size=" + neighborhood_size + ", steepness_logistic_eq=" + steepness_logistic_eq
 				+ ", maxGive_in=" + maxGive_in + "]";
 	}
-
-
 
 }

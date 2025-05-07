@@ -80,16 +80,16 @@ public class Competitiveness {
 				}
 			}
 		}
-		if (ProjectLoader.getCurrentYear() > 2030) {
-			if (AftCategorised.aftCategories != null && AftCategorised.aftCategories.size() != 0) {
-				if (c.owner != null && competitor != null) {
-					if (c.owner.getCategory().getName().equals("forest")
-							&& !competitor.getCategory().getName().equals("forest")) {
-						makeCompetition = false;
-					}
-				}
-			}
-		}
+//		if (ProjectLoader.getCurrentYear() > 2030) {
+//			if (AftCategorised.aftCategories != null && AftCategorised.aftCategories.size() != 0) {
+//				if (c.owner != null && competitor != null) {
+//					if (c.owner.getCategory().getName().equals("forest")
+//							&& !competitor.getCategory().getName().equals("forest")) {
+//						makeCompetition = false;
+//					}
+//				}
+//			}
+//		}
 		return makeCompetition;
 	}
 
