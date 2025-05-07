@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+
+<AnchorPane fx:id="root" xmlns:fx="http://javafx.com/fxml"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.RegionController">
+
+	<!-- The split pane stretches with the window -->
+	<SplitPane AnchorPane.topAnchor="0.0"
+		AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+		AnchorPane.rightAnchor="0.0">
+
+		<!-- ========== 1. LEFT SIDE : TabPane ========== -->
+		<items>
+			<TabPane>
+
+				<!-- sample tabs — replace / add as needed -->
+				<tabs>
+					<Tab text="General View">
+						<content>
+							<VBox spacing="5.0" fx:id="generalVbox" />
+						</content>
+					</Tab>
+					<!-- <Tab text="Spatial Data" /> <Tab text="Services" /> <Tab text="Configuration" 
+						/> -->
+					<Tab text="Model Runner">
+						<content>
+							<VBox spacing="5.0" fx:id="runVbox">
+								<HBox spacing="15.0">
+									<children>
+										<Button mnemonicParsing="false" text="One Step"
+											styleClass="button-icon">
+											<graphic>
+												<FontIcon iconLiteral="fas-step-forward"
+													iconSize="20" />
+											</graphic>
+										</Button>
+										<Button mnemonicParsing="false" text="RUN"
+											styleClass="button-icon">
+											<graphic>
+												<FontIcon iconLiteral="far-play-circle"
+													iconSize="22" />
+											</graphic>
+										</Button>
+										<Button mnemonicParsing="false" text="Stop &amp; Reset"
+											styleClass="button-icon">
+											<graphic>
+												<FontIcon iconLiteral="far-stop-circle"
+													iconSize="22" />
+											</graphic>
+										</Button>
+										<Button text="Display a serivce"
+											styleClass="button-icon">
+											<graphic>
+												<FontIcon iconLiteral="fas-list-ul" iconSize="20" />
+											</graphic>
+										</Button>
+										<Label text="year" />
+									</children>
+								</HBox>
+							</VBox>
+						</content>
+					</Tab>
+					<!-- <Tab text="Import Output" /> -->
+				</tabs>
+			</TabPane>
+
+			<!-- ========== 2. RIGHT SIDE : Canvas ========== -->
+			<!-- Canvas size is arbitrary; you can resize it in code -->
+			<Canvas fx:id="canvas" />
+		</items>
+	</SplitPane>
+</AnchorPane>

@@ -9,12 +9,13 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.cesr.crafty.gui.controller.fxml.CapitalsController">
+	fx:controller="de.cesr.crafty.gui.controller.fxml.CapitalsController"
+	fx:id="TopBox">
 	<children>
 		<TitledPane animated="true"
 			text="Capitals, AFTs Distribution and GIS Data">
 			<content>
-				<HBox>
+				<HBox fx:id="hbox">
 					<children>
 						<VBox fx:id="vboxForSliderColors" />
 						<BarChart fx:id="histogramCapitals"
@@ -26,8 +27,32 @@
 								<NumberAxis />
 							</yAxis>
 						</BarChart>
+						<BarChart fx:id="hServiceSensitivity"
+							title="The aggregate sensitivity of capital on production of services">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+						<BarChart fx:id="hAftSensitivity"
+							title="The aggregate sensitivity of capital on production by AFTs">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
 					</children>
 				</HBox>
+			</content>
+		</TitledPane>
+		<TitledPane animated="true"
+			text="Capitals average trends through Scenarios">
+			<content>
+				<VBox fx:id="vboxAnaliser" />
 			</content>
 		</TitledPane>
 	</children>

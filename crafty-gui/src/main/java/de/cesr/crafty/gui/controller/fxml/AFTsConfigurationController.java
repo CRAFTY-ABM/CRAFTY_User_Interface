@@ -10,8 +10,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.gui.canvasFx.CellsSet;
-import de.cesr.crafty.gui.utils.analysis.CapitalsAnalyzer;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
+import de.cesr.crafty.gui.utils.analysis.CsvToHtml;
 import de.cesr.crafty.gui.utils.graphical.CSVTableView;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
@@ -39,7 +39,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.LineChart;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
@@ -55,6 +54,8 @@ import javafx.scene.text.Text;
 
 public class AFTsConfigurationController {
 
+	@FXML
+	private VBox TopBox;
 	@FXML
 	private ChoiceBox<String> AFTChoisButton;
 	@FXML
@@ -95,28 +96,18 @@ public class AFTsConfigurationController {
 	public void initialize() {
 		System.out.println("initialize " + getClass().getSimpleName());
 		newAftPane = new NewAFT_Controller(this);
-//		sensitivtyTable.setEditable(true);
-//		productivityTable.setEditable(true);
 
 		ConcurrentHashMap<String, Aft> InteractAFTs = new ConcurrentHashMap<>();
 		AFTsLoader.getActivateAFTsHash().entrySet().stream().filter(entry -> entry.getValue().isInteract())
 				.forEach(entry -> InteractAFTs.put(entry.getKey(), entry.getValue()));
 		Tools.choiceBox(AFTChoisButton, new ArrayList<>(InteractAFTs.keySet()));
 
-//		sensitivtyFire.setOnAction(e2 -> {
-//			updateSensitivty(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), radarChartsGridPane,
-//					sensitivtyTable);
-//		});
-
 		plotOptimalLandon.setOnAction(e2 -> {
 			plotInitialDistrebution.setSelected(false);
 			colorland(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()));
 		});
 		isNotInitialsation = true;
-
-		// scrollgrid.setPrefHeight(Screen.getPrimary().getBounds().getHeight()*0.8);
-		// radarChartsGridPane.prefWidthProperty().bind(scrollgrid.widthProperty());
-
+		Tools.forceResisingWidth(TopBox);
 	}
 
 	@FXML
@@ -125,28 +116,35 @@ public class AFTsConfigurationController {
 		AFTNameLabel.setText(a.getCompleteName());
 		rectangleColor.setFill(Color.web(a.getColor()));
 		if (isNotInitialsation) {
-
-			CellsSet.showOnlyOneAFT(a);
-
+			CellsCanvas.showOnlyOneAFT(a);
 		}
-//		BarChart<String, Number> histogramePlevel = AFTsProductionController.getInstance().getHistogramePlevel();
-//		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
-//				a.getProductivityLevel());
-//		VBox box = AFTsProductionController.getInstance().getBoxCharts();
-//		box.getChildren().clear();
-//		LineChart<Number, Number> chart1 = AFTsProductionController.productivitySampleChart(a.getLabel());
-//		LineChart<Number, Number> chart2 = AFTsProductionController.productivitySampleChartIntensity(a.getLabel());
-//		if (chart1 != null)
-//			box.getChildren().add(chart1);
-//		if (chart2 != null)
-//			box.getChildren().add(chart2);
+		BarChart<String, Number> histogramePlevel = AFTsProductionController.getInstance().getHistogramePlevel();
+		// histogramePlevel.getData().clear();
+		AFTsProductionController.getInstance().getBox2().getChildren().clear();
+		AFTsProductionController.getInstance().getHBox1().getChildren().clear();
+		AFTsProductionController.getInstance().getHBox1().getChildren()
+				.add(AFTsProductionController.productivitySampleChart(a.getLabel(),false));
+		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
+				a.getProductivityLevel());
+		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),
+				a.getLabel(), ".csv");
+		AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
+		GridPane grid = new GridPane();
+		ubdateRadarchart(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), grid);
+		grid.setMinWidth(TopBox.getMinWidth()); 
+		AFTsProductionController.getInstance().getBox2().getChildren().forEach(child -> {
+			if (child instanceof GridPane) {
+				AFTsProductionController.getInstance().getBox2().getChildren().remove(child);
+			}
+		});
+		AFTsProductionController.getInstance().getBox2().getChildren().add(grid);
 	}
 
 	void colorland(Aft a) {
 		CellsLoader.hashCell.values().forEach(C -> {
 			// C.landStored(a);
 		});
-		CellsSet.colorMap("tmp");
+		CellsCanvas.colorMap("tmp");
 	}
 
 	static void updateSensitivty(Aft newAFT, GridPane grid, TableView<ObservableList<String>> tabV) {
@@ -162,7 +160,8 @@ public class AFTsConfigurationController {
 	@FXML
 	public void addAFTSetOnAction() {
 		// newAftPane.addaft();
-		CapitalsAnalyzer.generateGrapheDataByScenarios();
+		// CapitalsAnalyzer.generateGrapheDataByScenarios();
+
 	};
 
 	@FXML
@@ -186,7 +185,7 @@ public class AFTsConfigurationController {
 
 	static void ubdateRadarchart(Aft newAFT, GridPane grid) {
 		grid.getChildren().clear();
-		int j = 0, k = 0, nbrColumn = 4;
+		int j = 0, k = 0, nbrColumn = 5;
 
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
 			VBox vbox = new VBox();
@@ -194,37 +193,42 @@ public class AFTsConfigurationController {
 			Text text = new Text(ServiceSet.getServicesList().get(i));
 			text.setFont(Font.font("Verdana", FontWeight.BOLD, 10));
 			text.setFill(Color.BLUE);
-			vbox.getChildren()
-					.addAll(ychart(vbox, newAFT,
-							ServiceSet.getServicesList().get(i)/* , (FxMain.sceneWidth * 1.3 - 100) / nbrColumn */),
-							text);
-			grid.add(vbox, j++, k);
-			if (j % nbrColumn == 0) {
-				k++;
-				j = 0;
+			YChart<ValueChartItem> ychart = ychart(vbox, newAFT, ServiceSet.getServicesList().get(i));
+			if (ychart != null) {
+				vbox.getChildren().addAll(ychart(vbox, newAFT, ServiceSet.getServicesList().get(i)), text);
+				grid.add(vbox, j++, k);
+				if (j % nbrColumn == 0) {
+					k++;
+					j = 0;
+				}
 			}
+			MousePressed.mouseControle(grid, vbox);
 		}
 
 	}
 
 	public static YChart<ValueChartItem> ychart(Pane box, Aft agent, String servicesName) {
 		List<ValueChartItem> listvalues = new ArrayList<>();
-		CellsLoader.getCapitalsList().forEach(cname -> {
-			double y = Math.min(100, agent.getSensitivity().get(cname + "|" + servicesName) * 100);
-			listvalues.add(new ValueChartItem(y, ""));
+		List<Category> categories = new ArrayList<>();
+		CellsLoader.getCapitalsList().forEach(capitalName -> {
+			double y = Math.min(100, agent.getSensitivity().get(capitalName + "|" + servicesName) * 100);
+			if (y != 0) {
+				listvalues.add(new ValueChartItem(y, capitalName + "|" + servicesName));
+				categories.add(new Category(capitalName));
+			}
 		});
 
-		YSeries<ValueChartItem> series = new YSeries<ValueChartItem>(listvalues, ChartType.RADAR_SECTOR// SMOOTH_RADAR_POLYGON//
+		if (listvalues.size() <= 1) {
+			return null;
+		}
+		YSeries<ValueChartItem> series = new YSeries<ValueChartItem>(listvalues, ChartType.RADAR_POLYGON// RADAR_SECTOR//
 				, new RadialGradient(0, 0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
 						ColorsTools.colorYchart(new Random().nextInt(4))),
 				Color.GRAY);
-		List<Category> categories = new ArrayList<>();
-		for (int i = 0; i < CellsLoader.getCapitalsList().size(); i++) {
-			categories.add(new Category(CellsLoader.getCapitalsList().get(i)));
-		}
+
 		YChart<ValueChartItem> chart = new YChart(new YPane(categories, series));
 		// chart.setPrefSize(scale, scale);
-		MousePressed.mouseControle(box, chart);
+
 		return chart;
 	}
 

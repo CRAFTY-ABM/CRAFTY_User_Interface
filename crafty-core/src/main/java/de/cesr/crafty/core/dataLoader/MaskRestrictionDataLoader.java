@@ -93,7 +93,7 @@ public class MaskRestrictionDataLoader {
 	public void CellSetToMaskLoader(int year) {
 		hashMasksPaths.keySet().forEach(maskType -> {
 			CellSetToMaskLoader(maskType, year);
-			updateRestrections(maskType, year + "", restrictions.get(maskType));
+			updateRestrections(maskType, String.valueOf(year), restrictions.get(maskType));
 		});
 
 	}

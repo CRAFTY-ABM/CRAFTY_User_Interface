@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ColorPicker;
@@ -110,7 +110,7 @@ public class PieChartTools {
 						}
 						AFTsLoader.getAftHash().get(data.get(j).getName())
 								.setColor(ColorsTools.toHex(colorPicker.getValue()));
-						CellsSet.colorMap("AFT");
+						CellsCanvas.colorMap("AFT");
 //						Agents.aftReSet.forEach((name,agent) -> {
 //							if (dataName.equals(name)) {
 //								agent.color = colorPicker.getValue();

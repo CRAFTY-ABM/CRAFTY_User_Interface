@@ -6,9 +6,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +20,7 @@ import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
 import de.cesr.crafty.core.model.Cell;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
+import de.cesr.crafty.core.utils.general.Utils;
 
 public class CsvTools {
 	private static final CustomLogger LOGGER = new CustomLogger(CsvTools.class);
@@ -89,16 +93,18 @@ public class CsvTools {
 		LOGGER.info("Processing data to write a csv file...");
 		List<String> serviceImmutableList = Collections.unmodifiableList(ServiceSet.getServicesList());
 		// Process the cells in parallel to transform each Cell into a CSV string
-		Set<String> csvLines = CellsLoader.hashCell.values().stream()/*.parallelStream()*/ .map(c -> {
+		Set<String> csvLines = CellsLoader.hashCell.values().stream()/* .parallelStream() */ .map(c -> {
 			String servicesFlattened = flattenHashMap(c, serviceImmutableList);
-			return String.join(",", c.getID() + "", c.getX() + "", c.getY() + "",
-					c.getOwner() != null ? c.getOwner().getLabel() : "null", servicesFlattened);
+
+			return String.join(",", String.valueOf(c.getID()), String.valueOf(c.getX()), String.valueOf(c.getY()),
+					c.getOwner() != null ? c.getOwner().getLabel() : "null", String.valueOf(c.getUtilityValue()),
+					servicesFlattened);
 		}).collect(Collectors.toSet());
 
 		LOGGER.info("Writing processed lines to the CSV file : " + filePath);
 		// Write the processed lines to the CSV file
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			writer.write("Index,X,Y,Agent," + String.join(",", serviceImmutableList) + "\n"); // CSV header
+			writer.write("ID,X,Y,Agent,Utility," + String.join(",", serviceImmutableList) + "\n"); // CSV header
 			for (String line : csvLines) {
 				writer.write(line + "\n");
 			}
@@ -112,7 +118,7 @@ public class CsvTools {
 		List<String> service = Collections.synchronizedList(new ArrayList<>());
 		serviceImmutableList.forEach(ServiceName -> {
 			if (c.getCurrentProductivity().get(ServiceName) != null) {
-				service.add(c.getCurrentProductivity().get(ServiceName) + "");
+				service.add(String.valueOf(c.getCurrentProductivity().get(ServiceName)));
 			} else {
 				service.add("0");
 			}
@@ -120,4 +126,105 @@ public class CsvTools {
 
 		return String.join(",", service);
 	}
+
+	public static List<List<String>> readCsvFile(Path csvPath) {
+		List<List<String>> rows = new ArrayList<>();
+		try (BufferedReader br = Files.newBufferedReader(csvPath)) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] columns = line.split(",");
+				rows.add(Arrays.asList(columns));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return rows;
+	}
+
+	public static List<List<String>> readCsvFileWithoutZeros(List<List<String>> data) {
+		List<List<String>> rows = new ArrayList<>();
+		rows.add(data.get(0));
+		// delete list ==0;
+		// delet row=0;
+		data.forEach(list -> {
+			boolean isnull = true;
+			for (String str : list) {
+				if (Utils.sToD(str) != 0) {
+					isnull = false;
+					break;
+				}
+			}
+			if (!isnull) {
+				rows.add(list);
+			}
+		});
+
+		List<List<String>> ret = new ArrayList<>();
+		ret.add(new ArrayList<>());
+		for (int i = 0; i < rows.size(); i++) {
+			ret.get(0).add(rows.get(i).get(0));
+		}
+		for (int i = 1; i < rows.iterator().next().size(); i++) {
+			boolean isnull = true;
+			for (List<String> list : rows) {
+				if (Utils.sToD(list.get(i)) != 0) {
+					isnull = false;
+					break;
+				}
+			}
+			if (!isnull) {
+				ret.add(new ArrayList<>());
+				for (List<String> list : rows) {
+					ret.get(ret.size() - 1).add(list.get(i));
+				}
+			}
+		}
+		ret.get(0).set(0, "Service/Capital");
+		return ret;
+	}
+	
+	 public static void writeCSVfile(Map<String, ArrayList<Double>> dataInput, Path filePathOutput){
+	        // Extract headers in insertion order
+	        List<String> headers = new ArrayList<>(dataInput.keySet());
+
+	        // Determine the maximum number of rows
+	        int maxRows = 0;
+	        for (ArrayList<Double> column : dataInput.values()) {
+	            if (column.size() > maxRows) {
+	                maxRows = column.size();
+	            }
+	        }
+
+	        // Open writer in try-with-resources to ensure closure
+	        try (BufferedWriter writer = Files.newBufferedWriter(filePathOutput)) {
+	            // Write header line
+	            writer.write(String.join(",", headers));
+	            writer.newLine();
+
+	            // Write each row
+	            for (int row = 0; row < maxRows; row++) {
+	                for (int col = 0; col < headers.size(); col++) {
+	                    String header = headers.get(col);
+	                    ArrayList<Double> columnData = dataInput.get(header);
+	                    String cell = "";
+	                    if (row < columnData.size()) {
+	                        cell = columnData.get(row).toString();
+	                    }
+	                    writer.write(cell);
+	                    if (col < headers.size() - 1) {
+	                        writer.write(",");
+	                    }
+	                }
+	                writer.newLine();
+	            }
+	        } catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	
+	
+	
+
 }

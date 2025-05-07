@@ -12,7 +12,7 @@
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsMapsController"
-	fx:id="box">
+	fx:id="TopBox">
 	<children>
 
 		<TitledPane animated="true" text="AFTs Distribution">

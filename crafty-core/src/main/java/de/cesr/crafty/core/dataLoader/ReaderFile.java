@@ -25,6 +25,19 @@ import tech.tablesaw.io.csv.CsvReadOptions;
 public class ReaderFile {
 	private static final CustomLogger LOGGER = new CustomLogger(ReaderFile.class);
 
+	public static HashMap<String, ArrayList<Double>> ReadAsaHashDouble(Path filePath) {
+		HashMap<String, ArrayList<String>> str = ReadAsaHash(filePath);
+		HashMap<String, ArrayList<Double>> dou = new HashMap<>();
+		str.forEach((k, list) -> {
+			ArrayList<Double> tmp = new ArrayList<>();
+			list.forEach(s -> {
+				tmp.add(Utils.sToD(s));
+			});
+			dou.put(k, tmp);
+		});
+		return dou;
+	}
+
 	public static HashMap<String, ArrayList<String>> ReadAsaHash(Path filePath) {
 		return ReadAsaHash(filePath, false);
 
@@ -178,12 +191,12 @@ public class ReaderFile {
 			c.setOwner(AFTsLoader.getAftHash().get(immutableList.get(indexof.get("FR"))));
 
 			CellsLoader.hashCell.put(x + "," + y, c);
-			c.setID(CellsLoader.hashCell.size());
+			c.setID(immutableList.get(indexof.get("ID")));
 		}
-		CellsLoader.getCapitalsList().forEach(capital_name -> {
-			double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-			c.getCapitals().put(capital_name, capital_value);//
-		});
+//		CellsLoader.getCapitalsList().forEach(capital_name -> {
+//			double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
+//			c.getCapitals().put(capital_name, capital_value);//
+//		});
 	}
 
 	static void associateOutPutServicesToCells(CellsLoader cells, ConcurrentHashMap<String, Integer> indexof,

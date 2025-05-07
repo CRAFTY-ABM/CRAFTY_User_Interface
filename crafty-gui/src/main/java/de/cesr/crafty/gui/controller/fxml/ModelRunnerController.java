@@ -15,7 +15,7 @@ import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
@@ -50,7 +50,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -58,7 +57,8 @@ import javafx.scene.layout.GridPane;
 
 public class ModelRunnerController {
 	@FXML
-	private VBox vbox;
+	private VBox TopBox;
+
 	@FXML
 	private Label tickTxt;
 	@FXML
@@ -96,15 +96,10 @@ public class ModelRunnerController {
 		ConfigLoader.config.output_folder_name = ProjectLoader.getScenario();
 		initilaseChart(lineChart);
 		initialzeRadioColorBox();
-		forceResizing();
 		initializeGridpane(3);
-	}
+		Tools.forceResisingWidth(TopBox);
+		Tools.forceResisingHeight(1, scroll);
 
-	private void forceResizing() {
-		double scaley = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY * 1.1);
-		scroll.setMaxHeight(scaley);
-		scroll.setMinHeight(scaley);
-		scroll.setPrefHeight(scaley);
 	}
 
 	public static void init() {
@@ -134,7 +129,7 @@ public class ModelRunnerController {
 			int m = i;
 			radioColor[i].setOnAction(e -> {
 				colorDisplay = radioColor[m].getText();
-				CellsSet.colorMap(radioColor[m].getText());
+				CellsCanvas.colorMap(radioColor[m].getText());
 				for (int I = 0; I < radioColor.length; I++) {
 					if (I != m) {
 						radioColor[I].setSelected(false);
@@ -168,7 +163,7 @@ public class ModelRunnerController {
 		if (Config.mapSynchronisation
 				&& ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % Config.mapSynchronisationGap == 0
 						|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
-			CellsSet.colorMap(colorDisplay);
+			CellsCanvas.colorMap(colorDisplay);
 		}
 	}
 
@@ -200,7 +195,7 @@ public class ModelRunnerController {
 			CustomLogger
 					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
 		}
-		if (startRunin || !ConfigLoader.config.generate_csv_files) {
+		if (startRunin || !ConfigLoader.config.generate_output_files) {
 			ModelRunner.demandEquilibrium();
 			scheduleIteravitveTicks(Duration.millis(1000));
 		}
@@ -219,7 +214,7 @@ public class ModelRunnerController {
 	private void scheduleIteravitveTicks(Duration delay) {
 		if (ProjectLoader.getCurrentYear() > ProjectLoader.getEndtYear()) {
 			// Stop if max iterations reached
-			if (ConfigLoader.config.generate_csv_files)
+			if (ConfigLoader.config.generate_output_files)
 				displayRunAsOutput();
 			return;
 		}
@@ -250,7 +245,7 @@ public class ModelRunnerController {
 		tick.set(ProjectLoader.getStartYear());
 		ProjectLoader.setCurrentYear(ProjectLoader.getStartYear());
 		ProjectLoader.cellsSet.loadMap();
-		CellsSet.colorMap();
+		CellsCanvas.colorMap();
 		RegionClassifier.serviceupdater();
 
 		try {
@@ -293,7 +288,7 @@ public class ModelRunnerController {
 			HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
 			othersMenuItems.put(ItemName, action);
 
-			MousePressed.mouseControle(vbox, l, othersMenuItems);
+			MousePressed.mouseControle(TopBox, l, othersMenuItems);
 		});
 		LineChart<Number, Number> l = new LineChart<>(
 				new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
@@ -308,14 +303,17 @@ public class ModelRunnerController {
 		});
 		l.setCreateSymbols(false);
 		LineChartTools.addSeriesTooltips(l);
-		MousePressed.mouseControle(vbox, l);
+		MousePressed.mouseControle(TopBox, l);
 		LineChartTools.labelcolor(l);
 	}
 
 	Alert simulationFolderName() {
-		if (!ConfigLoader.config.generate_csv_files) {
+		
+		if (!ConfigLoader.config.generate_output_files) {
 			return null;
 		}
+		ConfigLoader.config.generate_map_output_files=true;
+		Listener.initializeListYears();
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setHeaderText("Please enter OutPut folder name");
 		String cofiguration = Listener.exportConfigurationFile();
@@ -334,7 +332,7 @@ public class ModelRunnerController {
 
 		alert.showAndWait().ifPresent(response -> {
 			if (response == ButtonType.OK) {
-				Listener.outputfolderPath(null,textField.getText());
+				Listener.outputfolderPath(null, textField.getText());
 				PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "readme.txt",
 						textArea.getText(), false);
 				startRunin = true;

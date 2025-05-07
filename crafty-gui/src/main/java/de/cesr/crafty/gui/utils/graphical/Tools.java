@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
@@ -23,7 +24,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
-import javafx.stage.Screen;
 
 import java.util.stream.Collectors;
 
@@ -31,6 +31,7 @@ import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Screen;
 
 /**
  * @author Mohamed Byari
@@ -107,8 +108,13 @@ public class Tools {
 		t1.setFill(color);
 		return t1;
 	}
+
 	public static void reInsertChildAtIndexPath(Node child, Parent rootParent, List<Integer> indexPath) {
 		Parent currentParent = rootParent;
+		if (currentParent == null) {
+			currentParent = new VBox(child);
+			indexPath = Tools.findIndexPath(child, rootParent);
+		}
 		// Traverse down the hierarchy using the index path
 		for (int i = 0; i < indexPath.size() - 1; i++) {
 			// Get the next parent in the path
@@ -152,20 +158,17 @@ public class Tools {
 		return indexPath;
 	}
 
-	
-
 	public static ImageView logo(InputStream imageStream, double scale) {
 		ImageView imageView = new ImageView();
 		Image image = new Image(imageStream);
 		imageView.setImage(image);
-		Scale scaleTransform = new Scale(scale, scale, Screen.getPrimary().getBounds().getWidth(),
-				Screen.getPrimary().getBounds().getWidth());
+		Scale scaleTransform = new Scale(scale, scale, 0, 0);
 		imageView.getTransforms().add(scaleTransform);
 
 		return imageView;
 	}
 
-	public static  GridPane initializeGridpane(int colmunNBR, List<Node> nodes) {
+	public static GridPane initializeGridpane(int colmunNBR, List<Node> nodes) {
 		GridPane grid = new GridPane();
 		int j = 0, k = 0;
 		for (int m = 0; m < nodes.size(); m++) {
@@ -177,6 +180,7 @@ public class Tools {
 		}
 		return grid;
 	}
+
 	public static File selectFolder(String projectPath) {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Select Project");
@@ -186,4 +190,38 @@ public class Tools {
 		File selectedDirectory = chooser.showDialog(FxMain.primaryStage);
 		return selectedDirectory;
 	}
+
+	public static void forceResisingWidth(double scale, Pane... nodes) {
+		double width = Screen.getPrimary().getBounds().getWidth() * scale;
+
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i].setMaxWidth(width / (2 * FxMain.graphicScaleX));
+			nodes[i].setMinWidth(width / (2 * FxMain.graphicScaleX));
+		}
+	}
+
+	public static void forceResisingWidth(Pane... nodes) {
+		forceResisingWidth(1, nodes);
+	}
+
+	public static void forceResisingHeight(double scale, Pane... nodes) {
+		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i].setMaxHeight(scaleY);
+			nodes[i].setMinHeight(scaleY);
+		}
+	}
+
+	public static void forceResisingHeight(double scale, ScrollPane... nodes) {
+		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i].setMaxHeight(scaleY);
+			nodes[i].setMinHeight(scaleY);
+		}
+	}
+
+	public static void forceResisingHeight(Pane... nodes) {
+		forceResisingHeight(1, nodes);
+	}
+
 }

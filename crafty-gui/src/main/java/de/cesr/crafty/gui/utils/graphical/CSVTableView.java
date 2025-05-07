@@ -117,4 +117,94 @@ public final class CSVTableView extends TableView<String> {
 		return map;
 	}
 
+	public static TableView<ObservableList<String>> createTableFromRows( List<List<String>> rows) {
+		TableView<ObservableList<String>> tableView = new TableView<>();
+		createTableFromRows(tableView,rows);
+		return tableView;
+	}
+
+	public static void createTableFromRows(TableView<ObservableList<String>> tableView ,List<List<String>> rows) {
+		tableView.getColumns().clear();
+
+		// If there's no data at all, return an empty table
+		if (rows == null || rows.isEmpty()) {
+			return;
+		}
+
+		// The first row is column headers
+		List<String> headerRow = rows.get(0);
+
+		// The data rows are everything after the first row
+		List<List<String>> dataRows = rows.size() > 1 ? rows.subList(1, rows.size()) : new ArrayList<>(); // empty if
+																											// there's
+																											// only 1
+																											// row
+
+		// Determine how many columns we need (widest row among *all* rows—headers +
+		// data)
+		int maxColumns = headerRow.size();
+		for (List<String> row : dataRows) {
+			maxColumns = Math.max(maxColumns, row.size());
+		}
+
+		// Create columns
+		for (int colIndex = 0; colIndex < maxColumns; colIndex++) {
+			final int index = colIndex;
+			String columnHeader;
+
+			// If header row has a column for this index, use it; otherwise use "Column X"
+			if (colIndex < headerRow.size()) {
+				columnHeader = headerRow.get(colIndex);
+				// If the header cell is empty, consider giving it a default name
+				if (columnHeader == null || columnHeader.trim().isEmpty()) {
+					columnHeader = "Column " + (colIndex + 1);
+				}
+			} else {
+				columnHeader = "Column " + (colIndex + 1);
+			}
+
+			TableColumn<ObservableList<String>, String> column = new TableColumn<>(columnHeader);
+
+			// Use a cellValueFactory that grabs the right index from each row's
+			// ObservableList
+			column.setCellValueFactory(cellData -> {
+				ObservableList<String> rowData = cellData.getValue();
+				// Return empty string if this row doesn't have data for this column
+				if (index < rowData.size()) {
+					return new SimpleStringProperty(rowData.get(index));
+				} else {
+					return new SimpleStringProperty("");
+				}
+			});
+
+			// Make cells editable as text fields (optional)
+			column.setCellFactory(TextFieldTableCell.forTableColumn());
+
+			tableView.getColumns().add(column);
+		}
+
+		// Build an ObservableList of ObservableList<String> for the data rows
+		ObservableList<ObservableList<String>> tableData = FXCollections.observableArrayList();
+		for (List<String> row : dataRows) {
+			tableData.add(FXCollections.observableArrayList(row));
+		}
+		tableView.setItems(tableData);
+
+		// Set a constrained resize policy so columns expand/shrink to fill available
+		// width
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		// Optionally let the table be editable
+		tableView.setEditable(true);
+
+		// Optionally let the table adapt to its content height
+		// (makes the table's preferred height just large enough to show all rows)
+		tableView.setFixedCellSize(25); // or some other row height
+		tableView.prefHeightProperty()
+				.bind(tableView.fixedCellSizeProperty().multiply(FXCollections.observableArrayList(tableData).size())
+						.add(tableView.getInsets().getTop() + tableView.getInsets().getBottom()).add(30) // a bit of																								// header
+																											// row
+				);
+	}
+
 }

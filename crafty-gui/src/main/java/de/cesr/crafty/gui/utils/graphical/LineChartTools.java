@@ -2,12 +2,19 @@ package de.cesr.crafty.gui.utils.graphical;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.DoubleStream;
+
+import org.apache.commons.math3.analysis.interpolation.LoessInterpolator;
 
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.gui.utils.analysis.MixedLineChart;
+import de.cesr.crafty.gui.utils.analysis.MultiShadowLineChart;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -27,7 +34,7 @@ import javafx.util.Duration;
 
 public class LineChartTools {
 
-	public void lineChart(Pane box, LineChart<Number, Number> lineChart, Map<String, ArrayList<Double>> hash) {
+	public void lineChart(Pane box, LineChart<Number, Number> lineChart, Map<String, List<Double>> hash) {
 		if (hash == null) {
 			return;
 		}
@@ -41,7 +48,7 @@ public class LineChartTools {
 		Collections.sort(sortedKeys);
 
 		for (String key : sortedKeys) {
-			ArrayList<Double> value = hash.get(key);
+			ArrayList<Double> value = (ArrayList<Double>) hash.get(key);
 			if (value != null) {
 				series[i.get()] = new XYChart.Series<Number, Number>();
 				series[i.get()].setName(key);
@@ -52,7 +59,7 @@ public class LineChartTools {
 
 		AtomicInteger k = new AtomicInteger();
 		sortedKeys.forEach((key) -> {
-			ArrayList<Double> value = hash.get(key);
+			ArrayList<Double> value = (ArrayList<Double>) hash.get(key);
 			if (value != null) {
 				for (int j = 0; j < value.size(); j++) {
 					series[k.get()].getData().add(new XYChart.Data<>(
@@ -61,27 +68,7 @@ public class LineChartTools {
 				k.getAndIncrement();
 			}
 		});
-//		if (hash.size() > 8) {
-//			AtomicInteger K = new AtomicInteger();
-//			sortedKeys.forEach((key) -> {
-//				ArrayList<Double> value = hash.get(key);
-//				if (value != null) {
-//					for (int j = 0; j < value.size(); j++) {
-//						series[K.get()].getData().add(new XYChart.Data<>(j, +value.get(j)));
-//						series[K.get()].getNode().lookup(".chart-series-line").setStyle(
-//								"-fx-stroke: " + ColorsTools.getStringColor(ColorsTools.colorlist(K.get())) + ";");
-//					}
-//					K.getAndIncrement();
-//				}
-//			});
-//			if (TabPaneController.cellsLoader != null)
-//				labelcolor( lineChart);
-//			lineChart.setCreateSymbols(false);
-//		}
 		strokeColor(lineChart, hash);
-//		if (box != null) {
-//			MousePressed.mouseControle(box, lineChart);
-//		}
 		LineChartTools.addSeriesTooltips(lineChart);
 		NumberAxis yAxis = ((NumberAxis) lineChart.getYAxis());
 		yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
@@ -93,13 +80,13 @@ public class LineChartTools {
 
 	}
 
-	public static void strokeColor(LineChart<Number, Number> lineChart, Map<String, ArrayList<Double>> hash) {
+	public static void strokeColor(XYChart<Number, Number> lineChart, Map<String, List<Double>> hash) {
 		List<String> sortedKeys = new ArrayList<>(hash.keySet());
 		Collections.sort(sortedKeys);
 		if (hash.size() > 8) {
 			AtomicInteger K = new AtomicInteger();
 			sortedKeys.forEach((key) -> {
-				ArrayList<Double> value = hash.get(key);
+				ArrayList<Double> value = (ArrayList<Double>) hash.get(key);
 				if (value != null) {
 					for (int j = 0; j < value.size(); j++) {
 						lineChart.getData().get(K.get()).getData().add(new XYChart.Data<>(j, +value.get(j)));
@@ -111,11 +98,11 @@ public class LineChartTools {
 			});
 			if (ProjectLoader.cellsSet != null)
 				labelcolor(lineChart);
-			lineChart.setCreateSymbols(false);
+			((LineChart<Number, Number>) lineChart).setCreateSymbols(false);
 		}
 	}
 
-	public static void addSeriesTooltips(LineChart<Number, Number> lineChart) {
+	public static void addSeriesTooltips(XYChart<Number, Number> lineChart) {
 		for (XYChart.Series<Number, Number> series : lineChart.getData()) {
 			// Building the tooltip text
 			String tooltipText = "Series: " + series.getName() + "\nData Points: " + series.getData().size();
@@ -140,7 +127,7 @@ public class LineChartTools {
 		}
 	}
 
-	public static void labelcolor(LineChart<Number, Number> lineChart) {
+	public static void labelcolor(XYChart<Number, Number> lineChart) {
 		int m = 0;
 		for (Node item : lineChart.lookupAll("Label.chart-legend-item")) {
 			Label label = (Label) item;
@@ -181,4 +168,70 @@ public class LineChartTools {
 			}
 		});
 	}
+
+	public static LineChart<Number, Number> createLineChartWithSmoothLines(String titel,
+			Map<String, List<Double>> points,boolean withShade) {
+		Map<String, Color> colors = new HashMap<>();
+		AtomicInteger i = new AtomicInteger();
+		points.keySet().forEach(name -> {
+			colors.put(name, ColorsTools.colorlist(i.getAndIncrement()));
+		});
+
+		return LineChartTools.createLineChartWithSmoothLines(titel, points, colors,withShade);
+	}
+
+	public static LineChart<Number, Number> createLineChartWithSmoothLines(String titel,
+			Map<String, List<Double>> points, Map<String, Color> colors,boolean withShade) {
+		Map<String, List<Double>> lines = new HashMap<>();
+		points.forEach((k, v) -> {
+			lines.put(k, loess_smoothing_data(v));
+			// colors.put(k + "|", colors.get(k));
+		});
+		Map<String, List<Double>> points2 = new HashMap<>();
+		points.forEach((k, v) -> {
+			List<Double> nv = new ArrayList<>();
+			for (int i = 0; i < v.size(); i++) {
+				nv.add(v.get(i) != 0 ? Math.sqrt(Math.abs(v.get(i) - lines.get(k).get(i))) : 0);
+			}
+
+			points2.put(k, nv);
+		});
+		LineChart<Number, Number> chart = new MultiShadowLineChart(titel, lines, points2, colors);//
+		lines.clear();
+		points.forEach((k, v) -> {
+			lines.put(k + "|", loess_smoothing_data(v));
+			colors.put(k + "|", colors.get(k));
+		});
+		
+		if(!withShade) {
+		 chart = MixedLineChart.mixedLineChart(titel,lines,
+		 points, colors);
+		// LineChartTools.addSeriesTooltips(chart);
+		 }
+
+		return chart;
+	}
+
+	private static ArrayList<Double> loess_smoothing_data(List<Double> input) {
+
+		// ── 1. Prepare x and y arrays ──────────────────────────────────────────────
+		int n = input.size();
+		double[] x = DoubleStream.iterate(0, i -> i + 1).limit(n).toArray();
+		double[] y = input.stream().mapToDouble(Double::doubleValue).toArray();
+
+		// ── 2. Configure the smoother ──────────────────────────────────────────────
+		double bandwidth = 0.30; // fraction of points to include in each local fit
+		int robustnessIters = 2; // extra robustness iterations (0–4 is common)
+
+		LoessInterpolator loess = new LoessInterpolator(bandwidth, robustnessIters);
+
+		// ── 3. Run the smoother
+		double[] smoothed = loess.smooth(x, y);
+
+		ArrayList<Double> output = new ArrayList<>(n);
+		for (double v : smoothed)
+			output.add(Math.max(0, v));
+		return output;
+	}
+
 }

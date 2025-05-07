@@ -23,16 +23,6 @@ public class ImageExporter {
 	}
 
 	public static void NodeToImage(Node node, String path) {
-//		Pane box = null;
-//		List<Integer> findpath = null;
-//		NewWindow win = new NewWindow();
-//		if (!(node instanceof Canvas)) {
-//			box = (Pane) node.getParent();
-//			findpath = Tools.findIndexPath(node, (Pane) node.getParent());
-//			Tools.reInsertChildAtIndexPath(new Separator(), box, findpath);
-//			//win.creatwindows("", node);
-//		}
-
 		// Take a snapshot without showing the stage
 		WritableImage image = createImage(node);
 		File file = new File(path);
@@ -43,9 +33,5 @@ public class ImageExporter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		if (!(node instanceof Canvas)) {
-//			Tools.reInsertChildAtIndexPath(node, box, findpath);
-//			win.close();
-//		}
 	}
 }

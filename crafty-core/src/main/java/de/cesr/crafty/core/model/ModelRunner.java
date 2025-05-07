@@ -25,7 +25,7 @@ public class ModelRunner {
 		regionsModelRunner = new ConcurrentHashMap<>();
 		RegionClassifier.initialation();
 		AFTsLoader.hashAgentNbrRegions();
-//		S_WeightLoader.updateWorldWeight();
+		//S_WeightLoader.updateWorldWeight();
 		RegionClassifier.regions.keySet().forEach(regionName -> {
 			regionsModelRunner.put(regionName, new RegionalModelRunner(regionName));
 		});
@@ -36,21 +36,22 @@ public class ModelRunner {
 		int year = Math.min(Math.max(ProjectLoader.getCurrentYear(), ProjectLoader.getStartYear()),
 				ProjectLoader.getEndtYear());
 		totalSupply = new ConcurrentHashMap<>();
+		Listener.landUseChangeCounter.set(0);
 		ProjectLoader.cellsSet.updateCapitals(year);
-		
 		AFTsLoader.updateAFTs();
 		ProjectLoader.Maskloader.CellSetToMaskLoader(year);
 		aggregateTotalSupply();
 		Tracker.trackSupply(year);
+		listnerOutput(year);
 		regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.step(year);
 		});
-		listnerOutput(year);
+		Listener.updateLandUseEventConter();
 		AFTsLoader.hashAgentNbr();
 	}
 
 	private void listnerOutput(int year) {
-		if (ConfigLoader.config.generate_csv_files) {
+		if (ConfigLoader.config.generate_output_files) {
 			listner.compositionAFT(year);
 			listner.outPutserviceDemandToCsv(year, totalSupply);
 			listner.writOutPutMap(year);
@@ -93,7 +94,7 @@ public class ModelRunner {
 				Service s = RegionalRunner.R.getServicesHash().get(serviceName);
 				int i = ServiceSet.getServicesList().indexOf(serviceName);
 				RegionalRunner.listner.DSEquilibriumListener[i + 1][0] = serviceName;
-				RegionalRunner.listner.DSEquilibriumListener[i + 1][1] = s.getCalibration_Factor() + "";
+				RegionalRunner.listner.DSEquilibriumListener[i + 1][1] = String.valueOf(s.getCalibration_Factor());
 			});
 		});
 	}

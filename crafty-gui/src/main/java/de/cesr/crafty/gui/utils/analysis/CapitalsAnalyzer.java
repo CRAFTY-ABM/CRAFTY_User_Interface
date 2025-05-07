@@ -1,5 +1,6 @@
 package de.cesr.crafty.gui.utils.analysis;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,9 +12,9 @@ import java.util.function.Consumer;
 
 import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
-import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -24,9 +25,10 @@ import javafx.scene.layout.Pane;
 public class CapitalsAnalyzer {
 
 //	public static void main(String[] args) {
-//		MainHeadless.modelInitialisation();
-////		generateGrapheData();
-//
+//		MainHeadless.initializeConfig(args);
+//		ProjectLoader.modelInitialisation();
+//		generateGrapheData();
+
 //	}
 
 	static ConcurrentHashMap<String, Double> mapToValues(int year) {
@@ -62,27 +64,30 @@ public class CapitalsAnalyzer {
 		return hash;
 	}
 
-	public static void generateGrapheDataByScenarios() {
+	public static void generateGrapheDataByScenarios(String outputPath) {
 		Map<String, Map<String, ArrayList<Double>>> hash = new ConcurrentHashMap<>();
 		ProjectLoader.getScenariosList().forEach(scenario -> {
 			if (!scenario.equals("Baseline")) {
 				ProjectLoader.setScenario(scenario);
+				System.out.println("Reading the capitals map for scenario:  " + scenario);
 				hash.put(scenario, generateGrapheData());
 			}
 		});
 
-		CellsLoader.getCapitalsList().forEach(cn -> {
-			Map<String, ArrayList<Double>> h = new ConcurrentHashMap<>();
+		CellsLoader.getCapitalsList().forEach(capitalName -> {
+			Map<String, ArrayList<Double>> data = new ConcurrentHashMap<>();
 			ProjectLoader.getScenariosList().forEach(scenario -> {
+
 				if (!scenario.equals("Baseline")) {
-					h.put(scenario, hash.get(scenario).get(cn));
+					data.put(scenario, hash.get(scenario).get(capitalName));
 				}
 			});
-			generateChart(h, cn);
+			CsvTools.writeCSVfile(data, Paths.get(outputPath + capitalName + ".csv"));
+			// generateChart(data, capitalName);
 		});
 	}
 
-	public static void generateChart(Map<String, ArrayList<Double>> data, String titel) {
+	public static LineChart<Number, Number> generateCapitalChart(String titel, Map<String, ArrayList<Double>> data) {
 		LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
 		chart.setTitle(titel);
 		lineChart(chart, data, titel);
@@ -97,9 +102,7 @@ public class CapitalsAnalyzer {
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
 		othersMenuItems.put(ItemName, action);
-		MousePressed.mouseControle((Pane) chart.getParent(), chart, othersMenuItems);
-		NewWindow win = new NewWindow();
-		win.creatwindows("", chart);
+		return chart;
 	}
 
 	public static void lineChart(LineChart<Number, Number> lineChart, Map<String, ArrayList<Double>> hash,

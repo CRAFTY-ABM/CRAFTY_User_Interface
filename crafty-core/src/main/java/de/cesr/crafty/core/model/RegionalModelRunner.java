@@ -12,6 +12,7 @@ import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.output.ListenerByRegion;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -99,10 +100,12 @@ public class RegionalModelRunner {
 	void takeOverUnmanageCells() {
 		LOGGER.trace("Region: [" + R.getName() + "] Take over unmanaged cells & Launching the competition process...");
 		R.getUnmanageCellsR()/**/.parallelStream().forEach(c -> {
-			if (Math.random() <ConfigLoader.config.takeOverUnmanageCells_percentage) {
+			if (Math.random() < ConfigLoader.config.takeOverUnmanageCells_percentage) {
+//				System.out.println("take over of cell: " + c.getX() + "" + c.getY());
 				Competitiveness.competition(c, this);
 				if (c.getOwner() != null && !c.getOwner().isAbandoned()) {
 					R.getUnmanageCellsR().remove(c);
+					Listener.landUseChangeCounter.getAndIncrement();
 				}
 			}
 		});
@@ -144,14 +147,15 @@ public class RegionalModelRunner {
 	}
 
 	public void step(int year) {
-		listner.exportFiles(year, regionalSupply);
 
+		listner.exportFiles(year, regionalSupply);
 		calculeMarginal(year);
 		calculeDistributionMean();
 		if (AftCategorised.useCategorisationGivIn && CellBehaviourLoader.behaviourUsed) {
 			calculeMaxUtility();
 		}
 		giveUp();
+//		System.out.println("getUnmanageCellsR.size:  " + R.getUnmanageCellsR().size());
 		takeOverUnmanageCells();
 		competition(year);
 		AFTsLoader.hashAgentNbr(R.getName());
@@ -159,11 +163,12 @@ public class RegionalModelRunner {
 
 	private void giveUp() {
 		if (ConfigLoader.config.use_abandonment_threshold) {
-			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsSubSets.getRandomSubset(R.getCells(),
+			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsSubSets.randomSeed(R.getCells(),
 					ConfigLoader.config.land_abandonment_percentage);
 			if (randomCellsubSetForGiveUp != null) {
-				randomCellsubSetForGiveUp.values()/**/ .parallelStream().forEach(c -> {
+				randomCellsubSetForGiveUp.values()/**/.parallelStream().forEach(c -> {
 					c.giveUp(this, distributionMean);
+
 				});
 			}
 		}
@@ -171,7 +176,7 @@ public class RegionalModelRunner {
 
 	private void competition(int year) {
 		// Randomly select % of the land available for competition
-		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsSubSets.getRandomSubset(R.getCells(),
+		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsSubSets.randomSeed(R.getCells(),
 				ConfigLoader.config.participating_cells_percentage);
 		if (randomCellsubSet != null) {
 			List<ConcurrentHashMap<String, Cell>> subsubsets = Utils.splitIntoSubsets(randomCellsubSet,
@@ -200,6 +205,8 @@ public class RegionalModelRunner {
 		}
 	}
 
+
+
 	private void productivityForAllExecutor() {// double multithreding
 		LOGGER.info("Productivity calculation for all cells ");
 		final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -216,6 +223,10 @@ public class RegionalModelRunner {
 			} catch (InterruptedException e) {
 			} // Wait for all tasks to complete
 		}
+	}
+
+	public ConcurrentHashMap<Aft, Double> getDistributionMean() {
+		return distributionMean;
 	}
 
 //	private void productivityForAllExecutor() {//  multithreding

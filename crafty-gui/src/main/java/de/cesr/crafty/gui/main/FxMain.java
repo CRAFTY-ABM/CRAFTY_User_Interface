@@ -1,6 +1,7 @@
 package de.cesr.crafty.gui.main;
 
 import java.io.InputStream;
+import java.net.URL;
 
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.utils.camera.Camera;
@@ -34,6 +35,7 @@ public class FxMain extends Application {
 	public static double graphicScaleX, graphicScaleY;
 	public static final double defaultWidth = 2800, defaultHeight = 1550;
 
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		LOGGER.info("--Starting CRAFTY execution--");
@@ -41,7 +43,8 @@ public class FxMain extends Application {
 		graphicScaleX = Screen.getPrimary().getBounds().getWidth() / defaultWidth;
 		graphicScaleY = Screen.getPrimary().getBounds().getHeight() / defaultHeight;
 
-		topLevelBox.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/MenuBar.fxml")));
+		URL fxml = FxMain.class.getResource("/fxmlControllers/MenuBar.fxml");
+		topLevelBox.getChildren().add(FXMLLoader.load(fxml));
 		topLevelBox.getChildren().add(anchor);
 		scaler();
 		addLogo();
@@ -56,8 +59,8 @@ public class FxMain extends Application {
 	}
 
 	private void addLogo() {
-		InputStream imageStream = getClass().getResourceAsStream("/graphic/craftylogo.png");
-		ImageView imageView = Tools.logo(imageStream, 1);
+		InputStream imageStream = getClass().getResourceAsStream("/graphic/CRAFTY_logo_modern3.png");
+		ImageView imageView = Tools.logo(imageStream, 0.3);
 		anchor.setCenter(imageView);
 	}
 

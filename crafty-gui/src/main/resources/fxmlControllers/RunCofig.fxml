@@ -12,7 +12,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.cesr.crafty.gui.controller.fxml.RunCofigController">
+	fx:controller="de.cesr.crafty.gui.controller.fxml.RunCofigController"
+	fx:id="TopBox">
 	<children>
 		<VBox>
 			<children>
@@ -56,8 +57,9 @@
 											prefWidth="58.0" />
 									</children>
 								</HBox>
-								<!-- <CheckBox fx:id="mutationM" mnemonicParsing="false" onAction="#MutationMechanism" 
-									text="Mutation mechanism" /> -->
+								<!---->
+								<CheckBox fx:id="mutationM" mnemonicParsing="false"
+									onAction="#MutationMechanism" text="Mutation mechanism" />
 								<HBox spacing="5.0">
 									<children>
 										<Label
@@ -91,15 +93,27 @@
 										<Label text="\%" />
 									</children>
 								</HBox>
-
 								<HBox spacing="5.0">
-									<children><!-- <Label text="Number of Sub-sets and Supply Update 
-											During a Single Iteration" /> <Slider fx:id="nbrOfSubSetS" blockIncrement="1.0" 
-											majorTickUnit="1.0" max="20.0" min="1.0" minorTickCount="5" showTickLabels="true" 
-											showTickMarks="true" /> <TextField fx:id="nbrOfSubSetT" onAction="#nbrOfSubSetT" 
-											prefHeight="25.0" prefWidth="58.0" /> -->
+									<children>
+										<Label text="take Over Unmanage Cells percentage" />
+										<Slider max="100.0" min="0.0" minorTickCount="10"
+											showTickLabels="true" showTickMarks="true" />
+										<TextField prefHeight="25.0" prefWidth="58.0" /> <!-- -->
 									</children>
 								</HBox>
+
+								<HBox spacing="5.0">
+									<children>
+										<Label
+											text="Number of time the marginal utility calculating per year" />
+										<Slider fx:id="nbrOfSubSetS" blockIncrement="1.0"
+											majorTickUnit="1.0" max="20.0" min="1.0" minorTickCount="5"
+											showTickLabels="true" showTickMarks="true" />
+										<TextField fx:id="nbrOfSubSetT"
+											onAction="#nbrOfSubSetT" prefHeight="25.0" prefWidth="58.0" /> <!-- -->
+									</children>
+								</HBox>
+
 							</children>
 						</VBox>
 
@@ -136,21 +150,53 @@
 		</VBox>
 		<TitledPane animated="false" text="OutPut files">
 			<content>
-				<VBox>
+				<VBox spacing="5">
 					<children>
-						<HBox>
-							<CheckBox fx:id="creatCSV" mnemonicParsing="false"
-								onAction="#creatCSV" text="Create .csv output files" />
+						<CheckBox fx:id="creatCSV" mnemonicParsing="false"
+							onAction="#creatCSV" text="Create .csv output files" />
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="png" mnemonicParsing="false"
+								onAction="#png" text="generate Charts Plots .PNG" />
+						</HBox>
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="pdf" mnemonicParsing="false"
+								onAction="#pdf" text="generate Charts Plots .PDF" />
+						</HBox>
+						<HBox spacing="10">
+							<Label />
+							<Label />
 							<Slider fx:id="CSV_GapS" blockIncrement="1.0"
 								majorTickUnit="9.0" max="20.0" min="1.0" minorTickCount="5"
 								showTickLabels="true" showTickMarks="true" />
 							<TextField fx:id="CSV_GapT" onAction="#CSVAction"
 								prefHeight="25.0" prefWidth="58.0" />
 						</HBox>
-						<CheckBox fx:id="traker" mnemonicParsing="false"
-							onAction="#trakerAction" text="Create .csv supply tracker files" />
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="tif" mnemonicParsing="false"
+								onAction="#tif" text="Generate Map plots .tif" />
+						</HBox>
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="traker" mnemonicParsing="false"
+								onAction="#trakerAction" text="Create .csv supply tracker files" />
+						</HBox>
 						<CheckBox fx:id="logger" mnemonicParsing="false"
 							onAction="#loggerAction" text="Create .txt LOGGER files" />
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="info" mnemonicParsing="false"
+								onAction="#info" text="LOGGER Level info" />
+						</HBox>
+						<HBox spacing="20">
+							<Label />
+							<CheckBox fx:id="warn" mnemonicParsing="false"
+								onAction="#warn" text="LOGGER Level info and warn" />
+						</HBox>
+
+
 					</children>
 				</VBox>
 			</content>

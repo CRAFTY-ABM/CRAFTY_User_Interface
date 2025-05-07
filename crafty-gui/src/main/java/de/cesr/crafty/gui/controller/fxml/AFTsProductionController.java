@@ -1,11 +1,15 @@
 package de.cesr.crafty.gui.controller.fxml;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.CSVTableView;
+import de.cesr.crafty.gui.utils.graphical.LineChartTools;
+import de.cesr.crafty.gui.utils.graphical.MousePressed;
+import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.model.Aft;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -16,13 +20,19 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class AFTsProductionController {
 	@FXML
+	private VBox TopBox;
+	@FXML
 	private BarChart<String, Number> histogramePlevel;
 	@FXML
-	VBox boxCharts;
+	private VBox box2;
+	@FXML
+	private HBox hbox1;
 
 	Button productionFire = new Button();
 	Button sensitivtyFire = new Button();
@@ -43,33 +53,50 @@ public class AFTsProductionController {
 		return histogramePlevel;
 	}
 
-	public VBox getBoxCharts() {
-		return boxCharts;
+	public VBox getBox2() {
+		return box2;
 	}
 
-	static public LineChart<Number, Number> productivitySampleChart(String aftLabel) {
-		Map<String, ArrayList<Double>> data = AftAnalyzer.productivitySample(1000, 100,
+	public HBox getHBox1() {
+		return hbox1;
+	}
+
+	public void initialize() {
+		System.out.println("initialize " + getClass().getSimpleName());
+		Tools.forceResisingWidth(TopBox, box2);
+
+		histogramePlevel.setMinWidth(TopBox.getMinWidth() / 2);
+		hbox1.setMinWidth(TopBox.getMinWidth() / 2);
+	}
+
+	public static LineChart<Number, Number> productivitySampleChart(String aftLabel, boolean withShade) {
+		Map<String, List<Double>> data = AftAnalyzer.productivitySampleByAFTs(1000, 100,
 				AFTsLoader.getAftHash().get(aftLabel));
-		LineChart<Number, Number> chart = AftAnalyzer.generateChart(aftLabel, data);
+		if (data.size() == 0) {
+			return null;
+		}
+		LineChart<Number, Number> chart = LineChartTools.createLineChartWithSmoothLines(aftLabel, data, withShade);
+		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
+		Consumer<String> relaod = x -> {
+			Pane parent = (Pane) chart.getParent();
+			parent.getChildren().removeIf(node -> ("productivitySampleChart".equals(node.getId())));
+			parent.getChildren().add(productivitySampleChart(aftLabel, withShade));
+		};
+		othersMenuItems.put("Reload and Update", relaod);
+		Consumer<String> switchView = x -> {
+			Pane parent = (Pane) chart.getParent();
+			parent.getChildren().removeIf(node -> ("productivitySampleChart".equals(node.getId())));
+			parent.getChildren().add(productivitySampleChart(aftLabel, !withShade));
+		};
+
+		othersMenuItems.put("Update and show the " + (!withShade ? " Deviation" : "Original Points"), switchView);
+		chart.setId("productivitySampleChart");
+		
+		MousePressed.mouseControle((Pane) chart.getParent(), chart, othersMenuItems);
 		return chart;
 	}
 
-	static public LineChart<Number, Number> productivitySampleChartIntensity(String aftLabel) {
-		String thisAFT = aftLabel.replace("Int", "").replace("VExt", "").replace("Ext", "");
-		List<Aft> aList = new ArrayList<>();
-
-		AFTsLoader.getAftHash().forEach((label, agent) -> {
-			if (thisAFT.equals(label.replace("Int", "").replace("VExt", "").replace("Ext", "")))
-				aList.add(agent);
-		});
-		if (aList.size() > 1) {
-			Map<String, ArrayList<Double>> data = AftAnalyzer.productivitySample(1000, 100, aList.toArray(new Aft[0]));
-			LineChart<Number, Number> chart = AftAnalyzer.generateChart(thisAFT, data);
-			return chart;
-		}
-		return null;
-
-	}
+	
 
 	static void updateProduction(Aft newAFT, TableView<ObservableList<String>> tabV) {
 		String[][] tab = CSVTableView.tableViewToArray(tabV);

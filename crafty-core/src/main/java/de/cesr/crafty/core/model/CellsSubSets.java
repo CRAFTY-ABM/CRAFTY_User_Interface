@@ -67,7 +67,7 @@ public class CellsSubSets {
 		return neighborhood;
 	}
 	
-	public static ConcurrentHashMap<String, Cell> getRandomSubset(ConcurrentHashMap<String, Cell> cellsHash,
+	public static ConcurrentHashMap<String, Cell> randomSeed(ConcurrentHashMap<String, Cell> cellsHash,
 			double percentage) {
 
 		int numberOfElementsToSelect = (int) (cellsHash.size() * (percentage));

@@ -83,7 +83,7 @@ public class AFTsLoader extends HashSet<Aft> {
 				} catch (NullPointerException e) {
 					ArrayList<Path> pFileList = PathTools.fileFilter(PathTools.asFolder("production"),
 							ProjectLoader.getScenario(), Label + ".csv");
-					pFile = pFileList.getFirst();
+					pFile = pFileList.get(0);
 					LOGGER.warn("Default productivity folder not fund, will use: " + pFile);
 				} 
 				LOGGER.trace("Production file Path: "+pFile);

@@ -1,5 +1,7 @@
 package de.cesr.crafty.gui.canvasFx;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import de.cesr.crafty.gui.utils.graphical.Tools;
+import de.cesr.crafty.gui.controller.fxml.RegionController;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
@@ -22,6 +25,8 @@ import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
 import de.cesr.crafty.core.model.Aft;
 import de.cesr.crafty.core.model.Cell;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
@@ -41,15 +46,14 @@ import javafx.scene.paint.Color;
  *
  */
 
-public class CellsSet {
-	private static final CustomLogger LOGGER = new CustomLogger(CellsSet.class);
+public class CellsCanvas {
+	private static final CustomLogger LOGGER = new CustomLogger(CellsCanvas.class);
 	public static boolean isPlotedMap = false;
 	private static Canvas canvas;
 	public static GraphicsContext gc;
 	public static PixelWriter pixelWriter;
 	public static WritableImage writableImage;
-	static int maxX;
-	public static int maxY;
+
 	private static String colortype = "AFT";
 	// private static CellsLoader cellsSet;
 
@@ -58,26 +62,19 @@ public class CellsSet {
 
 	public static void plotCells() {
 		isPlotedMap = true;
-		ArrayList<Integer> X = new ArrayList<>();
-		ArrayList<Integer> Y = new ArrayList<>();
-		CellsLoader.hashCell.values().forEach(c -> {
-			X.add(c.getX());
-			Y.add(c.getY());
-		});
-		maxX = Collections.max(X) + 1;
-		maxY = Collections.max(Y) + 1;
-		int minX = Collections.min(X);
-		int minY = Collections.min(Y);
-		LOGGER.info("matrix size: " + (maxX - minX) + "," + (maxY - minY));
-		canvas = new Canvas((maxX - minX) * Cell.getSize(), (maxY - minY) * Cell.getSize());
+
+		LOGGER.info(
+				"matrix size: " + (CellsLoader.maxX - CellsLoader.minX) + "," + (CellsLoader.maxY - CellsLoader.minY));
+		canvas = new Canvas((CellsLoader.maxX - CellsLoader.minX) * Cell.getSize(),
+				(CellsLoader.maxY - CellsLoader.minY) * Cell.getSize());
 		gc = canvas.getGraphicsContext2D();
-		writableImage = new WritableImage(maxX, maxY);
+		writableImage = new WritableImage(CellsLoader.maxX, CellsLoader.maxY);
 		pixelWriter = writableImage.getPixelWriter();
 		root.getChildren().clear();
 		root.getChildren().add(canvas);
 
-//		subScene.setCamera(FxMain.camera);
-//		FxMain.camera.defaultcamera(canvas, subScene);
+		subScene.setCamera(FxMain.camera);
+		FxMain.camera.defaultcamera(canvas, subScene);
 		LOGGER.info("Number of cells = " + CellsLoader.hashCell.size());
 		MapControlerBymouse();
 	}
@@ -126,19 +123,17 @@ public class CellsSet {
 		}
 		LOGGER.info("Changing the map colors...");
 		Set<Double> values = Collections.synchronizedSet(new HashSet<>());
-		if (colortype.equalsIgnoreCase("Agent") || colortype.equalsIgnoreCase("AFT")
-				|| colortype.equalsIgnoreCase("AFT")) {
+		if (colortype.equalsIgnoreCase("Agent") || colortype.equalsIgnoreCase("AFT")) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				if (c.getOwner() != null) {
 					ColorP(c, c.getOwner().getColor());
 				} else {
-					ColorP(c, Color.WHITE);
+					ColorP(c, Color.GRAY);
 				}
 			});
 		} else if (CellsLoader.getCapitalsList().contains(colortype)) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				ColorP(c, ColorsTools.getColorForValue(c.getCapitals().get(colortype)));
-
 			});
 
 		} else if (ServiceSet.getServicesList().contains(colortype)) {
@@ -204,6 +199,16 @@ public class CellsSet {
 					menu.put("Save Map as PNG", e -> {
 						SaveAs.png("", canvas);
 					});
+					menu.put("Selecet Region", e -> {
+						selectRegion(CellsLoader.hashCell.get(cx + "," + cy));
+					});
+					menu.put("Clean Regions", e -> {
+						box.getChildren().clear();
+						RegionController.getRegionCells().clear();
+					});
+					menu.put("Open Regions Selected", e -> {
+						openRegions(CellsLoader.hashCell.get(cx + "," + cy));
+					});
 					menu.put("Detach", (x) -> {
 						try {
 							VBox mapBox = (VBox) subScene.getParent();
@@ -239,16 +244,41 @@ public class CellsSet {
 		});
 	}
 
+	static VBox box = new VBox();
+
+	private static void openRegions(Cell c) {
+		if (c.getCurrentRegion() != null) {
+			Platform.runLater(() -> {
+				URL fxml = FxMain.class.getResource("/fxmlControllers/Region.fxml");
+				NewWindow win = new NewWindow();
+				try {
+					box.getChildren().add(FXMLLoader.load(fxml));
+					win.creatwindows(c.getCurrentRegion(), box);
+				} catch (IOException e) {
+				}
+			});
+		}
+	}
+
+	private static void selectRegion(Cell c) {
+		CellsLoader.hashCell.values()./* parallelStream(). */forEach(cs -> {
+			if (c.getCurrentRegion().equals(cs.getCurrentRegion())) {
+				gc.setFill(Color.GRAY);
+				gc.fillRect(cs.getX(), cs.getY(), Cell.getSize(), Cell.getSize());
+				// initial cells
+				Cell newCEll = new Cell(cs.getX(), cs.getY());
+				cs.copyCell(newCEll);
+				if (cs.getOwner() != null)
+					newCEll.setColor(cs.getOwner().getColor());
+				else
+					newCEll.setColor("#000000");
+				RegionController.getRegionCells().put(cs.getX() + "," + cs.getY(), newCEll);
+			}
+		});
+	}
+
 	public static GraphicsContext getGc() {
 		return gc;
-	}
-
-	public static int getMaxX() {
-		return maxX;
-	}
-
-	public static int getMaxY() {
-		return maxY;
 	}
 
 	public static Canvas getCanvas() {
@@ -256,7 +286,7 @@ public class CellsSet {
 	}
 
 	public static void setCanvas(Canvas canvas) {
-		CellsSet.canvas = canvas;
+		CellsCanvas.canvas = canvas;
 	}
 
 }

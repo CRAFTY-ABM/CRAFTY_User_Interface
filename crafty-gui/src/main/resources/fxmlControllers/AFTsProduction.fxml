@@ -26,29 +26,28 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsProductionController">
+	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsProductionController"
+	fx:id="TopBox">
 	<children>
 		<TitledPane animated="true"
 			text="Optimal Production Levels and Behevoir Parametrs">
 			<content>
 				<VBox spacing="10.0">
 					<children>
-						<BarChart fx:id="histogramePlevel">
-							<xAxis>
-								<CategoryAxis side="BOTTOM" />
-							</xAxis>
-							<yAxis>
-								<NumberAxis side="LEFT" />
-							</yAxis>
-						</BarChart>
+						<HBox spacing="10.0">
+							<BarChart fx:id="histogramePlevel">
+								<xAxis>
+									<CategoryAxis side="BOTTOM" />
+								</xAxis>
+								<yAxis>
+									<NumberAxis side="LEFT" />
+								</yAxis>
+							</BarChart>
+							<HBox fx:id="hbox1" spacing="10.0"/>
+						</HBox>
 					</children>
+					<VBox fx:id="box2" />
 				</VBox>
-			</content>
-		</TitledPane>
-		<TitledPane animated="true"
-			text="Productivity frequency for a sample of random capital values (1,000 points).">
-			<content>
-				<VBox fx:id="boxCharts"  />
 			</content>
 		</TitledPane>
 

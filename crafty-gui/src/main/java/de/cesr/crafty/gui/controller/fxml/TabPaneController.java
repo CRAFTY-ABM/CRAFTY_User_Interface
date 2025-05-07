@@ -10,7 +10,7 @@ import de.cesr.crafty.core.dataLoader.DemandModel;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.core.model.ModelRunner;
@@ -68,7 +68,7 @@ public class TabPaneController {
 
 	public void initialize() {
 		System.out.println("initialize " + getClass().getSimpleName());
-		mapBox.getChildren().add(CellsSet.subScene);
+		mapBox.getChildren().add(CellsCanvas.subScene);
 
 		PathTools.writePathRecentProject("RecentProject.txt", "\n" + ProjectLoader.getProjectPath());
 		scenarioschoice.getItems().addAll(ProjectLoader.getScenariosList());
@@ -80,9 +80,10 @@ public class TabPaneController {
 		yearchoice.getItems().addAll(listYears);
 		yearchoice.setValue(listYears.get(0));
 		isNotInitialsation = true;
-	//	tabpane.setPrefWidth(FxMain.topLevelBox.getWidth()/2);
+		// tabpane.setPrefWidth(FxMain.topLevelBox.getWidth()/2);
 		regionalBox.setSelected(RegionClassifier.regionalization);
 		// regionalBox.setDisable(ServiceSet.isRegionalServicesExisted());
+		MenuBarController.getInstance().getDataAnalysis().setDisable(false);
 	}
 
 	@FXML
@@ -97,10 +98,10 @@ public class TabPaneController {
 		RegionClassifier.regions.values().forEach(R -> {
 			Color color = ColorsTools.colorlist(nbr.getAndIncrement());
 			R.getCells().values().forEach(c -> {
-				CellsSet.ColorP(c,color);
+				CellsCanvas.ColorP(c, color);
 			});
 		});
-		CellsSet.gc.drawImage(CellsSet.writableImage, 0, 0);
+		CellsCanvas.gc.drawImage(CellsCanvas.writableImage, 0, 0);
 		// regionalBox.setSelected(CellsLoader.regionsNamesSet.size() > 1);
 	}
 
@@ -131,19 +132,19 @@ public class TabPaneController {
 				ProjectLoader.setCurrentYear((int) Utils.sToD(yearchoice.getValue()));
 				ProjectLoader.cellsSet.updateCapitals(ProjectLoader.getCurrentYear());
 				AFTsLoader.updateAFTs();
-				if (dataPane.isSelected()) {
-					for (int i = 0; i < CellsLoader.getCapitalsList().size() + 1; i++) {
-						if (CapitalsController.radioColor[i].isSelected()) {
-							if (i < CellsLoader.getCapitalsList().size()) {
-								CellsSet.colorMap(CellsLoader.getCapitalsList().get(i));
-								CapitalsController.getInstance().histogrameCapitals(ProjectLoader.getCurrentYear() + "",
-										CellsLoader.getCapitalsList().get(i));
-							} else {
-								CellsSet.colorMap("AFT");
-							}
+//				if (dataPane.isSelected()) {
+				for (int i = 0; i < CellsLoader.getCapitalsList().size() + 1; i++) {
+					if (CapitalsController.radioColor[i].isSelected()) {
+						if (i < CellsLoader.getCapitalsList().size()) {
+							CellsCanvas.colorMap(CellsLoader.getCapitalsList().get(i));
+							CapitalsController.getInstance().updateHistogrameCapitals(ProjectLoader.getCurrentYear(),
+									CellsLoader.getCapitalsList().get(i));
+						} else {
+							CellsCanvas.colorMap("AFT");
 						}
 					}
 				}
+//				}
 			}
 		}
 	}

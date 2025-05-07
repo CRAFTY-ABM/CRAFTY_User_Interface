@@ -30,6 +30,15 @@
 			<MenuItem text="Exit" onAction="#Exit" />
 		</items>
 	</Menu>
+	<Menu text="Edit">
+		<MenuItem fx:id="dataAnalysis"
+			text="Generate input data analysis directory"
+			onAction="#dataAnalysisDirectory">
+			<graphic>
+				<FontIcon iconLiteral="far-save" iconSize="15" />
+			</graphic>
+		</MenuItem>
+	</Menu>
 	<Menu text="View">
 		<MenuItem text="Map Color Palettes" onAction="#colorPallet" />
 	</Menu>

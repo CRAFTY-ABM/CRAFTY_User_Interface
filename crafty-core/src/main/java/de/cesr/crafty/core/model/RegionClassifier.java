@@ -60,6 +60,7 @@ public class RegionClassifier {
 			regions.values().forEach(r -> {
 				r.getServicesHash().forEach((ns, s) -> {
 					ServiceSet.worldService.get(ns).getDemands().merge(year, s.getDemands().get(year), Double::sum);
+					ServiceSet.worldService.get(ns).getWeights().merge(year, s.getWeights().get(year)/regions.size(), Double::sum);
 				});
 			});
 		}

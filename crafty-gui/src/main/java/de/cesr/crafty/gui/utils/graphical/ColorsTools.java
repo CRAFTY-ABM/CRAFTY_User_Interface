@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.function.Consumer;
 
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.RadioButton;
@@ -44,7 +44,7 @@ public class ColorsTools {
 
 	public static Color colorlist(int nbr) {
 
-			return  getColorForValue( "Alphabet", 24, nbr%24);//;new Color(Math.random(), Math.random(),Math.random(), 1.0);
+			return  getColorForValue( "Dark24", 24, nbr%24);//;new Color(Math.random(), Math.random(),Math.random(), 1.0);
 
 	}
     public static String toHex(Color color) {
@@ -115,7 +115,7 @@ public class ColorsTools {
 		Pane legendPane = new Pane();
 		ArrayList<RadioButton> paletteList = RadioList(e -> {
 			colorPaletteType = e.getText();
-			CellsSet.colorMap();
+			CellsCanvas.colorMap();
 			drawLegend(legendPane);
 		},"Viridis", "BrBG", "Spectral", "AgSunset", "Turbo", "BlackbodyAlt", "Jet"
 				,"Portland","MYGBM", "Geyser","Temps","SmoothCoolWarm","BlackBodyExtended");

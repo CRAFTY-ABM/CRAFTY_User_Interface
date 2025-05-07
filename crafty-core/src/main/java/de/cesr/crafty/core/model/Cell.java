@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.output.Listener;
+
 /**
  * @author Mohamed Byari
  *
@@ -60,6 +63,11 @@ public class Cell extends AbstractCell {
 
 	void giveUp(RegionalModelRunner r, ConcurrentHashMap<Aft, Double> distributionMean) {
 		if (getOwner() != null && getOwner().isInteract()) {
+//			if (ProjectLoader.getCurrentYear() > 2030) {
+//				if (getOwner().getCategory().getName().equals("forest")) {
+//					return;
+//				}
+//			}
 			double utility = Competitiveness.utility(this, owner, r);
 			double averageutility = distributionMean.get(getOwner());
 			if ((utility < averageutility
@@ -67,8 +75,20 @@ public class Cell extends AbstractCell {
 					&& getOwner().getGiveUpProbabilty() > Math.random())) {
 				setOwner(null);
 				r.R.getUnmanageCellsR().add(this);
+				Listener.landUseChangeCounter.getAndIncrement();
 			}
 		}
+	}
+
+	// --------------------------
+	public void copyCell(Cell cell) {
+		cell.x = this.x;
+		cell.y = this.y;
+		cell.color = this.color;
+		cell.CurrentRegion = this.CurrentRegion;
+		cell.capitals = this.capitals;
+		cell.id = this.id;
+		cell.owner = this.owner;
 	}
 
 }

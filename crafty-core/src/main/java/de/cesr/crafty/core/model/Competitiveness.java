@@ -9,17 +9,21 @@ import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.output.Listener;
 
 public class Competitiveness {
 	static boolean utilityUsingPrice = true;
 
 	static double utility(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
+			c.setUtilityValue(0);
 			return 0;
 		}
-		return ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum();
+		c.setUtilityValue(ServiceSet.getServicesList().stream()
+				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum());
+		return c.getUtilityValue();
 	}
 
 //	static double utilityPrice(Cell c, Aft a, RegionalModelRunner r) {
@@ -76,17 +80,28 @@ public class Competitiveness {
 				}
 			}
 		}
+		if (ProjectLoader.getCurrentYear() > 2030) {
+			if (AftCategorised.aftCategories != null && AftCategorised.aftCategories.size() != 0) {
+				if (c.owner != null && competitor != null) {
+					if (c.owner.getCategory().getName().equals("forest")
+							&& !competitor.getCategory().getName().equals("forest")) {
+						makeCompetition = false;
+					}
+				}
+			}
+		}
 		return makeCompetition;
 	}
 
 	private static void landUsechange(Cell c, Aft competitor, RegionalModelRunner r) {
-
+		double uC = utility(c, competitor, r);
 		if (c.owner == null || c.owner.isAbandoned()) {
-			// if (uC > 0)
-			takeOverAcell(c, competitor);
+
+			if (uC >= r.distributionMean.get(competitor))
+				takeOverAcell(c, competitor);
 			return;
 		}
-		double uC = utility(c, competitor, r);
+
 		double uO = utility(c, c.owner, r);
 		double nbr = r.distributionMean != null
 				? (r.distributionMean.get(c.owner) * (giveInThreshold(c.owner, competitor)))
@@ -116,6 +131,7 @@ public class Competitiveness {
 
 	private static void takeOverAcell(Cell c, Aft newOwner) {
 		c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(newOwner) : newOwner;
+		Listener.landUseChangeCounter.getAndIncrement();
 	}
 
 	private static double giveInThreshold(Aft owner, Aft competitor) {

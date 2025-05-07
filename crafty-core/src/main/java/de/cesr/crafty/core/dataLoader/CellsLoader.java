@@ -31,26 +31,40 @@ public class CellsLoader {
 	public AFTsLoader AFtsSet;
 
 	private static int nbrOfCells = 0;
- 
+	public static int maxX, maxY, minX, minY;
+
 	public void loadMap() {
 		AFtsSet = new AFTsLoader();
 		hashCell.clear();
 
 		Path baseLindPath = PathTools.fileFilter(PathTools.asFolder("worlds"), "Baseline_map").iterator().next();
 		ReaderFile.processCSV(this, baseLindPath, "Baseline");
+		//update capitals
+		updateCapitals(ProjectLoader.getStartYear());
 		nbrOfCells = hashCell.size();
-		if (nbrOfCells < 1000) {// temporal for the visualization of very small maps 
+		if (nbrOfCells < 1000) {// temporal for the visualization of very small maps
 			Cell.setSize(200);
 		}
 
 		loadGisData();
 		CellBehaviourLoader.initialize();
 		AFTsLoader.hashAgentNbr();
-// 
+		initialMaxMinXY();
 		LOGGER.info("Number of cells for each AFT: " + AFTsLoader.hashAgentNbr);
 	}
-	
-	
+
+	private static void initialMaxMinXY() {
+		ArrayList<Integer> X = new ArrayList<>();
+		ArrayList<Integer> Y = new ArrayList<>();
+		CellsLoader.hashCell.values().forEach(c -> {
+			X.add(c.getX());
+			Y.add(c.getY());
+		});
+		maxX = Collections.max(X) + 1;
+		maxY = Collections.max(Y) + 1;
+		minX = Collections.min(X);
+		minY = Collections.min(Y);
+	}
 
 	public static void loadCapitalsList() {
 		capitalsList = Collections.synchronizedList(new ArrayList<>());
@@ -102,15 +116,11 @@ public class CellsLoader {
 		year = Math.min(year, ProjectLoader.getEndtYear());
 
 		if (!ProjectLoader.getScenario().equalsIgnoreCase("Baseline")) {
-			Path path = PathTools.fileFilter(year + "", ProjectLoader.getScenario(), PathTools.asFolder("capitals"))
-					.get(0);
+			Path path = PathTools.fileFilter(String.valueOf(year), PathTools.asFolder(ProjectLoader.getScenario()),
+					PathTools.asFolder("capitals")).get(0);	
 			ReaderFile.processCSV(this, path, "Capitals");
 		}
 	}
-	
-
-	
-	
 
 	public void servicesAndOwneroutPut(String year, String outputpath) {
 		ProjectLoader.setAllfilesPathInData(PathTools.findAllFiles(ProjectLoader.getProjectPath()));

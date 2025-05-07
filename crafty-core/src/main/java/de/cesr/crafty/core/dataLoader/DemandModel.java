@@ -3,6 +3,7 @@ package de.cesr.crafty.core.dataLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,8 +12,6 @@ import de.cesr.crafty.core.model.RegionClassifier;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
-
-
 
 public class DemandModel {
 	private static final CustomLogger LOGGER = new CustomLogger(DemandModel.class);
@@ -50,11 +49,21 @@ public class DemandModel {
 		});
 	}
 
-	public static Map<String, ArrayList<Double>> serialisationWorldDemand() {
-		Map<String, ArrayList<Double>> serviceSerialisation = new HashMap<>();
+	public static Map<String, List<Double>> serialisationWorldDemand() {
+		Map<String, List<Double>> serviceSerialisation = new HashMap<>();
 		ServiceSet.worldService.forEach((serviceName, service) -> {
 			serviceSerialisation.put(serviceName, new ArrayList<>(service.getDemands().values()));
 		});
 		return serviceSerialisation;
 	}
+
+	public static Map<String, List<Double>> serialisationWorldWeight() {
+		Map<String, List<Double>> serviceSerialisation = new HashMap<>();
+		ServiceSet.worldService.forEach((serviceName, service) -> {
+//			System.out.println("!!" + serviceName + ": " + service.getWeights().values());
+			serviceSerialisation.put(serviceName, new ArrayList<>(service.getWeights().values()));
+		});
+		return serviceSerialisation;
+	}
+
 }

@@ -3,7 +3,6 @@ package de.cesr.crafty.core.model;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 

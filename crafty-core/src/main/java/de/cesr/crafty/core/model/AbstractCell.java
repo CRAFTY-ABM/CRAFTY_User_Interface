@@ -2,7 +2,6 @@ package de.cesr.crafty.core.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 
 //import javafx.scene.paint.Color;
 
@@ -12,11 +11,12 @@ import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
  */
 public abstract class AbstractCell {
 	static int size = 1;
-	int id;
+	String id;
 	int x;
 	int y;
 	ConcurrentHashMap<String, Double> capitals = new ConcurrentHashMap<>();
 	ConcurrentHashMap<String, Double> currentProductivity = new ConcurrentHashMap<>();
+	double utilityValue = 0;
 	String CurrentRegion;
 	Aft owner;
 	protected String color = "#848484";
@@ -28,6 +28,14 @@ public abstract class AbstractCell {
 
 	public void setCurrentRegion(String currentRegion) {
 		CurrentRegion = currentRegion;
+	}
+
+	public double getUtilityValue() {
+		return utilityValue;
+	}
+
+	public void setUtilityValue(double utilityValue) {
+		this.utilityValue = utilityValue;
 	}
 
 	public String getColor() {
@@ -86,22 +94,23 @@ public abstract class AbstractCell {
 		AbstractCell.size = size;
 	}
 
-	public int getID() {
+	public String getID() {
 		return id;
 	}
 
-	public void setID(int index) {
-		this.id = index;
+	public void setID(String id) {
+		this.id = id;
 	}
 
 	@Override
 	public String toString() {
-		return "Cell [index=" + id + ", x=" + x + ", y=" + y + ", CurrentRegion=" + CurrentRegion + "\n, Mask="
-				+ getMaskType() + ", getOwner()=" + (getOwner() != null ? getOwner().getLabel() : "Unmanaged")
-				+ (getOwner() != null ? getOwner().category : "null")
-				// + ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" +
-				// getCurrentProductivity()
-				+ "] \n " + CellBehaviourLoader.cellsBehevoir.get(this);
+		return "\n Cell [index=" + id + ", x=" + x + ", y=" + y + ", CurrentRegion=" + CurrentRegion + "\n, Mask="
+				+ getMaskType() + ", getOwner()=" + (getOwner() != null ? getOwner().getLabel() : " null")
+				+ " category: "+(getOwner() != null ? getOwner().category : "null") + ", Color: " + color
+				 + ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" +
+				 getCurrentProductivity()
+				+ "] \n "
+		/* + CellBehaviourLoader.cellsBehevoir.get(this) */;
 	}
 
 }

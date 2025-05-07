@@ -14,9 +14,11 @@ import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.gui.utils.analysis.CapitalsAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.Tools;
@@ -29,12 +31,26 @@ import javafx.event.ActionEvent;
 public class MenuBarController {
 	@FXML
 	private Menu recent;
+	@FXML
+	private MenuItem dataAnalysis;
 
+	private static MenuBarController instance;
 
+	public MenuBarController() {
+		instance = this;
+	}
 
+	public static MenuBarController getInstance() {
+		return instance;
+	}
+
+	public MenuItem getDataAnalysis() {
+		return dataAnalysis;
+	}
 
 	public void initialize() {
 		updateRecentFilesMenu();
+		dataAnalysis.setDisable(true);
 	}
 
 	// Event Listener on MenuItem.onAction
@@ -42,7 +58,7 @@ public class MenuBarController {
 	public void open(ActionEvent event) {
 		openProject();
 
-		if (ProjectLoader.getProjectPath()!=null) {
+		if (ProjectLoader.getProjectPath() != null) {
 			initialsePAnes();
 		}
 	}
@@ -50,6 +66,25 @@ public class MenuBarController {
 	@FXML
 	public void Exit(ActionEvent event) {
 		Platform.exit();
+	}
+
+	@FXML
+	public void dataAnalysisDirectory(ActionEvent event) {
+		// warning windowz that will take time and is alredy exsite and if the user want
+		// to update it
+		String outputPath = PathTools.makeDirectory(ProjectLoader.getProjectPath() + File.separator
+				+ "Input-Data-Analyses" + File.separator + "Capitals-trends-through-Scenarios" + File.separator);
+		// Check if the folder is existe
+		String message = "Generating a repository of data for capitals' trends across scenarios \n"
+				+ "may take time depending on the size of the data (size of the map),\n"
+				+ "the scenarios considered and the time period.";
+		Consumer<String> ok = x -> {
+			CapitalsAnalyzer.generateGrapheDataByScenarios(outputPath);
+		};
+		Consumer<String> cancel = x -> {
+			System.out.println("Cancel");
+		};
+		WarningWindowes.showWarningMessage(message, "Continue", ok, "Cancel", cancel);
 	}
 
 	@FXML
@@ -68,7 +103,6 @@ public class MenuBarController {
 		ColorsTools.windowzpalette(winColor);
 	}
 
-	@SuppressWarnings("deprecation")
 	private void restartApplication() {
 		StringBuilder cmd = new StringBuilder();
 		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
@@ -115,7 +149,7 @@ public class MenuBarController {
 		WarningWindowes.showWaitingDialog(x -> {
 			try {
 				FxMain.anchor.setCenter(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
-				//FxMain.anchor.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
+				// FxMain.anchor.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
 			} catch (IOException en) {
 				// TODO Auto-generated catch block
 				en.printStackTrace();

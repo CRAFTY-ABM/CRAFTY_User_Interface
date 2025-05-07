@@ -21,6 +21,21 @@
 	<packaging>jar</packaging>
 	<name>crafty-core</name>
 
+	<repositories>
+		<repository>
+			<id>osgeo</id>
+			<name>OSGeo Release Repository</name>
+			<url>https://repo.osgeo.org/repository/release/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.yaml</groupId>
@@ -56,7 +71,48 @@
 			<version>2.20.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.knowm.xchart/xchart -->
+		<dependency>
+			<groupId>org.knowm.xchart</groupId>
+			<artifactId>xchart</artifactId>
+			<version>3.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.12.0</version>
+		</dependency>
+
+		<!-- geoTools -->
+		<!-- Core GeoTools libraries -->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-main</artifactId>
+			<version>26.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-referencing</artifactId>
+			<version>26.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-epsg-hsql</artifactId>
+			<version>26.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-coverage</artifactId>
+			<version>26.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-geotiff</artifactId>
+			<version>26.0</version>
+		</dependency>
+
 	</dependencies>
+
 
 	<build>
 		<plugins>
@@ -71,6 +127,17 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+
 							<finalName>crafty-core-headless</finalName>
 							<transformers>
 								<transformer

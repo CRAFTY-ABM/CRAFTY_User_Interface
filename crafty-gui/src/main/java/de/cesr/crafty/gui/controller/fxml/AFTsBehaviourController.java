@@ -1,117 +1,111 @@
 package de.cesr.crafty.gui.controller.fxml;
 
-import de.cesr.crafty.core.model.Aft;
-import de.cesr.crafty.core.utils.general.Utils;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import de.cesr.crafty.core.dataLoader.AftCategorised;
+import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
+import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.utils.file.PathTools;
+import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
+import de.cesr.crafty.gui.utils.analysis.CsvToHtml;
+import de.cesr.crafty.gui.utils.analysis.NonGraphic;
+import de.cesr.crafty.gui.utils.graphical.MousePressed;
+import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
+import javafx.scene.Node;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public class AFTsBehaviourController {
+
 	@FXML
-	private Label SNoiseMaxS;
+	private GridPane grid;
 	@FXML
-	private Slider GiveInSDS;
+	private VBox box;
 	@FXML
-	private Slider GiveUpMeanS;
-	@FXML
-	private Slider GiveUpSDS;
-	@FXML
-	private Slider SNoiseMinS;
-	@FXML
-	private Slider ServiceLevelNoiseMaxS;
-	@FXML
-	private Slider GiveUpProbabiltyS;
-	@FXML
-	private TextField GiveInMeanT;
-	@FXML
-	private TextField GiveInSDT;
-	@FXML
-	private TextField GiveUpMeanT;
-	@FXML
-	private TextField GiveUpSDT;
-	@FXML
-	private TextField SNoiseMinT;
-	@FXML
-	private TextField ServiceLevelNoiseMaxT;
-	@FXML
-	private TextField GiveUpProbabiltyT;
-	@FXML
-	private Slider GiveInMeanS;
-	@FXML
-	private GridPane gridBehevoirButtons;
-	
+	private VBox TopBox;
+
 	public void initialize() {
 		System.out.println("initialize " + getClass().getSimpleName());
+		Tools.forceResisingWidth(TopBox);
+		grid.setHgap(20);
+		grid.setVgap(30);
 
+		// Check if the behevoir model data is avialable
+		if (AftCategorised.useCategorisationGivIn && CellBehaviourLoader.behaviourUsed) {
+			addTables();
+			AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
+
+			AftCategorised.aftCategories.keySet().forEach(Categoryname -> {
+				AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart(Categoryname, dataGraph(Categoryname));
+				chart.setMaxWidth(TopBox.getMaxWidth() / 2);
+				chart.setMinWidth(TopBox.getMinWidth() / 2);
+				if (chart != null) {
+
+					if (i.get() % 2 == 0) {
+						i.set(0);
+						j.getAndIncrement();
+					}
+					i.getAndIncrement();
+					grid.add(chart, i.get(), j.get());
+					MousePressed.mouseControle((Pane) chart.getParent(), chart);
+				}
+			});
+		} else {
+			grid.getChildren().add(new Text(
+					"Behevoir model by data is Not avialable: need to define categories and categories_givingInDistributionMean_Default.csv "));
+		}
 
 	}
-	
-	
-	static void AgentParametre(Aft agent, GridPane grid) {
 
-		grid.getChildren().clear();
-
-		Slider[] parametrSlider = new Slider[7];
-		TextField[] parametrValue = new TextField[7];
-		parametrSlider[0] = new Slider(0, 100, agent.getGiveInMean());
-		parametrSlider[1] = new Slider(0, 100, agent.getGiveInSD());
-		parametrSlider[2] = new Slider(0, 100, agent.getGiveUpMean());
-		parametrSlider[3] = new Slider(0, 100, agent.getGiveUpSD());
-		parametrSlider[4] = new Slider(0, 1, agent.getServiceLevelNoiseMin());
-		parametrSlider[5] = new Slider(0, 1, agent.getServiceLevelNoiseMax());
-		parametrSlider[6] = new Slider(0, 1, agent.getGiveUpProbabilty());
-
-		grid.add(new Text(" GiveIn Mean "), 0, 0);
-		grid.add(new Text(" GiveIn Standard Deviation"), 0, 1);
-		grid.add(new Text(" GiveUp Mean "), 0, 2);
-		grid.add(new Text(" GiveUp Standard Deviation"), 0, 3);
-		grid.add(new Text(" Service Level Noise Min"), 0, 4);
-		grid.add(new Text(" Service Level Noise Max"), 0, 5);
-		grid.add(new Text(" GiveUp Probabilty"), 0, 6);
-		for (int i = 0; i < parametrValue.length; i++) {
-			parametrValue[i] = new TextField(parametrSlider[i].getValue() + "");
-			grid.add(parametrSlider[i], 1, i);
-			grid.add(parametrValue[i], 2, i);
-
-			int k = i;
-			parametrSlider[i].valueProperty().addListener((ov, oldval, newval) -> {
-				parametrValue[k].setText("" + parametrSlider[k].getValue());
-				switch (k) {
-				case 0:
-					agent.setGiveInMean(parametrSlider[k].getValue());
-					break;
-				case 1:
-					agent.setGiveInSD(parametrSlider[k].getValue());
-					break;
-				case 2:
-					agent.setGiveUpMean(parametrSlider[k].getValue());
-					break;
-				case 3:
-					agent.setGiveUpSD(parametrSlider[k].getValue());
-					break;
-				case 4:
-					agent.setServiceLevelNoiseMin(parametrSlider[k].getValue());
-					break;
-				case 5:
-					agent.setServiceLevelNoiseMax(parametrSlider[k].getValue());
-					break;
-				case 6:
-					agent.setGiveUpProbabilty(parametrSlider[k].getValue());
-					break;
-				default:
-					break;
-				}
-			});
-			parametrValue[i].setOnKeyPressed(event -> {
-				if (event.getCode().equals(KeyCode.ENTER)) {
-					parametrSlider[k].setValue(Utils.sToD(parametrValue[k].getText()));
-					parametrSlider[k].fireEvent(event);
-				}
-			});
+	private void addTables() {
+		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("AFTs"), PathTools.asFolder("behaviour"),
+				"categories_givingInDistribution");
+		if (paths != null) {
+			Path mean_path = paths.stream()
+					.filter(path -> path.toString().contains("Mean_" + ProjectLoader.getScenario())).findFirst()
+					.orElse(paths.stream().filter(path -> path.toString().contains("Mean_Default")).findFirst()
+							.orElse(null));
+			Path SD_path = paths.stream().filter(path -> path.toString().contains("SD_" + ProjectLoader.getScenario()))
+					.findFirst().orElse(paths.stream().filter(path -> path.toString().contains("SD_Default"))
+							.findFirst().orElse(null));
+			if (mean_path != null && SD_path != null) {
+				Node TablMean = CsvToHtml.tabeWeb(mean_path);
+				Node TablSD = CsvToHtml.tabeWeb(SD_path);
+				box.getChildren().addAll(new Text("Giving-In Normal Distribution Mean by Categories"), TablMean,
+						new Text("Giving-In Normal Distribution standard deviation (SD) by Categories"), TablSD);
+			}
 		}
 	}
+
+	private static Map<String, List<Double>> dataGraph(String categoryName) {
+		Map<String, List<Double>> output = new HashMap<>();
+		double maxMean = 0, maxsd = 0;
+		for (String name : AftCategorised.aftCategories.keySet()) {
+			double mean = AftCategorised.getMean().get(categoryName + "|" + name);
+			double sd = AftCategorised.getSD().get(categoryName + "|" + name);
+			if (maxMean < mean) {
+				maxMean = mean;
+				maxsd = sd;
+			}
+		}
+		double mm = maxMean, sdsd = maxsd;
+		AftCategorised.aftCategories.keySet().forEach(name -> {
+			double mean = AftCategorised.getMean().get(categoryName + "|" + name);
+			double sd = AftCategorised.getSD().get(categoryName + "|" + name);
+			output.put(name, NonGraphic.generateNormalData(mean, sd, mm, sdsd));
+
+		});
+		// AftAnalyzer.generateChart(categoryName, output);
+		return output;
+	}
+
 }

@@ -45,7 +45,7 @@ public class SaveAs {
 		}
 	}
 
-	public static void exportLineChartDataToCSV(LineChart<Number, Number> lineChart) {
+	public static void exportLineChartDataToCSV(XYChart<Number, Number> lineChart) {
 
 		File file = openDirectory("csv", new FileChooser.ExtensionFilter("CSV Files", "*.csv"))
 				.showSaveDialog((Stage) lineChart.getScene().getWindow());

@@ -11,11 +11,10 @@ import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.PieChartTools;
 import de.cesr.crafty.gui.utils.graphical.Tools;
-import de.cesr.crafty.gui.main.FxMain;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
@@ -24,7 +23,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 
 public class AFTsMapsController {
 	@FXML
@@ -40,13 +38,13 @@ public class AFTsMapsController {
 	@FXML
 	private VBox toplevel;
 	@FXML
-	private VBox box;
+	private VBox TopBox;
 
 	ArrayList<PieChart> pieCharts;
 
 	public void initialize() {
 		System.out.println("Initialize " + getClass().getSimpleName());
-		CellsSet.plotCells();
+		CellsCanvas.plotCells();
 		updatePieAFTsDistrebution(pieAFTsDistrebution);
 		updateCategoryPie(pieAFTsCategories);
 //		pieAFTsCategories.setLegendSide(Side.LEFT);
@@ -54,13 +52,9 @@ public class AFTsMapsController {
 
 		initilasePieChart();
 		initializeGridpane(3);
-		forceResising();
+ 		Tools.forceResisingWidth(TopBox);
 	}
 
-	private void forceResising() {
-		box.setMaxWidth(Screen.getPrimary().getBounds().getWidth() / (FxMain.graphicScaleX * 2));
-		box.setMinWidth(Screen.getPrimary().getBounds().getWidth() / (FxMain.graphicScaleX * 2));
-	}
 
 	void initilasePieChart() {
 		if (AftCategorised.aftCategories.size() > 0) {
@@ -115,12 +109,12 @@ public class AFTsMapsController {
 
 	@FXML
 	public void aftColorsAction() {
-		CellsSet.colorMap("AFT");
+		CellsCanvas.colorMap("AFT");
 	}
 
 	@FXML
 	public void CategoriesColorsAction() {
-		CellsSet.colorMap("Categories");
+		CellsCanvas.colorMap("Categories");
 	}
 
 	private void updatePieAFTsDistrebution(PieChart chart) {
@@ -141,7 +135,7 @@ public class AFTsMapsController {
 				color.put(a.getLabel(), Color.web(a.getColor()));
 			});
 			new PieChartTools().updateChart(convertedMap, color, chart, false);
-			CellsSet.colorMap("AFT");
+			CellsCanvas.colorMap("AFT");
 		};
 
 		newItemMenu.put("Reset Colors", reset);

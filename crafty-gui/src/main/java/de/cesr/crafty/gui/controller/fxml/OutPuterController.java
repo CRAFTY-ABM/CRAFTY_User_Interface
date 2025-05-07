@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,11 @@ import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ReaderFile;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
+import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
+import de.cesr.crafty.gui.utils.graphical.Histogram;
 import de.cesr.crafty.gui.utils.graphical.ImageExporter;
 import de.cesr.crafty.gui.utils.graphical.ImagesToPDF;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
@@ -41,6 +44,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
@@ -57,7 +63,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
 public class OutPuterController {
-
+	@FXML
+	private VBox TopBox;
 	@FXML
 	private Button saveAllFilAsPNG;
 	@FXML
@@ -80,6 +87,9 @@ public class OutPuterController {
 	private ScrollPane scrollRegions;
 	@FXML
 	private GridPane regionalGridChart;
+	@FXML
+	private VBox boxTracker;
+	private HBox boxAverageAndLAndEvent = new HBox();
 
 	ArrayList<CheckBox> radioListOfAFTs = new ArrayList<>();
 	private static final CustomLogger LOGGER = new CustomLogger(OutPuterController.class);
@@ -99,6 +109,12 @@ public class OutPuterController {
 		if (regionsBox.getItems().size() > 0) {
 			regionsBox.setValue(regionsBox.getItems().get(0));
 		}
+		Tools.forceResisingWidth(TopBox, boxTracker);
+		boxTracker.getChildren().add(boxAverageAndLAndEvent);
+
+		PlotLandEventNbr();
+		plotAverageUtility();
+		plotSupplyTraker();
 	}
 
 	private void forceResizing() {
@@ -209,12 +225,12 @@ public class OutPuterController {
 						.makeDirectory(outputpath + File.separator + OutPutTabController.radioColor[ii].getText());
 				yearChoice.getItems().forEach(filepath -> {
 					ProjectLoader.cellsSet.servicesAndOwneroutPut(filepath, outputpath.toString());
-					CellsSet.colorMap(OutPutTabController.radioColor[ii].getText());
+					CellsCanvas.colorMap(OutPutTabController.radioColor[ii].getText());
 					String fileyear = new File(filepath).getName().replace(".csv", "").replace("-Cell-", "");
 					for (String scenario : ProjectLoader.getScenariosList()) {
 						fileyear = fileyear.replace(scenario, "");
 					}
-					ImageExporter.NodeToImage(CellsSet.getCanvas(), newfolder + File.separator + fileyear + ".PNG");
+					ImageExporter.NodeToImage(CellsCanvas.getCanvas(), newfolder + File.separator + fileyear + ".PNG");
 				});
 			}
 		}
@@ -442,7 +458,7 @@ public class OutPuterController {
 
 	private SankeyPlot addsankeyCategories(HashMap<String, HashMap<String, Integer>> h) {
 		HashMap<String, HashMap<String, Integer>> m = sankyBycategories(h);
-		
+
 		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors.toMap(
 				Map.Entry::getKey, e -> Color.web(e.getValue()), (oldValue, newValue) -> newValue, HashMap::new));
 		SankeyPlot sankeyCategories = SankeyPlotGraph.AFtsToSankeyPlot(m, colors);
@@ -455,7 +471,7 @@ public class OutPuterController {
 		ProjectLoader.cellsSet.servicesAndOwneroutPut(year, outputpath.toString());
 		for (int i = 0; i < OutPutTabController.radioColor.length; i++) {
 			if (OutPutTabController.radioColor[i].isSelected()) {
-				CellsSet.colorMap(OutPutTabController.radioColor[i].getText());
+				CellsCanvas.colorMap(OutPutTabController.radioColor[i].getText());
 			}
 		}
 	}
@@ -468,9 +484,9 @@ public class OutPuterController {
 		ArrayList<Path> servicespath = PathTools.fileFilter(outputpath.toString(), serviceDemand);
 		HashMap<String, ArrayList<String>> reder = ReaderFile.ReadAsaHash(servicespath.get(0));
 
-		ArrayList<HashMap<String, ArrayList<Double>>> has = new ArrayList<>();
+		ArrayList<HashMap<String, List<Double>>> has = new ArrayList<>();
 		ServiceSet.getServicesList().forEach(serviceName -> {
-			HashMap<String, ArrayList<Double>> ha = new HashMap<>();
+			HashMap<String, List<Double>> ha = new HashMap<>();
 			reder.forEach((name, value) -> {
 				ArrayList<Double> tmp = new ArrayList<>();
 				for (int i = 0; i < value.size(); i++) {
@@ -528,10 +544,10 @@ public class OutPuterController {
 		LineChartTools.labelcolor(Ch);
 	}
 
-	HashMap<String, ArrayList<Double>> updatComposition(String path, String nameFile) {
+	HashMap<String, List<Double>> updatComposition(String path, String nameFile) {
 
 		HashMap<String, ArrayList<String>> reder = ReaderFile.ReadAsaHash(PathTools.fileFilter(path, nameFile).get(0));
-		HashMap<String, ArrayList<Double>> has = new HashMap<>();
+		HashMap<String, List<Double>> has = new HashMap<>();
 
 		reder.forEach((name, value) -> {
 			if (AFTsLoader.getAftHash().keySet().contains(name)) {
@@ -545,6 +561,105 @@ public class OutPuterController {
 		return has;
 	}
 
-	// Detect if there is regional output
-	// if yes create a set of countries or click on region to acces
+	private void plotSupplyTraker() {
+		// check if the is a file
+
+		ArrayList<Path> pathsList = PathTools.fileFilter("SupplyTracker_", ".csv");
+
+		if (pathsList != null && pathsList.size() != 0) {
+			ChoiceBox<String> filesDispo = new ChoiceBox<>();
+			pathsList.forEach(path -> {
+				filesDispo.getItems().add(path.getFileName().toString());
+			});
+			boxTracker.getChildren().add(filesDispo);
+			
+
+			filesDispo.valueProperty().addListener((obs, oldValue, newValue) -> {
+				boxTracker.getChildren().removeIf(node -> ("grid".equals(node.getId())));
+
+				Path path = pathsList.stream().filter(p -> p.getFileName().toString().equals(newValue)).findFirst()
+						.orElse(pathsList.get(0));
+				// readfile
+				HashMap<String, Double> rawData = ReaderFile.readCsvToMatrixMap(path);
+				GridPane grid = new GridPane();
+				grid.setId("grid");
+				AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
+				ServiceSet.getServicesList().forEach(serviceName -> {
+					BarChart<String, Number> histogram = new BarChart<>(new CategoryAxis(), new NumberAxis());
+					Map<String, Double> data = new HashMap<>();
+					AFTsLoader.getAftHash().keySet().forEach(aftName -> {
+						if (rawData.get(aftName + "|" + serviceName) != 0)
+							data.put(aftName, rawData.get(aftName + "|" + serviceName));
+					});
+					Histogram.histo(serviceName + " supply", histogram, data);
+					HBox box = new HBox(histogram);
+					MousePressed.mouseControle(box, histogram);
+					if (histogram != null && data.size() > 0) {
+						if (i.get() % 5 == 0) {
+							i.set(0);
+							j.getAndIncrement();
+						}
+						i.getAndIncrement();
+						grid.add(box, i.get(), j.get());
+						box.setMaxWidth(TopBox.getMinWidth() / 5);
+
+					}
+				});
+				boxTracker.getChildren().add(grid);
+				grid.setMinWidth(TopBox.getMinWidth());
+				Tools.forceResisingHeight(1.4, grid);
+			});
+			filesDispo.setValue(pathsList.iterator().next().getFileName().toString());
+		}
+
+	}
+
+	private void chengeMapColorToUtility() {
+		// also add it in png plot head less
+	}
+
+	private void plotLandEventTracker() {
+		// need a Map<> in listnera and frequncy variable
+	}
+
+	private void PlotLandEventNbr() {
+		// check if the is a file
+		ArrayList<Path> pathsList = PathTools.fileFilter("-landEventCounter.csv");
+		if (pathsList != null && pathsList.size() != 0) {
+			// readfile as has-double
+			HashMap<String, ArrayList<Double>> data = ReaderFile.ReadAsaHashDouble(pathsList.get(0));
+			data.remove("year");
+			Map<String, List<Double>> m = data.entrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
+
+			AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart("land EventCounter", m);
+			VBox vbox = new VBox(chart);
+			boxAverageAndLAndEvent.getChildren().add(vbox);
+			MousePressed.mouseControle(vbox, chart);
+		}
+
+	}
+
+	private void plotAverageUtility() {
+		// check if the is a file
+		ArrayList<Path> pathsList = PathTools.fileFilter("-AverageUtilities.csv");
+		if (pathsList != null && pathsList.size() != 0) {
+			// readfile as has-double
+			HashMap<String, ArrayList<Double>> data = ReaderFile.ReadAsaHashDouble(pathsList.get(0));
+			data.remove("Year");
+			Map<String, List<Double>> m = data.entrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
+
+			LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
+			new LineChartTools().lineChart((Pane) chart.getParent(), chart, m);
+
+//			AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart("landEventCounter", m);
+			VBox vbox = new VBox(chart);
+			boxAverageAndLAndEvent.getChildren().add(vbox);
+			vbox.setMinWidth(TopBox.getMinWidth() * 2 / 3);
+			MousePressed.mouseControle(vbox, chart);
+		}
+
+	}
+
 }

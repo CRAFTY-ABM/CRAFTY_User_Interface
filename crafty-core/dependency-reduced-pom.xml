@@ -21,6 +21,16 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
               <finalName>crafty-core-headless</finalName>
               <transformers>
                 <transformer>
@@ -33,4 +43,19 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <releases />
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>osgeo</id>
+      <name>OSGeo Release Repository</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+    </repository>
+  </repositories>
+  <properties>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+  </properties>
 </project>

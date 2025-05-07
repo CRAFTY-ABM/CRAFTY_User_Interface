@@ -2,7 +2,7 @@ package de.cesr.crafty.gui.controller.fxml;
 
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.main.FxMain;
@@ -35,21 +35,21 @@ public class MapToolsBarController {
 	@FXML
 	public void pointer(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.DEFAULT);
-		FxMain.camera.cameraMousControl(CellsSet.subScene, "pointer");
+		FxMain.camera.cameraMousControl(CellsCanvas.subScene, "pointer");
 	}
 
 	// Event Listener on Button[#handButton].onAction
 	@FXML
 	public void handleHandAction(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.OPEN_HAND);
-		FxMain.camera.cameraMousControl(CellsSet.subScene, "hand");
+		FxMain.camera.cameraMousControl(CellsCanvas.subScene, "hand");
 	}
 
 	// Event Listener on Button[#zoomButton].onAction
 	@FXML
 	public void zoomAction(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.CROSSHAIR);
-		FxMain.camera.cameraMousControl(CellsSet.subScene, "zoom");
+		FxMain.camera.cameraMousControl(CellsCanvas.subScene, "zoom");
 
 	}
 
@@ -74,22 +74,22 @@ public class MapToolsBarController {
 	@FXML
 	public void handleearthAction(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.DEFAULT);
-		FxMain.camera.defaultcamera(CellsSet.getCanvas(), CellsSet.subScene);
-		CellsSet.colorMap("AFT");
+		FxMain.camera.defaultcamera(CellsCanvas.getCanvas(), CellsCanvas.subScene);
+		CellsCanvas.colorMap("AFT");
 	}
 
 	// Event Listener on Button[#eyeButton].onAction
 	@FXML
 	public void gisAction(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.DEFAULT);
-		CellsSet.colorMap("Region_Code");
+		CellsCanvas.colorMap("Region_Code");
 		System.out.println();
 	}
 
 	@FXML
 	public void handlePNGAction(ActionEvent event) {
 		FxMain.scene.setCursor(Cursor.DEFAULT);
-		SaveAs.png("", CellsSet.getCanvas());
+		SaveAs.png("", CellsCanvas.getCanvas());
 	}
 
 	@FXML

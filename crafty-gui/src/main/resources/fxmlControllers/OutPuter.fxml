@@ -16,7 +16,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.cesr.crafty.gui.controller.fxml.OutPuterController">
+	fx:controller="de.cesr.crafty.gui.controller.fxml.OutPuterController"
+	fx:id="TopBox">
 	<children>
 		<VBox spacing="5.0">
 			<children>
@@ -32,7 +33,7 @@
 								<Tooltip text="Supply and Demand Evolution" />
 							</tooltip>
 							<content>
-								<ScrollPane fx:id="scroll" >
+								<ScrollPane fx:id="scroll">
 									<GridPane fx:id="gridChart" />
 								</ScrollPane>
 							</content>
@@ -71,6 +72,23 @@
 								</VBox>
 							</content>
 						</Tab>
+						<!--?????? -->
+						<Tab text="Supply and land use change tracker"
+							style="-fx-background-color: #bddee9;">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-area" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="landuseEvent" />
+							</tooltip>
+							<content>
+								<ScrollPane>
+									<VBox fx:id="boxTracker" spacing="2.0">
+									</VBox>
+								</ScrollPane>
+							</content>
+						</Tab>
+						<!--?????? -->
 						<Tab fx:id="regionTab" text="Regions Output"
 							style="-fx-background-color: #bddee9;">
 							<graphic>
@@ -84,7 +102,7 @@
 								<VBox spacing="2.0">
 									<ChoiceBox fx:id="regionsBox"
 										onAction="#regionsBoxAction" />
-									<ScrollPane fx:id="scrollRegions" >
+									<ScrollPane fx:id="scrollRegions">
 										<GridPane fx:id="regionalGridChart"
 											style="-fx-background-color: #edf5f7;" />
 									</ScrollPane>

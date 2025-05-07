@@ -26,7 +26,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsConfigurationController">
+	fx:controller="de.cesr.crafty.gui.controller.fxml.AFTsConfigurationController"
+	fx:id="TopBox">
 	<children>
 		<VBox>
 			<children>
@@ -104,7 +105,7 @@
 
 				<TabPane tabClosingPolicy="UNAVAILABLE">
 					<tabs>
-						<Tab text="AFTs Distribution">
+						<Tab text="AFTs Productivity">
 							<graphic>
 								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
 							</graphic>
@@ -116,9 +117,9 @@
 									source="/fxmlControllers/AFTsProduction.fxml" />
 							</content>
 						</Tab>
-						<Tab text="AFTs Distribution">
+						<Tab text="AFTs Behaviour">
 							<graphic>
-								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+								<FontIcon iconLiteral="fas-head-side-virus" iconSize="15" />
 							</graphic>
 							<tooltip>
 								<Tooltip text="AFTs Behaviour" />
@@ -126,6 +127,18 @@
 							<content>
 								<fx:include
 									source="/fxmlControllers/AFTsBehaviour.fxml" />
+							</content>
+						</Tab>
+						<Tab text="AFT productivity tracker">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-area" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="AFT productivity tracker" />
+							</tooltip>
+							<content>
+								<fx:include
+									source="/fxmlControllers/AftsAnaliser.fxml" />
 							</content>
 						</Tab>
 					</tabs>

@@ -20,10 +20,14 @@ public class MainHeadless {
 		System.out.println("--Starting CRAFTY execution--");
 		initializeConfig(args);
 		ProjectLoader.modelInitialisation();
-//		runHeadless();
+		runHeadless();
+
 	}
 
 	public static void initializeConfig(String[] args) {
+
+		System.setProperty("java.awt.headless", "true");
+
 		LOGGER.info("--Starting CRAFTY execution--");
 		// Load config using the path from CraftyOptions
 		CraftyOptions options = OptionsParser.parseArguments(args);
@@ -57,14 +61,32 @@ public class MainHeadless {
 			PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
 					Listener.exportConfigurationFile(), false);
 		}
-
 		ModelRunner.demandEquilibrium();
 		for (int i = 0; i <= ProjectLoader.getEndtYear() - ProjectLoader.getStartYear(); i++) {
 			ProjectLoader.setCurrentYear(tick.get());
 			LOGGER.info("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
 			System.out.println("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
 			runner.step();
+//			GeoTiffExample.geoTiffWriter();// -----
 			tick.getAndIncrement();
 		}
+//		exportChartsPlots();
 	}
+
+//	private static void exportChartsPlots() {
+//		if (ConfigLoader.config.generate_charts_plots_PNG || ConfigLoader.config.generate_charts_plots_PDF) {
+//			String path = PathTools.makeDirectory(ConfigLoader.config.output_folder_name + File.separator + "plots");
+//			Listener.servicedemandHash.forEach((serviceName, serviceHash) -> {
+//				ChartExporter.createAndSaveChartAsPNG(serviceHash, ProjectLoader.getStartYear(), serviceName,
+//						path + File.separator + serviceName);
+//			});
+//			Map<String, Color> hashColors = new HashMap<>();
+//			AFTsLoader.getAftHash().forEach((name, aft) -> {
+//				hashColors.put(name, Color.decode(aft.getColor()));
+//			});
+//
+//			ChartExporter.createAndSaveChartAsPNG(Listener.compositionAftHash, hashColors, ProjectLoader.getStartYear(),
+//					"LandUseTrends", path + File.separator + "Land_use_trends");
+//		}
+//	}
 }

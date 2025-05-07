@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 
 import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -54,7 +54,7 @@ public class OutPutTabController {
 			radioColor[i].setToggleGroup(radiosgroup);
 			int k = i;
 			radioColor[i].setOnAction(e -> {
-				CellsSet.colorMap(radioColor[k].getText());
+				CellsCanvas.colorMap(radioColor[k].getText());
 			});
 
 		}

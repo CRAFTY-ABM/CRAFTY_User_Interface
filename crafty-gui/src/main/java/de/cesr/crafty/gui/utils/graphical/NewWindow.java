@@ -1,6 +1,5 @@
 package de.cesr.crafty.gui.utils.graphical;
 
-
 import java.util.function.Consumer;
 
 import de.cesr.crafty.gui.utils.camera.Camera;
@@ -18,63 +17,73 @@ import javafx.scene.layout.BorderPane;
  *
  */
 
-public class  NewWindow extends Stage {
+public class NewWindow extends Stage {
 
+	public void creatwindows(String name, double Width, double Height, Node... nodes) {
 
-	
-	public  void creatwindows(String name,double Width ,double Height , Node... nodes) {
-				
 		Scene scene;
 		StackPane rootPane = new StackPane();
-		
+
 		rootPane.getChildren().addAll(nodes);
-		
-		scene = new Scene(rootPane, Screen.getPrimary().getBounds().getWidth()* Width,
+
+		scene = new Scene(rootPane, Screen.getPrimary().getBounds().getWidth() * Width,
 				Screen.getPrimary().getBounds().getHeight() * Height);
-	
+
 		setTitle(name);
 		setScene(scene);
 		setAlwaysOnTop(true);
 		show();
 	}
-	
-	public  void creatwindows(String name, Node... nodes) {
+
+	public static Stage createWin(String name, double Width, double Height, Node... nodes) {
+		Stage newWin = new Stage();
+		Scene scene;
+		StackPane rootPane = new StackPane();
+
+		rootPane.getChildren().addAll(nodes);
+
+		scene = new Scene(rootPane, Screen.getPrimary().getBounds().getWidth() * Width,
+				Screen.getPrimary().getBounds().getHeight() * Height);
+
+		newWin.setTitle(name);
+		newWin.setScene(scene);
+		newWin.setAlwaysOnTop(true);
+		newWin.show();
+		return newWin;
+	}
+
+	public void creatwindows(String name, Node... nodes) {
 		Scene scene;
 		StackPane rootPane = new StackPane();
 		rootPane.getChildren().addAll(nodes);
 		scene = new Scene(rootPane);
-	
+
 		setTitle(name);
 		setScene(scene);
 		setAlwaysOnTop(true);
 		show();
 	}
-	
-	public  void creatwindows(String name ,Node nodes,Consumer<Stage> action) {
+
+	public void creatwindows(String name, Node nodes, Consumer<Stage> action) {
 		action.accept(this);
 		creatwindows(name, nodes);
-			}
+	}
 
-	
 	public SubScene subSceneWithCamera(BorderPane rootPane, Node... nodes) {
-		
-		Group root = new Group();
-		 SubScene subScene;
-		 Camera camera = new Camera();
-		
-		
 
-		subScene = new SubScene(root,Screen.getPrimary().getBounds().getWidth()*0.5,Screen.getPrimary().getBounds().getHeight()*.8);
+		Group root = new Group();
+		SubScene subScene;
+		Camera camera = new Camera();
+
+		subScene = new SubScene(root, Screen.getPrimary().getBounds().getWidth() * 0.5,
+				Screen.getPrimary().getBounds().getHeight() * .8);
 		subScene.setFocusTraversable(true);
-		//subScene.widthProperty().bind(rootPane.widthProperty());
-		//subScene.heightProperty().bind(rootPane.heightProperty());
+		// subScene.widthProperty().bind(rootPane.widthProperty());
+		// subScene.heightProperty().bind(rootPane.heightProperty());
 		subScene.setCamera(camera);
 		root.getChildren().addAll(nodes);
-	//   camera.defaultcamera(root,subScene);
-	//	camera.adjustCamera(root,subScene);
-		
-    
-	    
+		// camera.defaultcamera(root,subScene);
+		// camera.adjustCamera(root,subScene);
 
 		return subScene;
 	}

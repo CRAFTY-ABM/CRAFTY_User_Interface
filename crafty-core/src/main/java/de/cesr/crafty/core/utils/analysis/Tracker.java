@@ -16,7 +16,7 @@ public class Tracker {
 	private static final CustomLogger LOGGER = new CustomLogger(Tracker.class);
 
 	public static void trackSupply(int year) {
-		if (ConfigLoader.config.track_changes && ConfigLoader.config.generate_csv_files) {
+		if (ConfigLoader.config.track_changes && ConfigLoader.config.generate_output_files) {
 			long staetTime = System.currentTimeMillis();
 			ConcurrentHashMap<String, ConcurrentHashMap<String, Double>> container = new ConcurrentHashMap<>();
 			AFTsLoader.getAftHash().values().forEach(a -> {

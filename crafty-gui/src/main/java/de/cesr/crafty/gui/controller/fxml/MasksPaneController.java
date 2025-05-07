@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import de.cesr.crafty.gui.canvasFx.CellsSet;
+import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.Tools;
-import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
@@ -21,16 +21,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Screen;
 
 public class MasksPaneController {
 	@FXML
-	private VBox boxMaskTypes;
-
-	
+	private VBox TopBox;
+	GridPane grid = new GridPane();
 	static ArrayList<CheckBox> radioListOfMasks;
 	// cell.getMaskTyp->hash(owner_competitor-> true or false)
 
@@ -49,13 +48,16 @@ public class MasksPaneController {
 
 	@SuppressWarnings("unchecked")
 	public void initialize() {
-		radioListOfMasks = new ArrayList<>();
 
+		
+		radioListOfMasks = new ArrayList<>();
 
 		initializeBoxs();
 
 		circularPlot = new CircularPlot[radioListOfMasks.size()];
 		TitledPane[] T = new TitledPane[radioListOfMasks.size()];
+		AtomicInteger x = new AtomicInteger();
+		AtomicInteger y = new AtomicInteger();
 		radioListOfMasks.forEach(r -> {
 			r.setOnAction(e -> {
 				MaskRestrictionDataLoader.maskAndRistrictionLaoder(r.getText());
@@ -82,7 +84,7 @@ public class MasksPaneController {
 
 					VBox boxMask = new VBox();
 					T[i] = Tools.T("  Possible transitions for " + r.getText() + " Restriction ", true, boxMask);
-					
+
 					Text text = Tools.text(
 							"Select the AFT (landowner) to display the possible transitions from this AFT to other AFTs (competitors):",
 							Color.BLUE);
@@ -96,28 +98,34 @@ public class MasksPaneController {
 					});
 
 					MousePressed.mouseControle(boxMask, circularPlot[i]);
-					int place = boxMaskTypes.getChildren().indexOf(r) + 1;
-					boxMaskTypes.getChildren().add(place, T[i]);
+//					int place = TopBox.getChildren().indexOf(r) + 1;
+					//TopBox.getChildren().add(place, T[i]);
+					if (x.get() % 2 == 0) {
+						x.set(0);
+						y.getAndIncrement();
+					}
+					x.getAndIncrement();
+					grid.add(T[i], x.get(), y.get());
+
 				} else {
 					removeMask(r, T[i]);
 				}
 				if (iscolored) {
-					CellsSet.colorMap("Mask");
+					CellsCanvas.colorMap("Mask");
 				}
 			});
 		});
 		initialiseMask();
-		
-		double scale = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY);
-		boxMaskTypes.setMaxHeight(scale);
-		boxMaskTypes.setMinHeight(scale);
-		boxMaskTypes.setPrefHeight(scale);
+		TopBox.getChildren().add(grid);
+		Tools.forceResisingWidth(TopBox,grid);
+		Tools.forceResisingHeight(TopBox);
+
 	}
 
 	private void removeMask(CheckBox r, TitledPane T) {
 		ProjectLoader.Maskloader.cleanMaskType(r.getText());
 		MaskRestrictionDataLoader.restrictions.remove(r.getText());
-		boxMaskTypes.getChildren().removeAll(T);
+		grid.getChildren().removeAll(T);
 		MaskRestrictionDataLoader.hashMasksPaths.remove(r.getText());
 	}
 
@@ -125,7 +133,7 @@ public class MasksPaneController {
 		MaskRestrictionDataLoader.hashMasksPaths.keySet().forEach(maskName -> {
 			CheckBox r = new CheckBox(maskName);
 			radioListOfMasks.add(r);
-			boxMaskTypes.getChildren().add(r);
+			TopBox.getChildren().add(r);
 		});
 	}
 
@@ -143,7 +151,7 @@ public class MasksPaneController {
 	private void yearAction(CheckBox r, ChoiceBox<String> boxYears, HashMap<String, Boolean> restrictionsRul,
 			ArrayList<CheckBox> radioListOfAFTs) {
 		ProjectLoader.Maskloader.CellSetToMaskLoader(r.getText(), (int) Utils.sToD(boxYears.getValue()));
-		CellsSet.colorMap("Mask");
+		CellsCanvas.colorMap("Mask");
 		ProjectLoader.Maskloader.updateRestrections(r.getText(), boxYears.getValue(), restrictionsRul);
 		radioListOfAFTs.get(0).setSelected(true);
 	}
@@ -177,7 +185,7 @@ public class MasksPaneController {
 			r.fireEvent(new ActionEvent());
 		});
 		iscolored = true;
-		CellsSet.colorMap("AFT");
+		CellsCanvas.colorMap("AFT");
 	}
 
 	private ArrayList<PlotItem> initPlotItem() {

@@ -3,15 +3,18 @@ package de.cesr.crafty.gui.controller.fxml;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import de.cesr.crafty.core.cli.Config;
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.utils.general.Utils;
+import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Slider;
 import javafx.scene.control.CheckBox;
 
 public class RunCofigController {
-
+	@FXML
+	private VBox TopBox;
 	@FXML
 	private CheckBox InitialEquilibrium;
 	@FXML
@@ -72,6 +75,41 @@ public class RunCofigController {
 	private CheckBox traker;
 	@FXML
 	private CheckBox logger;
+	@FXML
+	private CheckBox png;
+	@FXML
+	private CheckBox pdf;
+	@FXML
+	private CheckBox tif;
+	@FXML
+	private CheckBox info;
+	@FXML
+	private CheckBox warn;
+
+	@FXML
+	public void png(ActionEvent event) {
+		System.out.println("png");
+	}
+
+	@FXML
+	public void pdf(ActionEvent event) {
+		System.out.println("pdf");
+	}
+
+	@FXML
+	public void tif(ActionEvent event) {
+		System.out.println("tif");
+	}
+
+	@FXML
+	public void info(ActionEvent event) {
+		System.out.println("info");
+	}
+
+	@FXML
+	public void warn(ActionEvent event) {
+		System.out.println("warn");
+	}
 
 	static public ModelRunnerController CA;
 
@@ -87,7 +125,7 @@ public class RunCofigController {
 		removeNegative.setSelected(ConfigLoader.config.remove_negative_marginal_utility);
 		MapSync.setSelected(Config.mapSynchronisation);
 		neighbours.setSelected(ConfigLoader.config.use_neighbor_priority);
-		creatCSV.setSelected(ConfigLoader.config.generate_csv_files);
+		creatCSV.setSelected(ConfigLoader.config.generate_output_files);
 		gUP.setSelected(ConfigLoader.config.use_abandonment_threshold);
 //		mutationM.setSelected(ModelRunner.isMutated);
 		// neighboursCollaboration.setSelected(CA.R.NeighboorEffect);
@@ -113,10 +151,10 @@ public class RunCofigController {
 			Config.chartSynchronisationGap = (int) chartSync_GapS.getValue();
 			chartSync_GapT.setText((int) chartSync_GapS.getValue() + "");
 		});
-		CSV_GapS.setValue(ConfigLoader.config.csv_output_frequency);
+		CSV_GapS.setValue(ConfigLoader.config.map_output_frequency);
 		CSV_GapT.setText((int) CSV_GapS.getValue() + "");
 		CSV_GapS.valueProperty().addListener((ov, oldval, newval) -> {
-			ConfigLoader.config.csv_output_frequency = (int) CSV_GapS.getValue();
+			ConfigLoader.config.map_output_frequency = (int) CSV_GapS.getValue();
 			CSV_GapT.setText((int) CSV_GapS.getValue() + "");
 		});
 //		nbrOfSubSetS.setValue(ModelRunner.nbrOfSubSet);
@@ -132,10 +170,10 @@ public class RunCofigController {
 			NeighbourRadiusT.setText((int) NeighbourRadiusS.getValue() + "");
 		});
 
-		percentageOfGiveUpS.setValue( ConfigLoader.config.land_abandonment_percentage * 100);
+		percentageOfGiveUpS.setValue(ConfigLoader.config.land_abandonment_percentage * 100);
 		percentageOfGiveUpT.setText(Math.round(percentageOfGiveUpS.getValue() * 10) / 10. + "");
 		percentageOfGiveUpS.valueProperty().addListener((ov, oldval, newval) -> {
-			 ConfigLoader.config.land_abandonment_percentage = percentageOfGiveUpS.getValue() / 100;
+			ConfigLoader.config.land_abandonment_percentage = percentageOfGiveUpS.getValue() / 100;
 			percentageOfGiveUpT.setText(Math.round(percentageOfGiveUpS.getValue() * 10) / 10. + ""); // ;
 		});
 
@@ -158,15 +196,13 @@ public class RunCofigController {
 		});
 		traker.setSelected(ConfigLoader.config.track_changes);
 		logger.setSelected(ConfigLoader.config.export_LOGGER);
-
+		Tools.forceResisingWidth(TopBox);
 	}
 
 	@FXML
 	public void initialEquilibrium(ActionEvent event) {
 		ConfigLoader.config.initial_demand_supply_equilibrium = InitialEquilibrium.isSelected();
 	}
-
-
 
 	// Event Listener on CheckBox[#removeNegative].onAction
 	@FXML
@@ -188,7 +224,7 @@ public class RunCofigController {
 
 	@FXML
 	public void percentageOfGiveUpT(ActionEvent event) {
-		 ConfigLoader.config.land_abandonment_percentage = Utils.sToD(percentageOfGiveUpT.getText()) / 100;
+		ConfigLoader.config.land_abandonment_percentage = Utils.sToD(percentageOfGiveUpT.getText()) / 100;
 		percentageOfGiveUpS.setValue((int) Utils.sToD(percentageOfGiveUpT.getText()));
 
 	}
@@ -275,7 +311,8 @@ public class RunCofigController {
 	// Event Listener on CheckBox[#creatCSV].onAction
 	@FXML
 	public void creatCSV(ActionEvent event) {
-		ConfigLoader.config.generate_csv_files = creatCSV.isSelected();
+		ConfigLoader.config.generate_output_files = creatCSV.isSelected();
+		ConfigLoader.config.generate_map_output_files = creatCSV.isSelected();
 
 	}
 
