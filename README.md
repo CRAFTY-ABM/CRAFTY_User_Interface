@@ -1,96 +1,113 @@
-# CRAFTY User Interface
+# CRAFTY – ABM
 
-CRAFTY User Interface is a tool for visualizing and managing data for the CRAFTY (Competition for Resources between Agent Functional TYpes) model. This README provides installation instructions and an overview of the interface functionalities.
+**CRAFTY (Competition for Resources between Agent Functional Types)** is an open‑source, agent‑based modelling framework for simulating land‑use change ([project site](https://landchange.imk-ifu.kit.edu/CRAFTY)).  
+The repository now follows a **multi‑module Maven layout** that cleanly separates the headless simulation engine (`crafty‑core`) from the JavaFX desktop interface (`crafty‑gui`). This allows you to run large, batch experiments on servers while still providing a rich GUI for interactive exploration.
+
+---
 
 ## Table of Contents
-1. [Installation](#installation)
-   - [Java Development Kit (JDK)](#java-development-kit-jdk)
-   - [Eclipse IDE](#eclipse-ide)
-   - [JavaFX](#javafx)
-2. [CRAFTY_UI Code Download](#crafty_ui-code-download)
-3. [Running the Model](#running-the-model)
-4. [Data](#data)
-5. [Interface Functionalities](#interface-functionalities)
-   - [Data Visualization and Management](#data-visualization-and-management)
-   - [Agents Functional Types (AFTs) Configurations](#agents-functional-types-afts-configurations)
-   - [Simulation Configuration and Monitoring](#simulation-configuration-and-monitoring)
+1. [Project Structure](#project-structure)  
+2. [Prerequisites](#prerequisites)  
+3. [Building](#building)  
+4. [Running the Model](#running-the-model)  
+   4.1 [Headless — `crafty‑core`](#running-headless-crafty-core)  
+   4.2 [GUI — `crafty‑gui`](#running-the-gui-crafty-gui)  
+5. [Data](#data)  
+6. [Interface Features](#interface-features)  
+7. [Contributing](#contributing)  |  [License](#license)
 
-## Installation
+---
 
-### Java Development Kit (JDK)
+## Project Structure
+```text
+CraftyProject/             (parent Maven project)
+├── crafty-core/           (headless simulation engine)
+│   └── target/
+│       └── crafty-core-headless-<version>.jar  (fat JAR, CLI entry‑point)
+├── crafty-gui/            (JavaFX desktop interface)
+│   └── target/
+│       └── crafty-gui-<version>.jar
+└── pom.xml                (parent POM)
+```
+*A single `mvn clean install` builds both sub‑modules.*
 
-1. Visit the [official Oracle website](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html).
-2. Download and install the appropriate JDK version for your operating system.
+---
 
-### Eclipse IDE
+## Prerequisites
+| Tool             | Version | Notes                                                     |
+|------------------|---------|-----------------------------------------------------------|
+| **JDK**          | ≥ 17    | Temurin / Adoptium recommended                            |
+| **Apache Maven** | ≥ 3.9   | Builds both modules                                       |
+| **Eclipse IDE**  | 2024‑xx | With m2e; install **e(fx)clipse** if you plan to use GUI  |
 
-1. Visit the [Eclipse download page](https://www.eclipse.org/downloads/).
-2. Download and run the Eclipse Installer for your operating system.
-3. Choose either "Eclipse IDE for Java Developers" or "Enterprise Java and Web Developers".
-4. Follow the on-screen instructions to complete the installation.
+> On headless servers only *JDK* and *Maven* are required.
 
-Note: If you encounter build path errors or JRE System Library issues, follow the troubleshooting steps in the full manual.
+---
 
-### JavaFX
+## Building
+```bash
+# Clone
+$ git clone https://github.com/CRAFTY-ABM/CRAFTY_User_Interface.git
+$ cd CRAFTY_User_Interface
 
-1. Install e(fx)clipse plugin:
-   - In Eclipse, go to Help > Eclipse Marketplace.
-   - Search for "JavaFX" and install the e(fx)clipse plugin.
+# Build all modules
+$ mvn clean install package
+```
+Outputs
+* `crafty-core/target/crafty-core-headless-<version>.jar`
+* `crafty-gui/target/crafty-gui-<version>.jar`
 
-2. Set up JavaFX SDK:
-   - Download JavaFX SDK from [Gluon's website](https://gluonhq.com/products/javafx/).
-   - Extract the SDK to a known location.
-   - In Eclipse, create a new JavaFX project and configure the build path to include the JavaFX JAR files.
-
-## CRAFTY_UI Code Download
-
-1. In Eclipse, go to File > Import...
-2. Select "Project from Git (with Smart import)" and click Next.
-3. Choose "Clone URI" and enter: https://github.com/CRAFTY-ABM/CRAFTY_User_Interface
-4. Follow the remaining steps in the wizard to complete the import.
-
-After importing, update the JavaFX SDK files in the project's build path to point to your local JavaFX installation.
+---
 
 ## Running the Model
 
-1. Set up Run Configuration:
-   - In Eclipse, go to Run > Run Configurations...
-   - Create a new Java Application configuration.
-   - Set the project to "Crafty_UserInterface" and the main class to "main.FxMain".
-   - In the Arguments tab, add VM arguments:
-     ```
-     --module-path "path\to\javafx-sdk\lib" --add-modules javafx.controls,javafx.graphics,javafx.fxml
-     ```
-2. Click "Apply" and then "Run" to start the application.
+### Running headless (`crafty‑core`)
+Headless runs use the **same YAML config files** as the GUI.
+
+**Command‑line**
+```bash
+java -jar crafty-core/target/crafty-core-headless-<version>.jar      --config-file path/to/config.yaml
+# short form
+java -jar crafty-core-headless.jar -c config.yaml
+```
+
+**Eclipse**
+1. Import the parent project (*File → Import → Maven → Existing Maven Projects*).
+2. *Run As → Run Configurations…* → **Java Application**.
+3. Pick `org.crafty.CoreLauncher` as the **main.MainHeadless**.
+4. In *Arguments* add  
+   `--config-file "C:\path\to\config.yaml"`.
+5. **Run**.
+
+### Running the GUI (`crafty‑gui`)
+The GUI lets you browse inputs, tweak AFT parameters, and watch the simulation in real‑time.
+
+
+#### Eclipse setup
+1. Ensure the **e(fx)clipse** plugin is installed (*Help → Eclipse Marketplace*).
+2. Import the project (steps as above).
+3. Create a **Run Configuration** with main class `main.FxMain`.
+4. In *VM Arguments* (only inside Eclipse) add your JavaFX modules, e.g.
+   ```
+   --module-path "C:\path\to\javafx-sdk\lib"    --add-modules javafx.controls,javafx.fxml
+   ```
 
 ## Data
+A simplified example dataset is hosted on OSF: <[https://osf.io/8mfzu](https://osf.io/v67jy/files/osfstorage)>.  
+Download and unzip the archive; then reference the path in your config YAML.
 
-Before running CRAFTY, you need input data. A simplified example of CRAFTY-DE data with 3 km resolution is available at https://osf.io/8mfzu/files/osfstorage. Download and extract the ZIP file to a known directory.
+---
 
-## Interface Functionalities
+## Interface Features
+### Data visualisation & management
+* Map viewer for capital layers across years and scenarios
+* Histograms of capital distributions
+* Demand curves and service dashboards
 
-### Data Visualization and Management
+### Agent Functional Types (AFT) configuration
+* Editable tables for AFT behaviour & productivity
+* Instant visual feedback in maps and charts
 
-- Display input and output data across spatial, temporal, and scenario dimensions.
-- Navigate through maps of different capitals under various scenarios and years.
-- View histograms of capital value distributions.
-- Visualize demand within each scenario.
-- Display baseline map of Agent Functional Types (AFTs).
-
-### Agents Functional Types (AFTs) Configurations
-
-- Manage land-manager agent characteristics.
-- Modify AFT parameters for behavior and productivity.
-- Visual representation and easy modification of AFT data.
-
-### Simulation Configuration and Monitoring
-
-- Configure model behavior before simulation:
-  - Consider negative marginal utility
-  - Enable land abandonment (Give-Up) mechanism
-  - Select search algorithm for competition
-  - Set annual cell competition percentage
-- Real-time updates of agent distribution and service productivity during simulation.
-- Track demand and supply for each ecosystem service.
-
-For more detailed information, please refer to the full user manual.
+### Simulation monitoring
+* Live agent redistribution and service provision plots
+* Toggle features: negative marginal utility, land abandonment, search algorithms, competition rate
