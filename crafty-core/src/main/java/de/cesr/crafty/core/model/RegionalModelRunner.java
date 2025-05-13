@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.AFTsLoader;
@@ -146,8 +147,12 @@ public class RegionalModelRunner {
 				"Initial Demand Service Equilibrium Factor= " + R.getName() + ": " + R.getServiceCalibration_Factor());
 	}
 
-	public void step(int year) {
+//	public static AtomicInteger countR = new AtomicInteger();
+//	public static AtomicInteger countNR = new AtomicInteger();
 
+	public void step(int year) {
+//		countR.set(0);
+//		countNR.set(0);
 		listner.exportFiles(year, regionalSupply);
 		calculeMarginal(year);
 		calculeDistributionMean();
@@ -159,6 +164,9 @@ public class RegionalModelRunner {
 		takeOverUnmanageCells();
 		competition(year);
 		AFTsLoader.hashAgentNbr(R.getName());
+//		System.out.println("countR= "+countR);
+//		System.out.println("countNR= "+countNR);
+		
 	}
 
 	private void giveUp() {
@@ -204,8 +212,6 @@ public class RegionalModelRunner {
 			});
 		}
 	}
-
-
 
 	private void productivityForAllExecutor() {// double multithreding
 		LOGGER.info("Productivity calculation for all cells ");

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.cesr.crafty.core.model.Aft;
+import de.cesr.crafty.core.model.AftCategory;
 import de.cesr.crafty.core.model.ManagerTypes;
 import de.cesr.crafty.core.model.RegionClassifier;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
@@ -45,7 +46,7 @@ public class AFTsLoader extends HashSet<Aft> {
 				.forEach(entry -> activateAFTsHash.put(entry.getKey(), entry.getValue()));
 		agentsColorinitialisation();
 		LOGGER.info(" AFTs: " + hashAFTs.keySet());
-		LOGGER.info("Active AFTs: " + activateAFTsHash.keySet());
+		LOGGER.info("Active AFTs: " + activateAFTsHash.keySet());		
 	}
 
 	public void agentsColorinitialisation() {
@@ -74,7 +75,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		AftCategorised.CategoriesLoader();
 		AftCategorised.initializeBehevoirByCategories();
 		hashAFTs.forEach((Label, a) -> {
-			LOGGER.trace("Import Production and behaviour for AFT: "+Label);
+			LOGGER.trace("Import Production and behaviour for AFT: " + Label);
 			if (a.isInteract()) {
 				Path pFile = null;
 				try {
@@ -85,8 +86,8 @@ public class AFTsLoader extends HashSet<Aft> {
 							ProjectLoader.getScenario(), Label + ".csv");
 					pFile = pFileList.get(0);
 					LOGGER.warn("Default productivity folder not fund, will use: " + pFile);
-				} 
-				LOGGER.trace("Production file Path: "+pFile);
+				}
+				LOGGER.trace("Production file Path: " + pFile);
 				initializeAFTProduction(pFile);
 
 				Path bFile = null;
@@ -97,10 +98,10 @@ public class AFTsLoader extends HashSet<Aft> {
 					bFile = PathTools
 							.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), Label + ".csv")
 							.get(0);
-					
+
 					LOGGER.warn("Default behaviour folder not fund, will use: " + bFile);
 				}
-				LOGGER.trace("Behaviour file Path: "+bFile);
+				LOGGER.trace("Behaviour file Path: " + bFile);
 				initializeAFTBehevoir(bFile);
 			}
 		});
@@ -219,6 +220,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		a.setType(ManagerTypes.Abandoned);
 		unmanagedManagerLabel = a.getLabel();
 		a.setColor("#848484");
+		a.setCategory(new AftCategory("Uncategorized"));
 		hashAFTs.put(a.getLabel(), a);
 	}
 

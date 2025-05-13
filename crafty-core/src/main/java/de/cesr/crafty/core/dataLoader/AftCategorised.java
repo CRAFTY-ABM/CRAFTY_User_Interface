@@ -69,7 +69,6 @@ public class AftCategorised {
 			}
 			useCategorisationGivIn = mean != null && SD != null;
 		}
-
 	}
 
 	public static HashMap<String, Double> getMean() {

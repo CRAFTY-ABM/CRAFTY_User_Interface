@@ -3,8 +3,8 @@ package de.cesr.crafty.core.model;
 public class AftCategory {
 
 	private String name;
-	private String intensity;
-	private int intensityLevel;
+	private String intensity="-";
+	private int intensityLevel= 0;
 
 	public AftCategory(String name) {
 		this.name = name;

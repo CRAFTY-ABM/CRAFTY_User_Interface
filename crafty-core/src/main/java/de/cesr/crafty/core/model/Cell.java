@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.output.Listener;
 
 /**

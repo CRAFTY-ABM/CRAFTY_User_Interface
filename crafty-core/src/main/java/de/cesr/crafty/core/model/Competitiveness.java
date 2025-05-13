@@ -9,7 +9,6 @@ import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.AftCategorised;
 import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.ServiceSet;
 import de.cesr.crafty.core.output.Listener;
 
@@ -96,12 +95,10 @@ public class Competitiveness {
 	private static void landUsechange(Cell c, Aft competitor, RegionalModelRunner r) {
 		double uC = utility(c, competitor, r);
 		if (c.owner == null || c.owner.isAbandoned()) {
-
 			if (uC >= r.distributionMean.get(competitor))
 				takeOverAcell(c, competitor);
 			return;
 		}
-
 		double uO = utility(c, c.owner, r);
 		double nbr = r.distributionMean != null
 				? (r.distributionMean.get(c.owner) * (giveInThreshold(c.owner, competitor)))
@@ -123,7 +120,18 @@ public class Competitiveness {
 
 		double uO = utility(c, c.owner, r) / r.maximumUtility.get(c.owner);
 
-		double giveIn = CellBehaviourLoader.cellsBehevoir.get(c).give_In(competitor);
+		double giveIn = 0;
+		boolean sameCategories = c.owner.category.getName().equals(competitor.category.getName());
+		boolean sameIntesity = c.owner.category.getIntensityLevel() == (competitor.category.getIntensityLevel());
+
+		if (!sameCategories || (sameCategories && sameIntesity)) {
+			giveIn = giveInThreshold(c.owner, competitor);
+//			RegionalModelRunner.countNR.getAndIncrement();
+		} else {
+			giveIn = CellBehaviourLoader.cellsBehevoir.get(c).give_In(competitor);
+//			RegionalModelRunner.countR.getAndIncrement();
+		}
+
 		if ((uC > uO + giveIn)) {
 			takeOverAcell(c, competitor);
 		}
@@ -141,8 +149,7 @@ public class Competitiveness {
 			Double sd = AftCategorised.getSD().get(key);
 			// Only use the BehaviorLoader-based mean & sd if BOTH are present AND the
 			// categories differ.
-			if (mean != null && sd != null
-					&& !owner.getCategory().getName().equals(competitor.getCategory().getName())) {
+			if (mean != null && sd != null) {
 				return mean + sd * new Random().nextGaussian();
 			}
 		}

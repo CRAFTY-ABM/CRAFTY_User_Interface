@@ -2,6 +2,10 @@ package de.cesr.crafty.core.main;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
@@ -9,6 +13,7 @@ import de.cesr.crafty.core.cli.CraftyOptions;
 import de.cesr.crafty.core.cli.OptionsParser;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.model.ModelRunner;
+import de.cesr.crafty.core.model.RegionalModelRunner;
 import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
@@ -50,6 +55,9 @@ public class MainHeadless {
 	}
 
 	static void runHeadless() {
+//		List<Integer> listCountourR = new ArrayList<>();
+//		List<Integer> listCountourNR = new ArrayList<>();
+
 		ModelRunner runner = new ModelRunner();
 		ModelRunner.setup();
 		AtomicInteger tick = new AtomicInteger(ProjectLoader.getStartYear());
@@ -67,9 +75,15 @@ public class MainHeadless {
 			LOGGER.info("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
 			System.out.println("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
 			runner.step();
+//			listCountourR.add(RegionalModelRunner.countR.get());
+//			listCountourNR.add(RegionalModelRunner.countNR.get());
+
 //			GeoTiffExample.geoTiffWriter();// -----
 			tick.getAndIncrement();
 		}
+//		System.out.println("R= "+listCountourR);
+//		System.out.println("NR= "+listCountourNR);
+
 //		exportChartsPlots();
 	}
 

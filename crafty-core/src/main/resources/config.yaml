@@ -1,9 +1,9 @@
 # Configuration for CRAFTY Model
 
 
-project_path: 'C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_20.0' 
+project_path: 'C:\Users\byari-m\Desktop\Finland' 
 
-scenario: 'ssp126'                            #Scenario identifier
+scenario: 'policy'                            #Scenario identifier
 regionalization: false						  # Only works if regional data is available (regional demands and GIS cell specificity).
 # CRAFTY Mechanisms
 initial_demand_supply_equilibrium: true       # Ensure balanced eco-service supply and demand during initial tick
