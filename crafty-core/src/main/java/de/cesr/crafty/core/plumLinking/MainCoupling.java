@@ -3,7 +3,6 @@ package de.cesr.crafty.core.plumLinking;
 import java.io.File;
 import java.nio.file.Paths;
 
-import ac.ed.lurg.ModelConfig;
 import ac.ed.lurg.ModelMain;
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
