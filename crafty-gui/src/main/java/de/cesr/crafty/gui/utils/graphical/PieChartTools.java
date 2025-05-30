@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
@@ -53,7 +54,7 @@ public class PieChartTools {
 			}
 		}
 
-		legendColorPicker(ProjectLoader.cellsSet, color, chart);
+		legendColorPicker(ModelRunner.cellsSet, color, chart);
 
 	}
 

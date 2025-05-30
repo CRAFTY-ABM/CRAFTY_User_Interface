@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ReaderFile;
+import de.cesr.crafty.core.main.MainHeadless;
+import de.cesr.crafty.core.dataLoader.CsvProcessors;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -37,7 +39,7 @@ public class CraftyDataUpscaler {
 	}
 
 	static void upscaleCsvMap(Path pathInput, Path pathoutput) {
-		HashMap<String, ArrayList<String>> reader = ReaderFile.ReadAsaHash(pathInput);
+		HashMap<String, ArrayList<String>> reader = CsvProcessors.ReadAsaHash(pathInput);
 		Map<String, HashMap<String, String>> newMap = new HashMap<>();
 		String xx = reader.get("X") != null ? "X" : "x";
 		String yy = reader.get("Y") != null ? "Y" : "y";
@@ -82,7 +84,9 @@ public class CraftyDataUpscaler {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ProjectLoader.modelInitialisation();
+
+		MainHeadless.runner = new ModelRunner();
+		MainHeadless.runner.start();
 		DataFolderPath = PathTools.makeDirectory(ProjectLoader.getProjectPath() + "_upscaled_" + scale);
 		createDataTemplate();
 		System.out.println(DataFolderPath);
@@ -132,6 +136,7 @@ public class CraftyDataUpscaler {
 					}
 					return FileVisitResult.CONTINUE;
 				}
+
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					Path targetFile = destinationDirectory.resolve(sourceDirectory.relativize(file));

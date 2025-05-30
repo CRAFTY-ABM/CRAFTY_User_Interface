@@ -11,11 +11,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ReaderFile;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.dataLoader.CsvProcessors;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.analysis.CapitalsAnalyzer;
@@ -96,7 +98,7 @@ public class CapitalsController {
 			GridPane grid = new GridPane();
 			AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
 			listPaths.forEach(path -> {
-				HashMap<String, ArrayList<Double>> data = ReaderFile.ReadAsaHashDouble(path);
+				HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(path);
 				// plot
 				LineChart<Number, Number> chart = CapitalsAnalyzer.generateCapitalChart(path.getFileName().toString(),
 						data);
@@ -122,11 +124,11 @@ public class CapitalsController {
 	private void mapColorAndCapitalHistogrameInitialisation() {
 		ToggleGroup radiosgroup = new ToggleGroup();
 
-		radioColor = new RadioButton[CellsLoader.getCapitalsList().size()];
+		radioColor = new RadioButton[CapitalUpdater.getCapitalsList().size()];
 		for (int i = 0; i < radioColor.length; i++) {
 			int k = i;
-			if (k < CellsLoader.getCapitalsList().size()) {
-				radioColor[k] = new RadioButton(CellsLoader.getCapitalsList().get(i));
+			if (k < CapitalUpdater.getCapitalsList().size()) {
+				radioColor[k] = new RadioButton(CapitalUpdater.getCapitalsList().get(i));
 			}
 			radioColor[k].setOnAction(e -> {
 				updatehistograms(k);
@@ -139,11 +141,11 @@ public class CapitalsController {
 
 	private void updatehistograms(int k) {
 		histogramCapitals.getData().clear();
-		if (k < CellsLoader.getCapitalsList().size()) {
+		if (k < CapitalUpdater.getCapitalsList().size()) {
 			if (!ProjectLoader.getScenario().equalsIgnoreCase("Baseline")) {
-				updateHistogrameCapitals(ProjectLoader.getCurrentYear(), CellsLoader.getCapitalsList().get(k));
-				updateHistoService(ProjectLoader.getCurrentYear(), CellsLoader.getCapitalsList().get(k));
-				updateHistoAft(ProjectLoader.getCurrentYear(), CellsLoader.getCapitalsList().get(k));
+				updateHistogrameCapitals(Timestep.getCurrentYear(), CapitalUpdater.getCapitalsList().get(k));
+				updateHistoService(Timestep.getCurrentYear(), CapitalUpdater.getCapitalsList().get(k));
+				updateHistoAft(Timestep.getCurrentYear(), CapitalUpdater.getCapitalsList().get(k));
 			}
 		}
 	}

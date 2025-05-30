@@ -9,9 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.Tools;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.updaters.LandMaskUpdater;
 import de.cesr.crafty.core.utils.general.Utils;
 import eu.hansolo.fx.charts.CircularPlot;
 import eu.hansolo.fx.charts.CircularPlotBuilder;
@@ -49,7 +50,6 @@ public class MasksPaneController {
 	@SuppressWarnings("unchecked")
 	public void initialize() {
 
-		
 		radioListOfMasks = new ArrayList<>();
 
 		initializeBoxs();
@@ -99,7 +99,7 @@ public class MasksPaneController {
 
 					MousePressed.mouseControle(boxMask, circularPlot[i]);
 //					int place = TopBox.getChildren().indexOf(r) + 1;
-					//TopBox.getChildren().add(place, T[i]);
+					// TopBox.getChildren().add(place, T[i]);
 					if (x.get() % 2 == 0) {
 						x.set(0);
 						y.getAndIncrement();
@@ -117,13 +117,13 @@ public class MasksPaneController {
 		});
 		initialiseMask();
 		TopBox.getChildren().add(grid);
-		Tools.forceResisingWidth(TopBox,grid);
+		Tools.forceResisingWidth(TopBox, grid);
 		Tools.forceResisingHeight(TopBox);
 
 	}
 
 	private void removeMask(CheckBox r, TitledPane T) {
-		ProjectLoader.Maskloader.cleanMaskType(r.getText());
+		MaskRestrictionDataLoader.cleanMaskType(r.getText());
 		MaskRestrictionDataLoader.restrictions.remove(r.getText());
 		grid.getChildren().removeAll(T);
 		MaskRestrictionDataLoader.hashMasksPaths.remove(r.getText());
@@ -150,16 +150,16 @@ public class MasksPaneController {
 
 	private void yearAction(CheckBox r, ChoiceBox<String> boxYears, HashMap<String, Boolean> restrictionsRul,
 			ArrayList<CheckBox> radioListOfAFTs) {
-		ProjectLoader.Maskloader.CellSetToMaskLoader(r.getText(), (int) Utils.sToD(boxYears.getValue()));
+		LandMaskUpdater.cellOneMaskUpdater(r.getText(), (int) Utils.sToD(boxYears.getValue()));
 		CellsCanvas.colorMap("Mask");
-		ProjectLoader.Maskloader.updateRestrections(r.getText(), boxYears.getValue(), restrictionsRul);
+		LandMaskUpdater.updateRestrections(r.getText(), boxYears.getValue(), restrictionsRul);
 		radioListOfAFTs.get(0).setSelected(true);
 	}
 
 	private List<String> filePathToYear(String maskType) {
 		List<String> years = new ArrayList<>();
 		MaskRestrictionDataLoader.hashMasksPaths.get(maskType).forEach(path -> {
-			for (int i = ProjectLoader.getStartYear(); i < ProjectLoader.getEndtYear(); i++) {
+			for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
 				if (path.toString().contains(i + "")) {
 					years.add(i + "");
 					break;
@@ -190,7 +190,7 @@ public class MasksPaneController {
 
 	private ArrayList<PlotItem> initPlotItem() {
 		ArrayList<PlotItem> itemsList = new ArrayList<>();
-		ProjectLoader.cellsSet.AFtsSet.forEach(a -> {
+		AFTsLoader.getAftHash().values().forEach(a -> {
 			itemsList.add(new PlotItem(a.getLabel(), 10, Color.web(a.getColor())));
 		});
 		return itemsList;
@@ -210,8 +210,12 @@ public class MasksPaneController {
 			}
 		}
 		PlotItem owner = own;
+
 		itemsList.forEach(competitor -> {
-			int nbr = restrictions.get(owner.getName() + "_" + competitor.getName()) ? 1 : -1;
+			int nbr = -1;
+			if (restrictions.get(owner.getName() + "_" + competitor.getName()) != null) {
+				nbr = restrictions.get(owner.getName() + "_" + competitor.getName()) ? 1 : -1;
+			}
 			if (toAdd) {
 				owner.addToOutgoing(competitor, nbr);
 			} else

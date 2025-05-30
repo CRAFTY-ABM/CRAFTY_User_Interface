@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.cesr.crafty.core.dataLoader.AftCategorised;
-import de.cesr.crafty.core.dataLoader.CellBehaviourLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
+import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.analysis.CsvToHtml;
@@ -40,7 +40,7 @@ public class AFTsBehaviourController {
 		grid.setVgap(30);
 
 		// Check if the behevoir model data is avialable
-		if (AftCategorised.useCategorisationGivIn && CellBehaviourLoader.behaviourUsed) {
+		if (AftCategorised.useCategorisationGivIn && CellBehaviourUpdater.behaviourUsed) {
 			addTables();
 			AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
 

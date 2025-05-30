@@ -35,7 +35,6 @@ public class FxMain extends Application {
 	public static double graphicScaleX, graphicScaleY;
 	public static final double defaultWidth = 2800, defaultHeight = 1550;
 
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		LOGGER.info("--Starting CRAFTY execution--");

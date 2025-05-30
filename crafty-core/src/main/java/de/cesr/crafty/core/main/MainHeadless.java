@@ -1,33 +1,30 @@
 package de.cesr.crafty.core.main;
 
-import java.io.File;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.cli.CraftyOptions;
 import de.cesr.crafty.core.cli.OptionsParser;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.model.ModelRunner;
-import de.cesr.crafty.core.output.Listener;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
-import de.cesr.crafty.core.utils.file.PathTools;
 
 public class MainHeadless {
 	private static final CustomLogger LOGGER = new CustomLogger(MainHeadless.class);
+	public static ModelRunner runner;
 
 	public static void main(String[] args) {
 		System.out.println("--Starting CRAFTY execution--");
 		initializeConfig(args);
-		ProjectLoader.modelInitialisation();
-		runHeadless();
-
+		ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+		runner = new ModelRunner();
+		runner.start();
+		runner.run();
 	}
 
 	public static void initializeConfig(String[] args) {
 
 		System.setProperty("java.awt.headless", "true");
-
 		LOGGER.info("--Starting CRAFTY execution--");
 		// Load config using the path from CraftyOptions
 		CraftyOptions options = OptionsParser.parseArguments(args);
@@ -49,53 +46,4 @@ public class MainHeadless {
 		}
 	}
 
-	static void runHeadless() {
-//		List<Integer> listCountourR = new ArrayList<>();
-//		List<Integer> listCountourNR = new ArrayList<>();
-
-		ModelRunner runner = new ModelRunner();
-		ModelRunner.setup();
-		AtomicInteger tick = new AtomicInteger(ProjectLoader.getStartYear());
-		String generatedPath = PathTools.makeDirectory(ConfigLoader.config.Output_path);
-		Listener.outputfolderPath(generatedPath, ConfigLoader.config.output_folder_name);
-		if (ConfigLoader.config.export_LOGGER) {
-			CustomLogger
-					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
-			PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
-					Listener.exportConfigurationFile(), false);
-		}
-		ModelRunner.demandEquilibrium();
-		for (int i = 0; i <= ProjectLoader.getEndtYear() - ProjectLoader.getStartYear(); i++) {
-			ProjectLoader.setCurrentYear(tick.get());
-			LOGGER.info("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
-			System.out.println("-------------   " + ProjectLoader.getCurrentYear() + "   --------------");
-			runner.step();
-//			listCountourR.add(RegionalModelRunner.countR.get());
-//			listCountourNR.add(RegionalModelRunner.countNR.get());
-
-//			GeoTiffExample.geoTiffWriter();// -----
-			tick.getAndIncrement();
-		}
-//		System.out.println("R= "+listCountourR);
-//		System.out.println("NR= "+listCountourNR);
-
-//		exportChartsPlots();
-	}
-
-//	private static void exportChartsPlots() {
-//		if (ConfigLoader.config.generate_charts_plots_PNG || ConfigLoader.config.generate_charts_plots_PDF) {
-//			String path = PathTools.makeDirectory(ConfigLoader.config.output_folder_name + File.separator + "plots");
-//			Listener.servicedemandHash.forEach((serviceName, serviceHash) -> {
-//				ChartExporter.createAndSaveChartAsPNG(serviceHash, ProjectLoader.getStartYear(), serviceName,
-//						path + File.separator + serviceName);
-//			});
-//			Map<String, Color> hashColors = new HashMap<>();
-//			AFTsLoader.getAftHash().forEach((name, aft) -> {
-//				hashColors.put(name, Color.decode(aft.getColor()));
-//			});
-//
-//			ChartExporter.createAndSaveChartAsPNG(Listener.compositionAftHash, hashColors, ProjectLoader.getStartYear(),
-//					"LandUseTrends", path + File.separator + "Land_use_trends");
-//		}
-//	}
 }

@@ -10,8 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import de.cesr.crafty.core.dataLoader.CellsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
+import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
@@ -32,8 +35,8 @@ public class CapitalsAnalyzer {
 //	}
 
 	static ConcurrentHashMap<String, Double> mapToValues(int year) {
-		ProjectLoader.setCurrentYear(year);
-		ProjectLoader.cellsSet.updateCapitals(year);
+		Timestep.setCurrentYear(year);
+		ModelRunner.capitalUpdater.step();
 		ConcurrentHashMap<String, Double> capiHash = new ConcurrentHashMap<>();
 
 		CellsLoader.hashCell.values().forEach(c -> {
@@ -41,7 +44,7 @@ public class CapitalsAnalyzer {
 				capiHash.merge(cn, cv, Double::sum);
 			});
 		});
-		CellsLoader.getCapitalsList().forEach(cn -> {
+		CapitalUpdater.getCapitalsList().forEach(cn -> {
 			capiHash.put(cn, capiHash.get(cn) / CellsLoader.getNbrOfCells());
 		});
 
@@ -51,11 +54,11 @@ public class CapitalsAnalyzer {
 	static Map<String, ArrayList<Double>> generateGrapheData() {
 		Map<String, ArrayList<Double>> hash = new ConcurrentHashMap<>();
 
-		CellsLoader.getCapitalsList().forEach(nc -> {
+		CapitalUpdater.getCapitalsList().forEach(nc -> {
 			hash.put(nc, new ArrayList<Double>());
 		});
 
-		for (int i = ProjectLoader.getStartYear(); i < ProjectLoader.getEndtYear(); i++) {
+		for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
 			ConcurrentHashMap<String, Double> h = mapToValues(i);
 			h.forEach((cn, cv) -> {
 				hash.get(cn).add(cv);
@@ -74,7 +77,7 @@ public class CapitalsAnalyzer {
 			}
 		});
 
-		CellsLoader.getCapitalsList().forEach(capitalName -> {
+		CapitalUpdater.getCapitalsList().forEach(capitalName -> {
 			Map<String, ArrayList<Double>> data = new ConcurrentHashMap<>();
 			ProjectLoader.getScenariosList().forEach(scenario -> {
 
@@ -92,7 +95,7 @@ public class CapitalsAnalyzer {
 		chart.setTitle(titel);
 		lineChart(chart, data, titel);
 
-		LineChartTools.configurexAxis(chart, ProjectLoader.getStartYear(), ProjectLoader.getEndtYear());
+		LineChartTools.configurexAxis(chart, Timestep.getStartYear(), Timestep.getEndtYear());
 		double minY = getMinimumValue(data);
 		double maxY = getMaximumValue(data);
 		LineChartTools.configurexYxis(chart, minY, maxY);
@@ -127,7 +130,7 @@ public class CapitalsAnalyzer {
 		sortedKeys.forEach((key) -> {
 			ArrayList<Double> value = hash.get(key);
 			for (int j = 0; j < value.size(); j++) {
-				series[k.get()].getData().add(new XYChart.Data<>(j + ProjectLoader.getStartYear(), value.get(j)));
+				series[k.get()].getData().add(new XYChart.Data<>(j + Timestep.getStartYear(), value.get(j)));
 			}
 			k.getAndIncrement();
 		});

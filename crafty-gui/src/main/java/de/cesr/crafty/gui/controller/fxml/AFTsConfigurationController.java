@@ -11,18 +11,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
-import de.cesr.crafty.gui.utils.analysis.CsvToHtml;
 import de.cesr.crafty.gui.utils.graphical.CSVTableView;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.Tools;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
+import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.Aft;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -126,9 +126,9 @@ public class AFTsConfigurationController {
 				.add(AFTsProductionController.productivitySampleChart(a.getLabel(),false));
 		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
 				a.getProductivityLevel());
-		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),
+		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),// to be change
 				a.getLabel(), ".csv");
-		AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
+//		AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
 		GridPane grid = new GridPane();
 		ubdateRadarchart(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), grid);
 		grid.setMinWidth(TopBox.getMinWidth()); 
@@ -210,7 +210,7 @@ public class AFTsConfigurationController {
 	public static YChart<ValueChartItem> ychart(Pane box, Aft agent, String servicesName) {
 		List<ValueChartItem> listvalues = new ArrayList<>();
 		List<Category> categories = new ArrayList<>();
-		CellsLoader.getCapitalsList().forEach(capitalName -> {
+		CapitalUpdater.getCapitalsList().forEach(capitalName -> {
 			double y = Math.min(100, agent.getSensitivity().get(capitalName + "|" + servicesName) * 100);
 			if (y != 0) {
 				listvalues.add(new ValueChartItem(y, capitalName + "|" + servicesName));
@@ -234,13 +234,13 @@ public class AFTsConfigurationController {
 
 	String[][] sensitivityTable(Aft a) {
 		String[][] sensetivtyTable = new String[ServiceSet.getServicesList().size()
-				+ 1][CellsLoader.getCapitalsList().size() + 1];
+				+ 1][CapitalUpdater.getCapitalsList().size() + 1];
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
 			sensetivtyTable[i + 1][0] = ServiceSet.getServicesList().get(i);
-			for (int j = 0; j < CellsLoader.getCapitalsList().size(); j++) {
-				sensetivtyTable[0][j + 1] = CellsLoader.getCapitalsList().get(j);
+			for (int j = 0; j < CapitalUpdater.getCapitalsList().size(); j++) {
+				sensetivtyTable[0][j + 1] = CapitalUpdater.getCapitalsList().get(j);
 				sensetivtyTable[i + 1][j + 1] = a.getSensitivity()
-						.get(CellsLoader.getCapitalsList().get(j) + "|" + ServiceSet.getServicesList().get(i)) + "";
+						.get(CapitalUpdater.getCapitalsList().get(j) + "|" + ServiceSet.getServicesList().get(i)) + "";
 			}
 
 		}
@@ -257,17 +257,17 @@ public class AFTsConfigurationController {
 	}
 
 	static void creatCsvFiles(Aft a, String descreption) {
-		String[][] tab = new String[ServiceSet.getServicesList().size() + 1][CellsLoader.getCapitalsList().size() + 2];
+		String[][] tab = new String[ServiceSet.getServicesList().size() + 1][CapitalUpdater.getCapitalsList().size() + 2];
 		tab[0][0] = "";
-		tab[0][CellsLoader.getCapitalsList().size() + 1] = "Production";
-		for (int i = 0; i < CellsLoader.getCapitalsList().size(); i++) {
-			tab[0][i + 1] = CellsLoader.getCapitalsList().get(i);
+		tab[0][CapitalUpdater.getCapitalsList().size() + 1] = "Production";
+		for (int i = 0; i < CapitalUpdater.getCapitalsList().size(); i++) {
+			tab[0][i + 1] = CapitalUpdater.getCapitalsList().get(i);
 
 			for (int j = 0; j < ServiceSet.getServicesList().size(); j++) {
 				tab[j + 1][0] = ServiceSet.getServicesList().get(j);
 				tab[j + 1][i + 1] = a.getSensitivity()
-						.get(CellsLoader.getCapitalsList().get(i) + "|" + ServiceSet.getServicesList().get(j)) + "";
-				tab[j + 1][CellsLoader.getCapitalsList().size() + 1] = a.getProductivityLevel()
+						.get(CapitalUpdater.getCapitalsList().get(i) + "|" + ServiceSet.getServicesList().get(j)) + "";
+				tab[j + 1][CapitalUpdater.getCapitalsList().size() + 1] = a.getProductivityLevel()
 						.get(ServiceSet.getServicesList().get(j)) + "";
 			}
 		}

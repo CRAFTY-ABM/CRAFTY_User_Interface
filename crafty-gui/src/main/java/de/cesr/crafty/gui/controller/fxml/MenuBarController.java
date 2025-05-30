@@ -18,6 +18,8 @@ import java.util.function.Consumer;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.main.MainHeadless;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.gui.utils.analysis.CapitalsAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
@@ -58,9 +60,7 @@ public class MenuBarController {
 	public void open(ActionEvent event) {
 		openProject();
 
-		if (ProjectLoader.getProjectPath() != null) {
-			initialsePAnes();
-		}
+		
 	}
 
 	@FXML
@@ -121,7 +121,7 @@ public class MenuBarController {
 		System.exit(0);
 	}
 
-	static void openProject() {
+	private void openProject() {
 		File selectedDirectory;
 		String userDocumentsPath = System.getProperty("user.home") + File.separator + "Documents";
 		File documentsDir = new File(userDocumentsPath);
@@ -140,12 +140,19 @@ public class MenuBarController {
 			ConfigLoader.config.project_path = selectedDirectory.getAbsolutePath();
 			ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
 			ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
-			ProjectLoader.modelInitialisation();
+			runnerStartAndPaneInitialze();
 		}
-		System.out.println();
 	}
 
-	void initialsePAnes() {
+	private void runnerStartAndPaneInitialze() {
+		MainHeadless.runner = new ModelRunner();
+		MainHeadless.runner.start();
+		if (ProjectLoader.getProjectPath() != null) {
+			initialsePanes();
+		}
+	}
+
+	private void initialsePanes() {
 		WarningWindowes.showWaitingDialog(x -> {
 			try {
 				FxMain.anchor.setCenter(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
@@ -158,7 +165,7 @@ public class MenuBarController {
 
 	}
 
-	void openWebInBrowser() {
+	private void openWebInBrowser() {
 		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
 
 			try {
@@ -181,9 +188,8 @@ public class MenuBarController {
 				item.setOnAction(event -> {
 					ConfigLoader.config.project_path = paths[j];
 					ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
-					ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
-					ProjectLoader.modelInitialisation();
-					initialsePAnes();
+					ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);					
+					runnerStartAndPaneInitialze();
 				});
 				recent.getItems().add(item);
 			}

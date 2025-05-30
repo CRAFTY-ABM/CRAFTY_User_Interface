@@ -7,14 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.ModelRunner;
-import de.cesr.crafty.core.model.Region;
-import de.cesr.crafty.core.model.RegionClassifier;
-import de.cesr.crafty.core.model.Service;
-import de.cesr.crafty.core.utils.analysis.Tracker;
+import de.cesr.crafty.core.crafty.Region;
+import de.cesr.crafty.core.crafty.Service;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.updaters.RegionsModelRunnerUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -31,9 +30,9 @@ public class ListenerByRegion {
 	}
 
 	public void initializeListeners() {
-		compositionAftListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
+		compositionAftListener = new String[Timestep.getEndtYear() - Timestep.getStartYear()
 				+ 2][AFTsLoader.getAftHash().size() + 1];
-		servicedemandListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
+		servicedemandListener = new String[Timestep.getEndtYear() - Timestep.getStartYear()
 				+ 2][ServiceSet.getServicesList().size() * 2 + 1];
 
 		averageUtilities = new String[compositionAftListener.length][compositionAftListener[0].length];
@@ -67,7 +66,7 @@ public class ListenerByRegion {
 
 	private void servicedemandListener(int year, ConcurrentHashMap<String, Double> regionalSupply) {
 		AtomicInteger m = new AtomicInteger(1);
-		int y = year - ProjectLoader.getStartYear() + 1;
+		int y = year - Timestep.getStartYear() + 1;
 		servicedemandListener[y][0] = String.valueOf(year);
 		ServiceSet.getServicesList().forEach(name -> {
 			servicedemandListener[y][m.get()] = String.valueOf(regionalSupply.get(name));
@@ -78,7 +77,7 @@ public class ListenerByRegion {
 	}
 
 	private void compositionAFTListener(int year) {
-		int y = year - ProjectLoader.getStartYear() + 1;
+		int y = year - Timestep.getStartYear() + 1;
 		compositionAftListener[y][0] = String.valueOf(year);
 		averageUtilities[y][0] = String.valueOf(year);
 		AFTsLoader.hashAgentNbrRegions.get(R.getName()).forEach((name, value) -> {
@@ -86,9 +85,9 @@ public class ListenerByRegion {
 		});
 		if(y>1) {
 		AFTsLoader.getAftHash().forEach((name, aft) -> {
-			if (ModelRunner.regionsModelRunner.get(R.getName()).getDistributionMean() != null) {
+			if (RegionsModelRunnerUpdater.regionsModelRunner.get(R.getName()).getDistributionMean() != null) {
 				averageUtilities[y-1][Utils.indexof(name, averageUtilities[0])] = String
-						.valueOf(ModelRunner.regionsModelRunner.get(R.getName()).getDistributionMean().get(aft));
+						.valueOf(RegionsModelRunnerUpdater.regionsModelRunner.get(R.getName()).getDistributionMean().get(aft));
 			}else {averageUtilities[y-1][Utils.indexof(name, averageUtilities[0])] ="null";}
 		});}
 	}
@@ -109,7 +108,7 @@ public class ListenerByRegion {
 	}
 
 	public void exportFiles(int year, ConcurrentHashMap<String, Double> regionalSupply) {
-		if (ConfigLoader.config.generate_output_files && RegionClassifier.regions.size() > 1) {
+		if (ConfigLoader.config.generate_output_files && CellsLoader.regions.size() > 1) {
 			servicedemandListener(year, regionalSupply);
 			compositionAFTListener(year);
 			Tracker.trackSupply(year, R.getName());

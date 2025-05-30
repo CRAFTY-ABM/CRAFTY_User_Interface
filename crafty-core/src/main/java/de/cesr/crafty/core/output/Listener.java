@@ -19,19 +19,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.ibm.icu.impl.data.ResourceReader;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
+import de.cesr.crafty.core.crafty.Region;
+import de.cesr.crafty.core.crafty.RegionalModelRunner;
+import de.cesr.crafty.core.crafty.Service;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.ModelRunner;
-import de.cesr.crafty.core.model.Region;
-import de.cesr.crafty.core.model.RegionClassifier;
-import de.cesr.crafty.core.model.RegionalModelRunner;
-import de.cesr.crafty.core.model.Service;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.updaters.AbstractUpdater;
+import de.cesr.crafty.core.updaters.RegionsModelRunnerUpdater;
+import de.cesr.crafty.core.updaters.SupplyUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
-public class Listener {
+public class Listener extends AbstractUpdater {
 	public static String[][] compositionAftListener;
 	public static Map<String, ArrayList<Double>> compositionAftHash = new HashMap<>();
 	public static String[][] servicedemandListener;
@@ -43,10 +46,29 @@ public class Listener {
 
 	public static ArrayList<Integer> yearsMapExporting = new ArrayList<>();
 
-	public void initializeListeners() {
-		initializeListYears();
+	@Override
+	public void toSchedule() {
+		modelRunner.scheduleRepeating(this);
+	}
 
-		servicedemandListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
+	@Override
+	public void step() {
+		if (ConfigLoader.config.generate_output_files) {
+			compositionAFT(Timestep.getCurrentYear());
+			outPutserviceDemandToCsv(Timestep.getCurrentYear(), SupplyUpdater.totalSupply);
+			writOutPutMap(Timestep.getCurrentYear());
+			updateCSVFilesWolrd();
+			updateLandUseEventCounter();
+		}
+	}
+
+	public Listener() {
+		initializeListeners();
+	}
+
+	public void initializeListeners() {
+		initializeListExportingYearsMap();
+		servicedemandListener = new String[Timestep.getEndtYear() - Timestep.getStartYear()
 				+ 2][ServiceSet.getServicesList().size() * 2 + 1];
 		servicedemandListener[0][0] = "Year";
 		for (int i = 1; i < ServiceSet.getServicesList().size() + 1; i++) {
@@ -54,7 +76,7 @@ public class Listener {
 			servicedemandListener[0][i + ServiceSet.getServicesList().size()] = "Demand:"
 					+ ServiceSet.getServicesList().get(i - 1);
 		}
-		compositionAftListener = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear()
+		compositionAftListener = new String[Timestep.getEndtYear() - Timestep.getStartYear()
 				+ 2][AFTsLoader.getAftHash().size() + 1];
 		compositionAftListener[0][0] = "Year";
 		averageUtilities = new String[compositionAftListener.length][compositionAftListener[0].length];
@@ -65,11 +87,10 @@ public class Listener {
 			averageUtilities[0][k++] = label;
 			compositionAftHash.put(label, new ArrayList<>());
 		}
-		DSEquilibriumListener = new String[ServiceSet.getServicesList().size() + 1][RegionClassifier.regions.size()
-				+ 1];
+		DSEquilibriumListener = new String[ServiceSet.getServicesList().size() + 1][CellsLoader.regions.size() + 1];
 		DSEquilibriumListener[0][0] = "Service";
 		int j = 1;
-		for (String gerionName : RegionClassifier.regions.keySet()) {
+		for (String gerionName : CellsLoader.regions.keySet()) {
 			DSEquilibriumListener[0][j++] = gerionName;
 		}
 		for (int i = 0; i < ServiceSet.getServicesList().size(); i++) {
@@ -80,18 +101,17 @@ public class Listener {
 			servicedemandHash.put(ServiceSet.getServicesList().get(i), h);
 		}
 
-		landEventCounter = new String[ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 2][2];
+		landEventCounter = new String[Timestep.getEndtYear() - Timestep.getStartYear() + 1][2];
 		landEventCounter[0][0] = "year";
 		landEventCounter[0][1] = "LU changed";
-		for (int i = 0; i < ProjectLoader.getEndtYear() - ProjectLoader.getStartYear() + 1; i++) {
-			landEventCounter[i + 1][0] = String.valueOf(i + ProjectLoader.getStartYear());
+		for (int i = 0; i < Timestep.getEndtYear() - Timestep.getStartYear(); i++) {
+			landEventCounter[i + 1][0] = String.valueOf(i + Timestep.getStartYear());
 		}
-
 	}
 
 	public void outPutserviceDemandToCsv(int year, ConcurrentHashMap<String, Double> totalSupply) {
 		AtomicInteger m = new AtomicInteger(1);
-		int y = year - ProjectLoader.getStartYear() + 1;
+		int y = year - Timestep.getStartYear() + 1;
 		servicedemandListener[y][0] = String.valueOf(year);
 		ServiceSet.getServicesList().forEach(serviceName -> {
 			servicedemandListener[y][m.get()] = String.valueOf(totalSupply.get(serviceName));
@@ -99,28 +119,26 @@ public class Listener {
 			servicedemandListener[y][m.get() + ServiceSet.getServicesList().size()] = String
 					.valueOf(ds.getDemands().get(year));
 			m.getAndIncrement();
-
 			servicedemandHash.get(serviceName).get("Supply").add(totalSupply.get(serviceName));
 			servicedemandHash.get(serviceName).get("Demand").add(ds.getDemands().get(year));
-
 		});
 	}
 
 	public void compositionAFT(int year) {
-		int y = year - ProjectLoader.getStartYear() + 1;
+		int y = year - Timestep.getStartYear() + 1;
 		compositionAftListener[y][0] = String.valueOf(year);
 		averageUtilities[y][0] = String.valueOf(year);
 		AFTsLoader.hashAgentNbr.forEach((name, value) -> {
 			compositionAftListener[y][Utils.indexof(name, compositionAftListener[0])] = String.valueOf(value);
 			compositionAftHash.get(name).add((double) value);
 		});
-
-		Region R = ModelRunner.regionsModelRunner.values().iterator().next().R;
+		Region R = RegionsModelRunnerUpdater.regionsModelRunner.values().iterator().next().R;
 		if (y > 1) {
 			AFTsLoader.getAftHash().forEach((name, aft) -> {
-				if (ModelRunner.regionsModelRunner.get(R.getName()).getDistributionMean() != null) {
+				if (RegionsModelRunnerUpdater.regionsModelRunner.get(R.getName()).getDistributionMean() != null) {
 					averageUtilities[y - 1][Utils.indexof(name, averageUtilities[0])] = String
-							.valueOf(ModelRunner.regionsModelRunner.get(R.getName()).getDistributionMean().get(aft));
+							.valueOf(RegionsModelRunnerUpdater.regionsModelRunner.get(R.getName()).getDistributionMean()
+									.get(aft));
 				} else {
 					averageUtilities[y - 1][Utils.indexof(name, averageUtilities[0])] = "null";
 				}
@@ -129,7 +147,8 @@ public class Listener {
 	}
 
 	public static void DSEquilibriumListener() {
-		for (RegionalModelRunner rr : ModelRunner.regionsModelRunner.values()) {
+		System.out.println("!!" + RegionsModelRunnerUpdater.regionsModelRunner.keySet());
+		for (RegionalModelRunner rr : RegionsModelRunnerUpdater.regionsModelRunner.values()) {
 			for (int j = 0; j < ServiceSet.getServicesList().size(); j++) {
 				DSEquilibriumListener[j + 1][Utils.indexof(rr.R.getName(),
 						DSEquilibriumListener[0])] = rr.listner.DSEquilibriumListener[j + 1][1];
@@ -149,19 +168,21 @@ public class Listener {
 		DSEquilibriumListener();
 		CsvTools.writeCSVfile(DSEquilibriumListener, DSEquilibriumPath);
 
-		if (ModelRunner.regionsModelRunner.size() == 1) {
+		if (RegionsModelRunnerUpdater.regionsModelRunner.size() == 1) {
 			Path averageUtilitiesPath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
 					+ ProjectLoader.getScenario() + "-AverageUtilities.csv");
 			CsvTools.writeCSVfile(averageUtilities, averageUtilitiesPath);
 		}
 	}
 
-	public static void updateLandUseEventConter() {
-		landEventCounter[ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()
-				+ 1][1] = Listener.landUseChangeCounter.toString();
-		Path landChengePath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
-				+ ProjectLoader.getScenario() + "-landEventCounter.csv");
-		CsvTools.writeCSVfile(landEventCounter, landChengePath);
+	private void updateLandUseEventCounter() {
+		if (Timestep.getCurrentYear() - Timestep.getStartYear() != 0) {
+			landEventCounter[Timestep.getCurrentYear() - Timestep.getStartYear()][1] = landUseChangeCounter.toString();
+			Path landChengePath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
+					+ ProjectLoader.getScenario() + "-landEventCounter.csv");
+			CsvTools.writeCSVfile(landEventCounter, landChengePath);
+			landUseChangeCounter.set(0);
+		}
 	}
 
 	public void writOutPutMap(int year) {
@@ -170,22 +191,22 @@ public class Listener {
 		}
 	}
 
-	public static void initializeListYears() {
-		for (int year = ProjectLoader.getStartYear(); year < ProjectLoader.getEndtYear() + 1; year++) {
+	public static void initializeListExportingYearsMap() {
+		for (int year = Timestep.getStartYear(); year <= Timestep.getEndtYear(); year++) {
 			if (ConfigLoader.config.generate_map_output_files) {
 				if (ConfigLoader.config.map_output_frequency != 0) {
-					if ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
+					if ((Timestep.getCurrentYear() - Timestep.getStartYear())
 							% ConfigLoader.config.map_output_frequency == 0
-							|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear()) {
+							|| Timestep.getCurrentYear() == Timestep.getEndtYear()) {
 						yearsMapExporting.add(year);
 					}
 				} else {
 					if (ConfigLoader.config.map_output_years instanceof Integer) {
 						ConfigLoader.config.map_output_frequency = (int) ConfigLoader.config.map_output_years;
 						if (ConfigLoader.config.map_output_frequency != 0) {
-							if ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
+							if ((Timestep.getCurrentYear() - Timestep.getStartYear())
 									% ConfigLoader.config.map_output_frequency == 0
-									|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear()) {
+									|| Timestep.getCurrentYear() == Timestep.getEndtYear()) {
 								yearsMapExporting.add(year);
 							}
 						}
@@ -247,8 +268,6 @@ public class Listener {
 				e.printStackTrace();
 			}
 		}
-
 		return configuration;
 	}
-
 }

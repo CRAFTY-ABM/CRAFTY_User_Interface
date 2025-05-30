@@ -1,14 +1,13 @@
 package de.cesr.crafty.core.dataLoader;
 
-import de.cesr.crafty.core.cli.ConfigLoader;
-import de.cesr.crafty.core.model.RegionClassifier;
+import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,44 +18,27 @@ import java.util.HashMap;
 
 public final class ProjectLoader {
 	private static final CustomLogger LOGGER = new CustomLogger(ProjectLoader.class);
-	private static int startYear;
-	private static int endtYear;
-	private static int currentYear;
 	private static Path projectPath;
 
 	private static ArrayList<String> scenariosList = new ArrayList<>();
 	private static HashMap<String, String> scenariosHash = new HashMap<>();
-	static ArrayList<Path> allfilesPathInData;
+	private static ArrayList<Path> allfilePathsInDataDirectory;
 	private static String scenario;
 	public static String WorldName = "";
 
-	public static CellsLoader cellsSet = new CellsLoader();
-	public static MaskRestrictionDataLoader Maskloader = new MaskRestrictionDataLoader();
 	
+	public static MaskRestrictionDataLoader Maskloader = new MaskRestrictionDataLoader();
 
 	public static void pathInitialisation(Path p) {
 		projectPath = p;
-		allfilesPathInData = PathTools.findAllFiles(projectPath);
+		allfilePathsInDataDirectory = PathTools.findAllFilePaths(projectPath);
 		initialSenarios();
 	}
 
-	public static void modelInitialisation() {
-		pathInitialisation(Paths.get(ConfigLoader.config.project_path));
-		setScenario(ConfigLoader.config.scenario);
-
-		CellsLoader.loadCapitalsList();
-		ServiceSet.loadServiceList();
-		cellsSet.loadMap();
-		RegionClassifier.initialation();
-		ServiceWeightLoader.updateWorldWeight();
-		AFTsLoader.hashAgentNbrRegions();
-		MaskRestrictionDataLoader.allMaskAndRistrictionUpdate();
-		
-	}
 
 	static void initialSenarios() {
 		Path path = PathTools.fileFilter(File.separator + "scenarios.csv").iterator().next();
-		HashMap<String, ArrayList<String>> hash = ReaderFile.ReadAsaHash(path);
+		HashMap<String, ArrayList<String>> hash = CsvProcessors.ReadAsaHash(path);
 		setScenariosList(hash.get("Name"));
 		for (String scenario : scenariosList) {
 			try {
@@ -68,36 +50,10 @@ public final class ProjectLoader {
 				break;
 			}
 		}
-		setScenario(getScenariosList().get(1));
-
 	}
 
 	public static ArrayList<Path> getAllfilesPathInData() {
-		return allfilesPathInData;
-	}
-
-	public static int getStartYear() {
-		return startYear;
-	}
-
-	public static void setStartYear(int startYear) {
-		ProjectLoader.startYear = startYear;
-	}
-
-	public static int getEndtYear() {
-		return endtYear;
-	}
-
-	public static void setEndtYear(int endtYear) {
-		ProjectLoader.endtYear = endtYear;
-	}
-
-	public static int getCurrentYear() {
-		return currentYear;
-	}
-
-	public static void setCurrentYear(int currentYear) {
-		ProjectLoader.currentYear = currentYear;
+		return allfilePathsInDataDirectory;
 	}
 
 	public static Path getProjectPath() {
@@ -113,7 +69,7 @@ public final class ProjectLoader {
 	}
 
 	public static void setAllfilesPathInData(ArrayList<Path> allfilesPathInData) {
-		ProjectLoader.allfilesPathInData = allfilesPathInData;
+		ProjectLoader.allfilePathsInDataDirectory = allfilesPathInData;
 	}
 
 	public static String getScenario() {
@@ -123,11 +79,10 @@ public final class ProjectLoader {
 	public static void setScenario(String scenario) {
 		ProjectLoader.scenario = scenario;
 		String[] temp = scenariosHash.get(scenario).split("_");
-		startYear = (int) Utils.sToD(temp[0]);
-		currentYear = startYear;
-		endtYear = (int) Utils.sToD(temp[1]);
-		LOGGER.info(scenario + "--> startYear= " + startYear + ", endtYear " + endtYear);
+		Timestep.setStartYear((int) Utils.sToD(temp[0]));
+		Timestep.setCurrentYear(Timestep.getStartYear());
+		Timestep.setEndtYear((int) Utils.sToD(temp[1]));
+		LOGGER.info(scenario + "--> startYear= " + Timestep.getStartYear() + ", endtYear " + Timestep.getEndtYear());
 	}
-	
 
 }

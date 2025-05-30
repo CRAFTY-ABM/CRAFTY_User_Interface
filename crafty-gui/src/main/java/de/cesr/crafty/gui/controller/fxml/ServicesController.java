@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.DemandModel;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceDemandLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceWeightLoader;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
@@ -67,7 +68,7 @@ public class ServicesController {
 		System.out.println("initialize " + getClass().getSimpleName());
 
 		new LineChartTools().lineChart((Pane) demandsChart.getParent(), demandsChart,
-				DemandModel.serialisationWorldDemand());
+				ServiceDemandLoader.serialisationWorldDemand());
 		String ItemName = "Save as CSV";
 		Consumer<String> action = x -> {
 			SaveAs.exportLineChartDataToCSV(demandsChart);
@@ -78,7 +79,7 @@ public class ServicesController {
 		MousePressed.mouseControle((Pane) weightsChart.getParent(), weightsChart, othersMenuItems);
 		// =====
 		new LineChartTools().lineChart((Pane) weightsChart.getParent(), weightsChart,
-				DemandModel.serialisationWorldWeight());
+				ServiceWeightLoader.serialisationWorldWeight());
 
 		Tools.forceResisingWidth(TopBox, hboxDemandWeight);
 
@@ -123,7 +124,7 @@ public class ServicesController {
 		// initialise container
 		Map<String, Double> hash = new HashMap<>();
 		// loop for Services
-		CellsLoader.getCapitalsList().forEach(capitalName -> {
+		CapitalUpdater.getCapitalsList().forEach(capitalName -> {
 			// loop for AFTs
 			AFTsLoader.getActivateAFTsHash().forEach((aftName, a) -> {
 				// aggreagte by service
@@ -143,7 +144,7 @@ public class ServicesController {
 		// loop for AFTs
 		AFTsLoader.getActivateAFTsHash().forEach((aftName, a) -> {
 			// loop for Services
-			CellsLoader.getCapitalsList().forEach(capitalName -> {
+			CapitalUpdater.getCapitalsList().forEach(capitalName -> {
 				// aggreagte by service
 				if (a.getSensitivity().get((capitalName + "|" + serviceName)) != null
 						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0) {

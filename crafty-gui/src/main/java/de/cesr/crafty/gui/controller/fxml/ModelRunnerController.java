@@ -12,9 +12,12 @@ import java.util.stream.Collectors;
 
 import de.cesr.crafty.core.cli.Config;
 import de.cesr.crafty.core.cli.ConfigLoader;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.main.MainHeadless;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
@@ -22,10 +25,8 @@ import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.Tools;
-import de.cesr.crafty.gui.main.FxMain;
-import de.cesr.crafty.core.model.ModelRunner;
-import de.cesr.crafty.core.model.RegionClassifier;
 import de.cesr.crafty.core.output.Listener;
+import de.cesr.crafty.core.updaters.SupplyUpdater;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import javafx.animation.KeyFrame;
@@ -73,7 +74,6 @@ public class ModelRunnerController {
 	private ScrollPane scroll;
 
 	public String colorDisplay = "AFT";
-	public static ModelRunner runner;
 
 	Timeline timeline;
 
@@ -99,13 +99,11 @@ public class ModelRunnerController {
 		initializeGridpane(3);
 		Tools.forceResisingWidth(TopBox);
 		Tools.forceResisingHeight(1, scroll);
-
 	}
 
 	public static void init() {
-		runner = new ModelRunner();
-		ModelRunner.setup();
-		tick = new AtomicInteger(ProjectLoader.getStartYear());
+
+		tick = new AtomicInteger(Timestep.getStartYear());
 	}
 
 	void initializeGridpane(int colmunNBR) {
@@ -151,8 +149,8 @@ public class ModelRunnerController {
 	@FXML
 	public void oneStep() {
 		LOGGER.info("------------------- Start of Tick  |" + tick.get() + "| -------------------");
-		ProjectLoader.setCurrentYear(tick.get());
-		runner.step();
+		Timestep.setCurrentYear(tick.get());
+		MainHeadless.runner.step();
 		mapSynchronisation();
 		tickTxt.setText(tick.toString());
 		updateSupplyDemandLineChart();
@@ -161,22 +159,22 @@ public class ModelRunnerController {
 
 	private void mapSynchronisation() {
 		if (Config.mapSynchronisation
-				&& ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear()) % Config.mapSynchronisationGap == 0
-						|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
+				&& ((Timestep.getCurrentYear() - Timestep.getStartYear()) % Config.mapSynchronisationGap == 0
+						|| Timestep.getCurrentYear() == Timestep.getEndtYear())) {
 			CellsCanvas.colorMap(colorDisplay);
 		}
 	}
 
 	private void updateSupplyDemandLineChart() {
-		if (Config.chartSynchronisation && ((ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear())
-				% Config.chartSynchronisationGap == 0
-				|| ProjectLoader.getCurrentYear() == ProjectLoader.getEndtYear())) {
+		if (Config.chartSynchronisation
+				&& ((Timestep.getCurrentYear() - Timestep.getStartYear()) % Config.chartSynchronisationGap == 0
+						|| Timestep.getCurrentYear() == Timestep.getEndtYear())) {
 			AtomicInteger m = new AtomicInteger();
 			ServiceSet.getServicesList().forEach(service -> {
 				lineChart.get(m.get()).getData().get(0).getData().add(new XYChart.Data<>(tick.get(),
 						ServiceSet.worldService.get(service).getDemands().get(tick.get())));
 				lineChart.get(m.get()).getData().get(1).getData()
-						.add(new XYChart.Data<>(tick.get(), runner.totalSupply.get(service)));
+						.add(new XYChart.Data<>(tick.get(), SupplyUpdater.totalSupply.get(service)));
 				m.getAndIncrement();
 			});
 			ObservableList<Series<Number, Number>> observable = lineChart.get(lineChart.size() - 1).getData();
@@ -212,7 +210,7 @@ public class ModelRunnerController {
 	}
 
 	private void scheduleIteravitveTicks(Duration delay) {
-		if (ProjectLoader.getCurrentYear() > ProjectLoader.getEndtYear()) {
+		if (Timestep.getCurrentYear() > Timestep.getEndtYear()) {
 			// Stop if max iterations reached
 			if (ConfigLoader.config.generate_output_files)
 				displayRunAsOutput();
@@ -232,7 +230,7 @@ public class ModelRunnerController {
 			// Calculate the delay for the next tick to maintain the rhythm
 			long delayForNextTick = Math.max(300, (System.currentTimeMillis() - startTime) / 3);
 			// Schedule the next tick
-			System.out.println("Tick=...." + ProjectLoader.getCurrentYear());
+			System.out.println("Tick=...." + Timestep.getCurrentYear());
 			scheduleIteravitveTicks(Duration.millis(delayForNextTick));
 
 		}));
@@ -242,11 +240,11 @@ public class ModelRunnerController {
 	@FXML
 	public void stop() {
 
-		tick.set(ProjectLoader.getStartYear());
-		ProjectLoader.setCurrentYear(ProjectLoader.getStartYear());
-		ProjectLoader.cellsSet.loadMap();
+		tick.set(Timestep.getStartYear());
+		Timestep.setCurrentYear(Timestep.getStartYear());
+		ModelRunner.cellsSet.initialize();
 		CellsCanvas.colorMap();
-		RegionClassifier.serviceupdater();
+		ServiceSet.serviceupdater();
 
 		try {
 			timeline.stop();
@@ -274,10 +272,10 @@ public class ModelRunnerController {
 			s1.setName("Demand " + service);
 			s2.setName("Supply " + service);
 			LineChart<Number, Number> l = new LineChart<>(
-					new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
+					new NumberAxis(Timestep.getStartYear(), Timestep.getEndtYear(), 5), new NumberAxis());
 			l.getData().add(s1);
 			l.getData().add(s2);
-			LineChartTools.configurexAxis(l, ProjectLoader.getStartYear(), ProjectLoader.getEndtYear());
+			LineChartTools.configurexAxis(l, Timestep.getStartYear(), Timestep.getEndtYear());
 			lineChart.add(l);
 			LineChartTools.addSeriesTooltips(l);
 
@@ -291,7 +289,7 @@ public class ModelRunnerController {
 			MousePressed.mouseControle(TopBox, l, othersMenuItems);
 		});
 		LineChart<Number, Number> l = new LineChart<>(
-				new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
+				new NumberAxis(Timestep.getStartYear(), Timestep.getEndtYear(), 5), new NumberAxis());
 		lineChart.add(l);
 
 		AFTsLoader.getAftHash().forEach((name, a) -> {
@@ -308,12 +306,11 @@ public class ModelRunnerController {
 	}
 
 	Alert simulationFolderName() {
-		
 		if (!ConfigLoader.config.generate_output_files) {
 			return null;
 		}
-		ConfigLoader.config.generate_map_output_files=true;
-		Listener.initializeListYears();
+		ConfigLoader.config.generate_map_output_files = true;
+		Listener.initializeListExportingYearsMap();
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setHeaderText("Please enter OutPut folder name");
 		String cofiguration = Listener.exportConfigurationFile();

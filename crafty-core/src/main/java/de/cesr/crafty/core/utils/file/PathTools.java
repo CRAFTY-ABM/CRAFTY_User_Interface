@@ -109,7 +109,7 @@ public class PathTools {
 		}
 	}
 
-	public static ArrayList<Path> findAllFiles(Path path) {
+	public static ArrayList<Path> findAllFilePaths(Path path) {
 		ArrayList<Path> Listpathe = new ArrayList<>();
 		final File folder = path.toFile();
 		creatListPaths(folder, Listpathe);
@@ -166,7 +166,7 @@ public class PathTools {
 				}
 			}
 		} else {
-			LOGGER.error("Folder not found: " + folderPath);
+			LOGGER.warn("Folder not found: " + folderPath);
 		}
 		return filePaths;
 	}

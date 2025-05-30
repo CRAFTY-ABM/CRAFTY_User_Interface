@@ -1,19 +1,16 @@
 package de.cesr.crafty.gui.controller.fxml;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.Aft;
-import de.cesr.crafty.core.model.Cell;
-import de.cesr.crafty.core.model.ManagerTypes;
-import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.core.crafty.Aft;
+import de.cesr.crafty.core.crafty.Cell;
+import de.cesr.crafty.core.crafty.ManagerTypes;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.PieChartTools;
@@ -32,7 +29,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.input.MouseEvent;
 
 public class RegionController {
@@ -144,7 +140,7 @@ public class RegionController {
 	private void fillGeneralVbox() {
 		Map<String, Double> capitalAverage = new HashMap<>();
 
-		CellsLoader.getCapitalsList().forEach(capitalName -> {
+		CapitalUpdater.getCapitalsList().forEach(capitalName -> {
 			RegionCells.values().forEach(c -> {
 				capitalAverage.merge(capitalName, c.getCapitals().get(capitalName) / RegionCells.size(), Double::sum);
 			});

@@ -7,10 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.AftCategorised;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.PieChartTools;
@@ -52,9 +51,8 @@ public class AFTsMapsController {
 
 		initilasePieChart();
 		initializeGridpane(3);
- 		Tools.forceResisingWidth(TopBox);
+		Tools.forceResisingWidth(TopBox);
 	}
-
 
 	void initilasePieChart() {
 		if (AftCategorised.aftCategories.size() > 0) {
@@ -130,8 +128,7 @@ public class AFTsMapsController {
 		// * add menu to PiChart*//
 		HashMap<String, Consumer<String>> newItemMenu = new HashMap<>();
 		Consumer<String> reset = x -> {
-			ProjectLoader.cellsSet.AFtsSet.agentsColorinitialisation();
-			ProjectLoader.cellsSet.AFtsSet.forEach((a) -> {
+			AFTsLoader.getAftHash().values().forEach((a) -> {
 				color.put(a.getLabel(), Color.web(a.getColor()));
 			});
 			new PieChartTools().updateChart(convertedMap, color, chart, false);

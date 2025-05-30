@@ -16,9 +16,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.Cell;
+import de.cesr.crafty.core.crafty.Cell;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.Utils;
 

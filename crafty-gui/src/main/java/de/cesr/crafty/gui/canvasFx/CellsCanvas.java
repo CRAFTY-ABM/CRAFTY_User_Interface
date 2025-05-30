@@ -19,12 +19,13 @@ import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.controller.fxml.RegionController;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
-import de.cesr.crafty.core.dataLoader.AftCategorised;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.MaskRestrictionDataLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.Aft;
-import de.cesr.crafty.core.model.Cell;
+import de.cesr.crafty.core.crafty.Aft;
+import de.cesr.crafty.core.crafty.Cell;
+import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -48,7 +49,6 @@ import javafx.scene.paint.Color;
 
 public class CellsCanvas {
 	private static final CustomLogger LOGGER = new CustomLogger(CellsCanvas.class);
-	public static boolean isPlotedMap = false;
 	private static Canvas canvas;
 	public static GraphicsContext gc;
 	public static PixelWriter pixelWriter;
@@ -59,16 +59,19 @@ public class CellsCanvas {
 
 	public static Group root = new Group();
 	public static SubScene subScene = new SubScene(root, FxMain.defaultWidth / 2, FxMain.defaultHeight);
+	public static int maxX, maxY, minX, minY;
 
 	public static void plotCells() {
-		isPlotedMap = true;
+		initialMaxMinXY();
 
-		LOGGER.info(
-				"matrix size: " + (CellsLoader.maxX - CellsLoader.minX) + "," + (CellsLoader.maxY - CellsLoader.minY));
-		canvas = new Canvas((CellsLoader.maxX - CellsLoader.minX) * Cell.getSize(),
-				(CellsLoader.maxY - CellsLoader.minY) * Cell.getSize());
+		LOGGER.info("matrix size: " + (maxX - minX) + "," + (maxY - minY));
+		int nbrOfCells = CellsLoader.hashCell.size();
+		if (nbrOfCells < 1000) {// temporal for the visualization of very small maps
+			Cell.setSize(200);
+		}
+		canvas = new Canvas((maxX - minX) * Cell.getSize(), (maxY - minY) * Cell.getSize());
 		gc = canvas.getGraphicsContext2D();
-		writableImage = new WritableImage(CellsLoader.maxX, CellsLoader.maxY);
+		writableImage = new WritableImage(maxX, maxY);
 		pixelWriter = writableImage.getPixelWriter();
 		root.getChildren().clear();
 		root.getChildren().add(canvas);
@@ -77,6 +80,20 @@ public class CellsCanvas {
 		FxMain.camera.defaultcamera(canvas, subScene);
 		LOGGER.info("Number of cells = " + CellsLoader.hashCell.size());
 		MapControlerBymouse();
+	}
+
+	private static void initialMaxMinXY() {
+		ArrayList<Integer> X = new ArrayList<>();
+		ArrayList<Integer> Y = new ArrayList<>();
+
+		CellsLoader.hashCell.values().forEach(c -> {
+			X.add(c.getX());
+			Y.add(c.getY());
+		});
+		maxX = Collections.max(X) + 1;
+		maxY = Collections.max(Y) + 1;
+		minX = Collections.min(X);
+		minY = Collections.min(Y);
 	}
 
 	public static void ColorP(Cell c, Color color) {
@@ -118,9 +135,6 @@ public class CellsCanvas {
 	}
 
 	public static void colorMap() {
-		if (!isPlotedMap) {
-			return;
-		}
 		LOGGER.info("Changing the map colors...");
 		Set<Double> values = Collections.synchronizedSet(new HashSet<>());
 		if (colortype.equalsIgnoreCase("Agent") || colortype.equalsIgnoreCase("AFT")) {
@@ -131,7 +145,7 @@ public class CellsCanvas {
 					ColorP(c, Color.GRAY);
 				}
 			});
-		} else if (CellsLoader.getCapitalsList().contains(colortype)) {
+		} else if (CapitalUpdater.getCapitalsList().contains(colortype)) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				ColorP(c, ColorsTools.getColorForValue(c.getCapitals().get(colortype)));
 			});

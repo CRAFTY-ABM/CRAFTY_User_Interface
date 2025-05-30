@@ -3,7 +3,6 @@ package de.cesr.crafty.gui.utils.graphical;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,8 +10,9 @@ import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.analysis.interpolation.LoessInterpolator;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.gui.utils.analysis.MixedLineChart;
 import de.cesr.crafty.gui.utils.analysis.MultiShadowLineChart;
 import javafx.scene.Node;
@@ -38,7 +38,7 @@ public class LineChartTools {
 		if (hash == null) {
 			return;
 		}
-		configurexAxis(lineChart, ProjectLoader.getStartYear(), ProjectLoader.getEndtYear());
+		configurexAxis(lineChart, Timestep.getStartYear(), Timestep.getEndtYear());
 		lineChart.getData().clear();
 		Series<Number, Number>[] series = new XYChart.Series[hash.size()];
 
@@ -96,7 +96,7 @@ public class LineChartTools {
 					K.getAndIncrement();
 				}
 			});
-			if (ProjectLoader.cellsSet != null)
+			if (ModelRunner.cellsSet != null)
 				labelcolor(lineChart);
 			((LineChart<Number, Number>) lineChart).setCreateSymbols(false);
 		}

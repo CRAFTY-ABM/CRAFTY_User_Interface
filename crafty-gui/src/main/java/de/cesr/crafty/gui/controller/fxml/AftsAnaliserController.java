@@ -2,8 +2,8 @@ package de.cesr.crafty.gui.controller.fxml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.model.ManagerTypes;
+import de.cesr.crafty.core.crafty.ManagerTypes;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.fxml.FXML;

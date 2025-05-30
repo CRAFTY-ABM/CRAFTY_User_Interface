@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import de.cesr.crafty.core.model.Cell;
+import de.cesr.crafty.core.crafty.Cell;
 
 
 

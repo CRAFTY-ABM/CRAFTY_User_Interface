@@ -13,6 +13,10 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 
+/**
+ * @author Mohamed Byari
+ *
+ */
 
 public class CustomLogger {
 

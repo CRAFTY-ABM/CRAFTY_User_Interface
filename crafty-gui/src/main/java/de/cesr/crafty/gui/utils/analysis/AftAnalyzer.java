@@ -13,12 +13,12 @@ import java.util.function.Consumer;
 
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
-import de.cesr.crafty.core.model.Cell;
-import de.cesr.crafty.core.model.ManagerTypes;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
-import de.cesr.crafty.core.model.Aft;
+import de.cesr.crafty.core.crafty.Aft;
+import de.cesr.crafty.core.crafty.Cell;
+import de.cesr.crafty.core.crafty.ManagerTypes;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
@@ -37,7 +37,7 @@ public class AftAnalyzer {
 
 	static ConcurrentHashMap<String, Double> capitalRandomGenerator() {
 		ConcurrentHashMap<String, Double> RadnomCapitalSample = new ConcurrentHashMap<>();
-		CellsLoader.getCapitalsList().forEach(cn -> {
+		CapitalUpdater.getCapitalsList().forEach(cn -> {
 			RadnomCapitalSample.put(cn, Math.random());
 		});
 		return RadnomCapitalSample;

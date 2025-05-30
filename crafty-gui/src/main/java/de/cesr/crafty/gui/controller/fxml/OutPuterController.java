@@ -15,12 +15,16 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
-import de.cesr.crafty.core.dataLoader.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.AftCategorised;
-import de.cesr.crafty.core.dataLoader.CellsLoader;
+import de.cesr.crafty.core.crafty.Aft;
+import de.cesr.crafty.core.crafty.AftCategory;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
-import de.cesr.crafty.core.dataLoader.ReaderFile;
-import de.cesr.crafty.core.dataLoader.ServiceSet;
+import de.cesr.crafty.core.dataLoader.CsvProcessors;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.modelRunner.ModelRunner;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
@@ -33,8 +37,6 @@ import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.SankeyPlotGraph;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.main.FxMain;
-import de.cesr.crafty.core.model.Aft;
-import de.cesr.crafty.core.model.AftCategory;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -200,7 +202,7 @@ public class OutPuterController {
 		}
 		if (outputpath != null) {
 			ArrayList<String> yearList = new ArrayList<>();
-			PathTools.findAllFiles(outputpath).forEach(str -> {
+			PathTools.findAllFilePaths(outputpath).forEach(str -> {
 				File file = str.toFile();
 				String tmp = new File(file.getParent()).getName() + File.separator + file.getName();
 
@@ -224,7 +226,7 @@ public class OutPuterController {
 				String newfolder = PathTools
 						.makeDirectory(outputpath + File.separator + OutPutTabController.radioColor[ii].getText());
 				yearChoice.getItems().forEach(filepath -> {
-					ProjectLoader.cellsSet.servicesAndOwneroutPut(filepath, outputpath.toString());
+					ModelRunner.cellsSet.servicesAndOwneroutPut(filepath, outputpath.toString());
 					CellsCanvas.colorMap(OutPutTabController.radioColor[ii].getText());
 					String fileyear = new File(filepath).getName().replace(".csv", "").replace("-Cell-", "");
 					for (String scenario : ProjectLoader.getScenariosList()) {
@@ -468,7 +470,7 @@ public class OutPuterController {
 	}
 
 	void newOutPut(String year) {
-		ProjectLoader.cellsSet.servicesAndOwneroutPut(year, outputpath.toString());
+		ModelRunner.cellsSet.servicesAndOwneroutPut(year, outputpath.toString());
 		for (int i = 0; i < OutPutTabController.radioColor.length; i++) {
 			if (OutPutTabController.radioColor[i].isSelected()) {
 				CellsCanvas.colorMap(OutPutTabController.radioColor[i].getText());
@@ -482,7 +484,7 @@ public class OutPuterController {
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
 		ArrayList<Path> servicespath = PathTools.fileFilter(outputpath.toString(), serviceDemand);
-		HashMap<String, ArrayList<String>> reder = ReaderFile.ReadAsaHash(servicespath.get(0));
+		HashMap<String, ArrayList<String>> reder = CsvProcessors.ReadAsaHash(servicespath.get(0));
 
 		ArrayList<HashMap<String, List<Double>>> has = new ArrayList<>();
 		ServiceSet.getServicesList().forEach(serviceName -> {
@@ -506,7 +508,7 @@ public class OutPuterController {
 
 		has.add(updatComposition(outputpath.toString(), aftComposition));
 		LineChart<Number, Number> chart = new LineChart<>(
-				new NumberAxis(ProjectLoader.getStartYear(), ProjectLoader.getEndtYear(), 5), new NumberAxis());
+				new NumberAxis(Timestep.getStartYear(), Timestep.getEndtYear(), 5), new NumberAxis());
 		chart.setTitle("Land use trends");
 		lineChart.add(chart);
 		int j = 0, k = 0;
@@ -546,7 +548,7 @@ public class OutPuterController {
 
 	HashMap<String, List<Double>> updatComposition(String path, String nameFile) {
 
-		HashMap<String, ArrayList<String>> reder = ReaderFile.ReadAsaHash(PathTools.fileFilter(path, nameFile).get(0));
+		HashMap<String, ArrayList<String>> reder = CsvProcessors.ReadAsaHash(PathTools.fileFilter(path, nameFile).get(0));
 		HashMap<String, List<Double>> has = new HashMap<>();
 
 		reder.forEach((name, value) -> {
@@ -580,7 +582,7 @@ public class OutPuterController {
 				Path path = pathsList.stream().filter(p -> p.getFileName().toString().equals(newValue)).findFirst()
 						.orElse(pathsList.get(0));
 				// readfile
-				HashMap<String, Double> rawData = ReaderFile.readCsvToMatrixMap(path);
+				HashMap<String, Double> rawData = CsvProcessors.readCsvToMatrixMap(path);
 				GridPane grid = new GridPane();
 				grid.setId("grid");
 				AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
@@ -614,20 +616,20 @@ public class OutPuterController {
 
 	}
 
-	private void chengeMapColorToUtility() {
-		// also add it in png plot head less
-	}
-
-	private void plotLandEventTracker() {
-		// need a Map<> in listnera and frequncy variable
-	}
+//	private void chengeMapColorToUtility() {
+//		// also add it in png plot head less
+//	}
+//
+//	private void plotLandEventTracker() {
+//		// need a Map<> in listnera and frequncy variable
+//	}
 
 	private void PlotLandEventNbr() {
 		// check if the is a file
 		ArrayList<Path> pathsList = PathTools.fileFilter("-landEventCounter.csv");
 		if (pathsList != null && pathsList.size() != 0) {
 			// readfile as has-double
-			HashMap<String, ArrayList<Double>> data = ReaderFile.ReadAsaHashDouble(pathsList.get(0));
+			HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
 			data.remove("year");
 			Map<String, List<Double>> m = data.entrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
@@ -645,7 +647,7 @@ public class OutPuterController {
 		ArrayList<Path> pathsList = PathTools.fileFilter("-AverageUtilities.csv");
 		if (pathsList != null && pathsList.size() != 0) {
 			// readfile as has-double
-			HashMap<String, ArrayList<Double>> data = ReaderFile.ReadAsaHashDouble(pathsList.get(0));
+			HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
 			data.remove("Year");
 			Map<String, List<Double>> m = data.entrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
