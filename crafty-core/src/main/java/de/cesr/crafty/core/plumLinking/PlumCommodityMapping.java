@@ -50,9 +50,9 @@ public class PlumCommodityMapping {
 		staticFilesinitialisation();
 	}
 
-	void fromPlumToDemands(int tick) {
+	void fromPlumDataToDemandsAndPrice(int tick) {
 		iterativeFileReadingAndFilter(tick);
-		mappingDemands();
+		mappingDemandsAndPrice();
 	}
 
 	void staticFilesinitialisation() {
@@ -68,6 +68,7 @@ public class PlumCommodityMapping {
 				LinkingTools.readCsvIntoList(PathTools.fileFilter(allpaths, "countryDemand.txt").get(0)), FilterHash);
 		domestic = LinkingTools.filterMapsByCriteria(
 				LinkingTools.readCsvIntoList(PathTools.fileFilter(allpaths, "domestic.txt").get(0)), FilterHash);
+		System.out.println("||" + PathTools.fileFilter(allpaths, "domestic.txt").get(0));
 	}
 
 	List<Map<String, String>> bio_crop_demand_df() {
@@ -89,7 +90,7 @@ public class PlumCommodityMapping {
 		return merge;
 	}
 
-	void mappingDemands() {
+	void mappingDemandsAndPrice() {
 		List<Map<String, String>> domistic = domestic_prod();
 
 		// split by countries

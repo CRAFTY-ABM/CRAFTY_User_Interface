@@ -18,14 +18,14 @@ public class MainCoupling {
 
 	public static void main(String[] args) {
 
-//		initialPlum(args);
+		initialPlum(args);
 		MainHeadless.initializeConfig(args);
 		ProjectLoader.modelInitialisation();
 		outputPathConfig();
 		ModelRunner.setup();
 		Coupler coupler = new Coupler();
 		coupler.initialEquilibruim();
-//		PlumConnecter.initialze();
+		PlumConnecter.initialze();
 
 		for (int year = ProjectLoader.getStartYear(); year <= ProjectLoader.getEndtYear(); year++) {
 			System.out.println("--------- Run " + year + "----------");

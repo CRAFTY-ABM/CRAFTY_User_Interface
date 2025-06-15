@@ -11,7 +11,7 @@ public class PlumToCrafty {
 
 	public void initialize() {
 		mapper.initialize();
-		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
+		mapper.fromPlumDataToDemandsAndPrice(ProjectLoader.getStartYear());
 		replaceCraftyDemands(ProjectLoader.getStartYear());
 
 		ModelRunner.regionsModelRunner.values().forEach(rRunner -> {
@@ -21,7 +21,7 @@ public class PlumToCrafty {
 
 	public void iterative(int year) {
 		System.out.println("mapper.fromPlumTickToCraftyDemands(year)..." + year);
-		mapper.fromPlumToDemands(year);
+		mapper.fromPlumDataToDemandsAndPrice(year);
 		System.out.println("	replaceCraftyDemands(year);..." + year);
 		replaceCraftyDemands(year);
 		// updateCalibrator();

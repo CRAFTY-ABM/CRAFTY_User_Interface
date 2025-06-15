@@ -26,7 +26,7 @@ public class Coupler {
 
 	public Coupler() {
 		mapper.initialize();
-		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
+		mapper.fromPlumDataToDemandsAndPrice(ProjectLoader.getStartYear());
 		initializeContainres();
 	}
 
@@ -65,7 +65,7 @@ public class Coupler {
 
 	private void initialPlumDemandEquilibriumFactor() {
 		int year = ProjectLoader.getStartYear();
-		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
+		mapper.fromPlumDataToDemandsAndPrice(ProjectLoader.getStartYear());
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
 				service.getDemands().put(year, mapper.totalDemands.get(serviceName));
@@ -77,7 +77,7 @@ public class Coupler {
 
 	private void initialPlumDemandsEquilibruimFactorRegion() {
 		int year = ProjectLoader.getStartYear();
-		mapper.fromPlumToDemands(ProjectLoader.getStartYear());
+		mapper.fromPlumDataToDemandsAndPrice(ProjectLoader.getStartYear());
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
 				service.getDemands().put(year,
@@ -98,8 +98,8 @@ public class Coupler {
 	}
 
 	private void yearlyPricesAndDemandsByRegion(int year) {
-		System.out.println("convert Demands and Price year: " + year);
-		mapper.fromPlumToDemands(year);
+		System.out.println("yearlyPricesAndDemandsByRegion:  convert Demands and Price year: " + year);
+		mapper.fromPlumDataToDemandsAndPrice(year);
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			String country = RegionalRunner.R.getName();
 			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
@@ -117,7 +117,7 @@ public class Coupler {
 
 	private void yearlyPricesAndDemands(int year) {
 		System.out.println("convert Demands and Price year: " + year);
-		mapper.fromPlumToDemands(year);
+		mapper.fromPlumDataToDemandsAndPrice(year);
 		ModelRunner.regionsModelRunner.values().forEach(RegionalRunner -> {
 			RegionalRunner.R.getServicesHash().forEach((serviceName, service) -> {
 				service.getDemands().put(year, mapper.totalDemands.get(serviceName) / service.getCalibration_Factor());
