@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>de.cesr</groupId>
+		<artifactId>CraftyProject</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>crafty-gui</artifactId>
+	<packaging>jar</packaging>
+	<name>crafty-gui</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>22</maven.compiler.release>
+		<javafx.version>24.0.1</javafx.version>
+		<javafx.platform>win</javafx.platform>
+		<javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+		<maven.shade.plugin.version>3.5.1</maven.shade.plugin.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>de.cesr.crafty.gui.main.FxMain</mainClass>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>de.cesr.crafty.gui.main.FxMain</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.5.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>de.cesr.crafty.gui.main.FxMain</mainClass>
+								</transformer>
+							</transformers>
+							<artifactSet>
+								<excludes>
+									<exclude>org.openjfx:javafx-base</exclude>
+									<exclude>org.openjfx:javafx-controls</exclude>
+									<exclude>org.openjfx:javafx-fxml</exclude>
+									<exclude>org.openjfx:javafx-graphics</exclude>
+									<exclude>org.openjfx:javafx-media</exclude>
+									<exclude>org.openjfx:javafx-swing</exclude>
+									<exclude>org.openjfx:javafx-web</exclude>
+								</excludes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-javafx-sdk</id>
+						<phase>prepare-package</phase>
+						<configuration>
+							<target>
+								<!-- Make the fxjars/lib and fxjars/bin
+								directories -->
+								<mkdir
+									dir="${project.build.directory}/fxjars/lib" />
+								<mkdir
+									dir="${project.build.directory}/fxjars/bin" />
+								<!-- Copy all JARs from SDK lib -->
+								<copy
+									todir="${project.build.directory}/fxjars/lib">
+									<fileset
+										dir="C:/Users/byari-m/Documents/JavafxSDK/javafx-sdk-24.0.1/lib" />
+								</copy>
+								<!-- Copy all DLLs and native files from SDK bin -->
+								<copy
+									todir="${project.build.directory}/fxjars/bin">
+									<fileset
+										dir="C:/Users/byari-m/Documents/JavafxSDK/javafx-sdk-24.0.1/bin" />
+								</copy>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
+			<plugin>
+				<groupId>org.panteleyev</groupId>
+				<artifactId>jpackage-maven-plugin</artifactId>
+				<version>1.8.1</version>
+				<configuration>
+					<inputDirectory>${project.build.directory}</inputDirectory>
+					<destinationDirectory>${project.build.directory}/installer</destinationDirectory>
+					<mainJar>crafty-gui-${project.version}.jar</mainJar>
+					<mainClass>de.cesr.crafty.gui.main.FxMain</mainClass>
+					<name>CraftyGUI</name>
+					<jvmArgs>
+						<jvmArg>--add-opens</jvmArg>
+						<jvmArg>java.base/java.lang=ALL-UNNAMED</jvmArg>
+						<jvmArg>--enable-native-access=ALL-UNNAMED</jvmArg>
+					</jvmArgs>
+					<type>exe</type>
+				</configuration>
+			</plugin>
+
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- internal -->
+		<dependency>
+			<groupId>de.cesr</groupId>
+			<artifactId>crafty-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- JavaFX -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+
+		<!--JavaFX  extras -->
+		<dependency>
+			<groupId>net.mahdilamb</groupId>
+			<artifactId>colormap</artifactId>
+			<version>0.9.511</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.hansolo.fx</groupId>
+			<artifactId>charts</artifactId>
+			<version>21.0.25</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-swing</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.24</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-javafx -->
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-javafx</artifactId>
+			<version>12.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-fontawesome5-pack</artifactId>
+			<version>12.4.0</version>
+		</dependency>
+
+		<!-- Kotlin standard library: needed because charts / colormap call
+		kotlin.random.* -->
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-stdlib-jdk8</artifactId>
+			<version>1.9.24</version>
+		</dependency>
+		<!-- core dependencies -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.20.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.41.0</version>
+		</dependency>
+
+
+	</dependencies>
+</project>

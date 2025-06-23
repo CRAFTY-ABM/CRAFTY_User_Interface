@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Tooltip?>
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.AftsAnaliserController"
+	fx:id="TopBox">
+	<children>
+		<VBox spacing="10.0">
+			<children><!---->
+				<TitledPane animated="true"
+					text="Productivity frequency for a sample of random capital values (1,000 points).">
+					<content>
+						<ScrollPane fx:id="scroll">
+							<GridPane fx:id="grid" hgap="5.0" vgap="5.0" />
+						</ScrollPane>
+					</content>
+				</TitledPane>
+			</children>
+		</VBox>
+	</children>
+</VBox>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.ServicesController"
+	fx:id="TopBox">
+	<children>
+		<TitledPane animated="true" text="Services">
+			<content>
+				<HBox fx:id="hbox">
+					<children>
+						<VBox fx:id="vboxForSliders" />
+						<BarChart fx:id="histoCapitalS"
+							title="The aggregate sensitivity of services to capitals values">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+						<BarChart fx:id="histoAftSensitivity"
+							title="The aggregate sensitivity of service  for each AFT">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+						<BarChart fx:id="histoAftProductivity"
+							title="Optimal productivity level for each AFT">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+					</children>
+				</HBox>
+			</content>
+		</TitledPane>
+		<TitledPane animated="true"
+			text="Demands and Utility Weights">
+			<content>
+				<HBox fx:id="hboxDemandWeight">
+					<LineChart fx:id="demandsChart" title="Demands for all services">
+						<xAxis>
+							<NumberAxis side="BOTTOM" />
+						</xAxis>
+						<yAxis>
+							<NumberAxis side="LEFT" />
+						</yAxis>
+					</LineChart>
+					<LineChart fx:id="weightsChart" title="Utility weights for all services">
+						<xAxis>
+							<NumberAxis side="BOTTOM" />
+						</xAxis>
+						<yAxis>
+							<NumberAxis side="LEFT" />
+						</yAxis>
+					</LineChart>
+				</HBox>
+			</content>
+		</TitledPane>
+	</children>
+</VBox>

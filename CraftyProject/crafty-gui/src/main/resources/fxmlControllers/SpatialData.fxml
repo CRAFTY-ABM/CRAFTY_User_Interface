@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Tooltip?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<TabPane tabClosingPolicy="UNAVAILABLE">
+			<tabs>
+				<Tab text="AFTs Distribution">
+					<!-- <graphic>
+						<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+					</graphic> -->
+					<tooltip>
+						<Tooltip text="AFTs Distribution" />
+					</tooltip>
+					<content>
+						<fx:include source="/fxmlControllers/AFTMaps.fxml" />
+					</content>
+				</Tab>
+	 		<Tab text="Capitals">
+					<!-- <graphic>
+						<FontIcon iconLiteral="fas-layer-group" iconSize="15" />
+					</graphic> -->
+					<tooltip>
+						<Tooltip text="Capitals Distribution" />
+					</tooltip>
+					<content>
+						<fx:include source="/fxmlControllers/Capitals.fxml" />
+					</content>
+				</Tab>
+				<Tab text="LandUseControl">
+					<!-- <graphic>
+						<FontIcon iconLiteral="far-file-alt" iconSize="15" />
+					</graphic> -->
+					<tooltip>
+						<Tooltip text="LandUseControl" />
+					</tooltip>
+					<content>
+						<fx:include source="/fxmlControllers/MasksPane.fxml" /> 
+					</content>
+				</Tab>
+			</tabs>
+		</TabPane>
+	</children>
+</VBox>

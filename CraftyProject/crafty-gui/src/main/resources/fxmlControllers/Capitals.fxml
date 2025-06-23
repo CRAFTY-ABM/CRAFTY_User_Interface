@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.CapitalsController"
+	fx:id="TopBox">
+	<children>
+		<TitledPane animated="true"
+			text="Capitals, AFTs Distribution and GIS Data">
+			<content>
+				<HBox fx:id="hbox">
+					<children>
+						<VBox fx:id="vboxForSliderColors" />
+						<BarChart fx:id="histogramCapitals"
+							title="Frequency of appearance of capital values (%)">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+						<BarChart fx:id="hServiceSensitivity"
+							title="The aggregate sensitivity of capital on production of services">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+						<BarChart fx:id="hAftSensitivity"
+							title="The aggregate sensitivity of capital on production by AFTs">
+							<xAxis>
+								<CategoryAxis />
+							</xAxis>
+							<yAxis>
+								<NumberAxis />
+							</yAxis>
+						</BarChart>
+					</children>
+				</HBox>
+			</content>
+		</TitledPane>
+		<TitledPane animated="true"
+			text="Capitals average trends through Scenarios">
+			<content>
+				<VBox fx:id="vboxAnaliser" />
+			</content>
+		</TitledPane>
+	</children>
+</VBox>
