@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+
+<MenuBar xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.cesr.crafty.gui.controller.fxml.MenuBarController">
+	<Menu text="File">
+		<items>
+			<MenuItem text="Open Projects From File Systeme..."
+				accelerator="Ctrl+Alt+O" onAction="#open">
+			<!-- 	 <graphic>
+					<FontIcon iconLiteral="far-folder" iconSize="15" />
+				</graphic> --> 
+			</MenuItem>
+			<Menu text="Recent Projects" fx:id="recent">
+				<!--  <graphic>
+					<FontIcon iconLiteral="far-folder-open" iconSize="15" />
+				</graphic>  -->
+			</Menu>
+			<SeparatorMenuItem />
+			<MenuItem text="Restart" onAction="#resrart" />
+			<MenuItem text="Exit" onAction="#Exit" />
+		</items>
+	</Menu>
+	<Menu text="Edit">
+		<MenuItem fx:id="dataAnalysis"
+			text="Generate input data analysis directory"
+			onAction="#dataAnalysisDirectory">
+			<!--  <graphic>
+				<FontIcon iconLiteral="far-save" iconSize="15" />
+			</graphic> -->
+		</MenuItem>
+	</Menu>
+	<Menu text="View">
+		<MenuItem text="Map Color Palettes" onAction="#colorPallet" />
+	</Menu>
+	<Menu text="Help">
+		<MenuItem text="CRAFTY Website" onAction="#welcome" />
+	</Menu>
+</MenuBar>

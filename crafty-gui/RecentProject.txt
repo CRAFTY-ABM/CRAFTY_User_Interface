@@ -1,6 +1,0 @@
-
-C:\Users\byari-m\Desktop\Finland
-C:\Users\byari-m\Desktop\Behaviour_Model\CRAFTY-EU_16_behaviour
-C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_20.0
-C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DE_3kmgrid
-C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-5km-data

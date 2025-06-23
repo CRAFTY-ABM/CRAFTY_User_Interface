@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 	<name>CraftyProject</name>
 	<modules>
-		<module>../crafty-core</module>
-		<module>../crafty-gui</module>
+		<module>crafty-core</module>
+		<module>crafty-gui</module>
 	</modules>
 </project>
