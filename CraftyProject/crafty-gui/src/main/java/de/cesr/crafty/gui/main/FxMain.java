@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
-import de.cesr.crafty.core.utils.general.Utils;
 import de.cesr.crafty.gui.utils.camera.Camera;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.application.Application;
