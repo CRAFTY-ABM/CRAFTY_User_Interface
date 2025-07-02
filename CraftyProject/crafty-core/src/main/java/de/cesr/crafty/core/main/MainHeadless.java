@@ -21,8 +21,10 @@ public class MainHeadless {
 		System.out.println("--Starting CRAFTY execution--");
 		initializeConfig(args);
 		ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+		
 		runner = new ModelRunner();
 		runner.start();
+		
 		runner.run();
 	}
 
