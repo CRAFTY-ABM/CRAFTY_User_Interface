@@ -9,33 +9,44 @@ import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
 import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
-import de.cesr.crafty.core.output.Listener;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
 import de.cesr.crafty.core.utils.general.CellsSubSets;
 
 public class Competitiveness {
 	static boolean utilityUsingPrice = true;
 
-	static double utility(Cell c, Aft a, RegionalModelRunner r) {
+	static double utility2(Cell c, Aft a, RegionalModelRunner r) {
 		if (a == null || !a.isInteract()) {
-			c.setUtilityValue(0);
 			return 0;
 		}
-		c.setUtilityValue(ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum());
-		return c.getUtilityValue();
+		return ServiceSet.getServicesList().stream()
+				.mapToDouble(sname -> /*
+										 * r.R.getServicesHash().get(sname).getWeights().get(ProjectLoader.
+										 * getCurrentYear())
+										 **/ r.marginal.get(sname) * c.productivity(a, sname)).sum();
 	}
 
-//	static double utilityPrice(Cell c, Aft a, RegionalModelRunner r) {
-//		if (a == null || !a.isInteract()) {
-//			return 0;
-//		}
-//		int tick = ProjectLoader.getCurrentYear() - ProjectLoader.getStartYear();
-//		return ServiceSet.getServicesList().stream()
-//				.mapToDouble(sname -> (r.R.getServicesHash().get(sname).getWeights().get(tick)
-//						/ r.R.getServicesHash().get(sname).getCalibration_Factor()) * c.productivity(a, sname))
-//				.sum();
-//	}
+	static double /* utilityOnlyPrice */ utility(Cell c, Aft a, RegionalModelRunner r) {
+		if (a == null || !a.isInteract()) {
+			return 0;
+		}
+
+		double sum = ServiceSet.getServicesList().stream().mapToDouble(serviceName -> {
+			Service serv = r.R.getServicesHash().get(serviceName);
+
+			double wNow = serv.getWeights().get(Timestep.getCurrentYear());
+			double wStart = serv.getWeights().get(Timestep.getStartYear());
+
+			double result = (wNow / wStart) * c.productivity(a, serviceName);
+			if (Double.isNaN(result) || Double.isInfinite(result)) {
+				return 0.0;
+			}
+			return result;
+		}).sum();
+
+		return sum;
+	}
 
 	static Aft mostCompetitiveAgent(Cell c, Collection<Aft> setAfts, RegionalModelRunner r) {
 		if (setAfts.size() == 0) {
@@ -80,16 +91,6 @@ public class Competitiveness {
 				}
 			}
 		}
-//		if (ProjectLoader.getCurrentYear() > 2030) {
-//			if (AftCategorised.aftCategories != null && AftCategorised.aftCategories.size() != 0) {
-//				if (c.owner != null && competitor != null) {
-//					if (c.owner.getCategory().getName().equals("forest")
-//							&& !competitor.getCategory().getName().equals("forest")) {
-//						makeCompetition = false;
-//					}
-//				}
-//			}
-//		}
 		return makeCompetition;
 	}
 
@@ -140,7 +141,6 @@ public class Competitiveness {
 
 	private static void takeOverAcell(Cell c, Aft newOwner) {
 		c.owner = ConfigLoader.config.mutate_on_competition_win ? new Aft(newOwner) : newOwner;
-		Listener.landUseChangeCounter.getAndIncrement();
 	}
 
 	private static double giveInThreshold(Aft owner, Aft competitor) {
@@ -150,7 +150,8 @@ public class Competitiveness {
 			Double sd = AftCategorised.getSD().get(key);
 			// Only use the BehaviorLoader-based mean & sd if BOTH are present AND the
 			// categories differ.
-			if (mean != null && sd != null) {
+			if (mean != null && sd != null
+					&& !owner.getCategory().getName().equals(competitor.getCategory().getName())) {
 				return mean + sd * new Random().nextGaussian();
 			}
 		}

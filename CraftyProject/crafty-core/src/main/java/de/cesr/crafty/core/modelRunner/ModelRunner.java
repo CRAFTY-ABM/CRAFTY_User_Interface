@@ -48,9 +48,9 @@ public class ModelRunner extends AbstractModelRunner {
 		getScheduled().add(aftsUpdater);
 		getScheduled().add(new CellBehaviourUpdater());
 		getScheduled().add(new LandMaskUpdater());
+		getScheduled().add(new SupplyUpdater());
 		getScheduled().add(new Listener());
 		getScheduled().add(new Tracker());
-		getScheduled().add(new SupplyUpdater());
 		getScheduled().add(new RegionsModelRunnerUpdater());
 	}
 
@@ -64,6 +64,7 @@ public class ModelRunner extends AbstractModelRunner {
 			PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
 					Listener.exportConfigurationFile(), false);
 		}
+		
 		demandEquilibrium();
 		for (int i = 0; i <= Timestep.getEndtYear() - Timestep.getStartYear(); i++) {
 			Timestep.setCurrentYear(tick.get());
