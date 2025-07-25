@@ -2,7 +2,6 @@ package de.cesr.crafty.gui.utils.graphical;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
@@ -64,43 +63,9 @@ public class ShadedLineChartApp extends Application {
 			chart.applyCss();
 			chart.layout();
 			for (int i = 0; i < chart.getData().size(); i++) {
-				String seriesClass = ".series" + i;
-				XYChart.Series<Number, Number> series = chart.getData().get(i);
 				Color color = Color.YELLOW;// seriesColors.get(series.getName());
 				if (color == null)
 					continue;
-
-				int r = (int) (color.getRed() * 255);
-				int g = (int) (color.getGreen() * 255);
-				int b = (int) (color.getBlue() * 255);
-				String rgb = r + "," + g + "," + b;
-
-				// fill under the line (30% opacity)
-//				Node fill = chart.lookup(".chart-series-area-fill" + seriesClass);
-//				if (fill != null) {
-//					fill.setStyle("-fx-fill: rgba(" + rgb + ",0.3);");
-//				}
-
-//                // the line itself (full opacity)
-//				Node line = chart.lookup(".chart-series-line" + seriesClass);
-//				if (line != null) {
-//					line.setStyle("-fx-stroke: rgba(" + rgb + ",1);" + "-fx-stroke-width: 2px;");
-//				}
-
-				/* 1) poly-line */
-//				Node poly = chart.lookup(".chart-series-line.series" + i);
-//				if (poly != null) {
-//					poly.setStyle("-fx-stroke:" + rgb + ';');
-//				}
-
-				/* 2) symbols in plot area */
-//				for (Node dot : chart.lookupAll(".chart-line-symbol.series" + i)) {
-//					dot.setStyle("-fx-background-color: red;");
-//					dot.setStyle("-fx-background-color:" + rgb + ", white;" + "-fx-background-insets: 2,3;"
-//							+ "-fx-background-radius: 5px;");
-//
-//				}
-
 			}
 		});
 

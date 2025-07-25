@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -29,8 +33,6 @@ import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.updaters.SupplyUpdater;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -53,7 +55,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.util.Duration;
 import javafx.scene.layout.GridPane;
 
 public class ModelRunnerController {
@@ -75,9 +76,8 @@ public class ModelRunnerController {
 
 	public String colorDisplay = "AFT";
 
-	Timeline timeline;
+//	Timeline timeline;
 
-	public static AtomicInteger tick;
 	ArrayList<LineChart<Number, Number>> lineChart;
 
 	RadioButton[] radioColor;
@@ -86,10 +86,17 @@ public class ModelRunnerController {
 	private boolean startRunin = true;
 	private static final CustomLogger LOGGER = new CustomLogger(ModelRunnerController.class);
 
+	private static final long TARGET_PERIOD_MS = 40; // 25 FPS ≈ 40 ms
+
+	private ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor(r -> {
+		Thread t = new Thread(r, "simulation-worker");
+		t.setDaemon(true);
+		return t;
+	});
+
 	public void initialize() {
 		System.out.println("initialize " + getClass().getSimpleName());
-		init();
-		tickTxt.setText(tick.toString());
+		tickTxt.setText(String.valueOf(Timestep.getStartYear()));
 		lineChart = new ArrayList<>();
 
 		Collections.synchronizedList(lineChart);
@@ -101,9 +108,49 @@ public class ModelRunnerController {
 		Tools.forceResisingHeight(1, scroll);
 	}
 
-	public static void init() {
+	private void scheduleNextStep(long delayMs) {
+		worker.schedule(this::runOneStep, delayMs, TimeUnit.MILLISECONDS);
+	}
 
-		tick = new AtomicInteger(Timestep.getStartYear());
+	/** runs on the worker thread – *never* on FX thread */
+	private void runOneStep() {
+		/* 1) END-CONDITION ------------------------------------------- */
+		if (Timestep.getCurrentYear() > Timestep.getEndtYear()) {
+			System.out.println("------------------------------   End Simulation   ------------------------------");
+			if (ConfigLoader.config.generate_output_files) {
+				Platform.runLater(this::displayRunAsOutput);
+			}
+			worker.shutdownNow();
+			return;
+		}
+		System.out.println("------------------------------   Step:  " + Timestep.getCurrentYear()
+				+ "   ------------------------------");
+
+		/* 2) SIMULATION – core --------------------- */
+		long start = System.nanoTime();
+		MainHeadless.runner.step();
+		long simTime = (System.nanoTime() - start) / 1_000_000; // ms
+
+		/* 3) RENDER – gui ---------------------- */
+		CountDownLatch uiDone = new CountDownLatch(1);
+		Platform.runLater(() -> {
+			renderStep(); // update gui
+			uiDone.countDown();
+		});
+
+		try {
+			uiDone.await();
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+
+		/* 4) SCHEDULE next step -------------------------------------- */
+		long wait = TARGET_PERIOD_MS - simTime;
+		if (wait < 0)
+			wait = 0; // step was slow → start immediately
+		Timestep.setCurrentYear(Timestep.getCurrentYear() + 1);
+		scheduleNextStep(wait);
 	}
 
 	void initializeGridpane(int colmunNBR) {
@@ -125,7 +172,7 @@ public class ModelRunnerController {
 		}
 		for (int i = 0; i < radioColor.length; i++) {
 			int m = i;
-			radioColor[i].setOnAction(e -> {
+			radioColor[i].setOnAction(_ -> {
 				colorDisplay = radioColor[m].getText();
 				CellsCanvas.colorMap(radioColor[m].getText());
 				for (int I = 0; I < radioColor.length; I++) {
@@ -148,13 +195,18 @@ public class ModelRunnerController {
 
 	@FXML
 	public void oneStep() {
-		LOGGER.info("------------------- Start of Tick  |" + tick.get() + "| -------------------");
-		Timestep.setCurrentYear(tick.get());
+		LOGGER.info("------------------- Start of Tick  |" + Timestep.getCurrentYear() + "| -------------------");
 		MainHeadless.runner.step();
+		Platform.runLater(() -> {
+			renderStep();
+		});
+		Timestep.setCurrentYear(Timestep.getCurrentYear() + 1);
+	}
+
+	private void renderStep() {
 		mapSynchronisation();
-		tickTxt.setText(tick.toString());
+		tickTxt.setText(String.valueOf(Timestep.getCurrentYear()));
 		updateSupplyDemandLineChart();
-		tick.getAndIncrement();
 	}
 
 	private void mapSynchronisation() {
@@ -171,31 +223,18 @@ public class ModelRunnerController {
 						|| Timestep.getCurrentYear() == Timestep.getEndtYear())) {
 			AtomicInteger m = new AtomicInteger();
 			ServiceSet.getServicesList().forEach(service -> {
-				lineChart.get(m.get()).getData().get(0).getData().add(new XYChart.Data<>(tick.get(),
-						ServiceSet.worldService.get(service).getDemands().get(tick.get())));
+				lineChart.get(m.get()).getData().get(0).getData().add(new XYChart.Data<>(Timestep.getCurrentYear(),
+						ServiceSet.worldService.get(service).getDemands().get(Timestep.getCurrentYear())));
 				lineChart.get(m.get()).getData().get(1).getData()
-						.add(new XYChart.Data<>(tick.get(), SupplyUpdater.totalSupply.get(service)));
+						.add(new XYChart.Data<>(Timestep.getCurrentYear(), SupplyUpdater.totalSupply.get(service)));
 				m.getAndIncrement();
 			});
 			ObservableList<Series<Number, Number>> observable = lineChart.get(lineChart.size() - 1).getData();
 			List<String> listofNames = observable.stream().map(Series::getName).collect(Collectors.toList());
 			AFTsLoader.hashAgentNbr.forEach((name, value) -> {
-				observable.get(listofNames.indexOf(name)).getData().add(new XYChart.Data<>(tick.get(), value));
+				observable.get(listofNames.indexOf(name)).getData()
+						.add(new XYChart.Data<>(Timestep.getCurrentYear(), value));
 			});
-		}
-	}
-
-	@FXML
-	public void run() {
-		run.setDisable(true);
-		simulationFolderName();
-		if (ConfigLoader.config.export_LOGGER) {
-			CustomLogger
-					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
-		}
-		if (startRunin || !ConfigLoader.config.generate_output_files) {
-			ModelRunner.demandEquilibrium();
-			scheduleIteravitveTicks(Duration.millis(1000));
 		}
 	}
 
@@ -209,60 +248,57 @@ public class ModelRunnerController {
 				.ifPresent(tab -> tabpane.getSelectionModel().select(tab)); // Select the tab if found
 	}
 
-	private void scheduleIteravitveTicks(Duration delay) {
-		if (Timestep.getCurrentYear() > Timestep.getEndtYear()) {
-			// Stop if max iterations reached
-			if (ConfigLoader.config.generate_output_files)
-				displayRunAsOutput();
-			return;
+	@FXML
+	public void run() {
+		run.setDisable(true);
+		simulationFolderName();
+		if (ConfigLoader.config.export_LOGGER) {
+			CustomLogger
+					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
 		}
-		// Stop the old timeline if it's running
-		if (timeline != null) {
-			timeline.stop();
-		}
-		// Create a new timeline for the next tick
-		timeline = new Timeline(new KeyFrame(delay, event -> {
-			long startTime = System.currentTimeMillis();
-			// Perform the simulation update
-			Platform.runLater(() -> {
-				oneStep();
+		if (startRunin || !ConfigLoader.config.generate_output_files) {
+			ModelRunner.demandEquilibrium();
+			worker = Executors.newSingleThreadScheduledExecutor(r -> {
+				Thread t = new Thread(r, "simulation-worker");
+				t.setDaemon(true);
+				return t;
 			});
-			// Calculate the delay for the next tick to maintain the rhythm
-			long delayForNextTick = Math.max(300, (System.currentTimeMillis() - startTime) / 3);
-			// Schedule the next tick
-			System.out.println("Tick=...." + Timestep.getCurrentYear());
-			scheduleIteravitveTicks(Duration.millis(delayForNextTick));
-
-		}));
-		timeline.play();
+			scheduleNextStep(0);
+		}
 	}
 
 	@FXML
 	public void stop() {
-
-		tick.set(Timestep.getStartYear());
-		Timestep.setCurrentYear(Timestep.getStartYear());
-		ModelRunner.cellsSet.initialize();
-		CellsCanvas.colorMap();
-		ServiceSet.serviceupdater();
-
-		try {
-			timeline.stop();
-		} catch (RuntimeException e) {
-		}
-		run.setDisable(false);
-
-		gridPaneLinnChart.getChildren().clear();
-		lineChart.clear();
-		initilaseChart(lineChart);
-		int j = 0, k = 0;
-		for (int m = 0; m < lineChart.size(); m++) {
-			gridPaneLinnChart.add(lineChart.get(m), j++, k);
-			if (j % 3 == 0) {
-				k++;
-				j = 0;
+		System.out.println("0. worker.shutdown();");
+		worker.shutdown();
+		 try {
+		        // 2 - block the *calling* thread until the worker finishes, max 5 s
+		        if (!worker.awaitTermination(3, TimeUnit.SECONDS)) {
+		            // (optional) give up and interrupt whatever is still running
+		        	
+		            worker.shutdownNow();
+		        }
+		    } catch (InterruptedException ie) {
+		        worker.shutdownNow();
+		        Thread.currentThread().interrupt();
+		    }
+		
+		Platform.runLater(() -> {
+			Timestep.setCurrentYear(Timestep.getStartYear());
+			run.setDisable(false);
+			gridPaneLinnChart.getChildren().clear();
+			lineChart.clear();
+			initilaseChart(lineChart);
+			int j = 0, k = 0;
+			for (int m = 0; m < lineChart.size(); m++) {
+				gridPaneLinnChart.add(lineChart.get(m), j++, k);
+				if (j % 3 == 0) {
+					k++;
+					j = 0;
+				}
 			}
-		}
+			System.out.println("2. worker.shutdown();");
+		});
 	}
 
 	void initilaseChart(ArrayList<LineChart<Number, Number>> lineChart) {
@@ -280,7 +316,7 @@ public class ModelRunnerController {
 			LineChartTools.addSeriesTooltips(l);
 
 			String ItemName = "Save as CSV";
-			Consumer<String> action = x -> {
+			Consumer<String> action = _ -> {
 				SaveAs.exportLineChartDataToCSV(l);
 			};
 			HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();

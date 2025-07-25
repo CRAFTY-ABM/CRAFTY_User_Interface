@@ -2,7 +2,6 @@ package de.cesr.crafty.core.crafty;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-
 //import javafx.scene.paint.Color;
 
 /**
@@ -82,6 +81,14 @@ public abstract class AbstractCell {
 		return capitals;
 	}
 
+	public double getOneCapitals(String capitalName) {
+		return capitals.get(capitalName);
+	}
+
+	public void setOneCapitals(String capitalName, double value) {
+		capitals.put(capitalName, value);
+	}
+
 	public ConcurrentHashMap<String, Double> getCurrentProductivity() {
 		return currentProductivity;
 	}
@@ -106,9 +113,8 @@ public abstract class AbstractCell {
 	public String toString() {
 		return "\n Cell [index=" + id + ", x=" + x + ", y=" + y + ", CurrentRegion=" + CurrentRegion + "\n, Mask="
 				+ getMaskType() + ", getOwner()=" + (getOwner() != null ? getOwner().getLabel() : " null")
-				+ " category: "+(getOwner() != null ? getOwner().category : "null") + ", Color: " + color
-				 + ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" +
-				 getCurrentProductivity()
+				+ " category: " + (getOwner() != null ? getOwner().category : "null") + ", Color: " + color
+				+ ", getCapitals()=" + getCapitals() + ", getCurrentProductivity()=" + getCurrentProductivity()
 				+ "] \n "
 		/* + CellBehaviourLoader.cellsBehevoir.get(this) */;
 	}

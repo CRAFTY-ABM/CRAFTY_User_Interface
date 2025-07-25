@@ -99,7 +99,6 @@ public class SankeyPlotGraph {
 		return true;
 	}
 
-	@SuppressWarnings("finally")
 	private static void configuration(SankeyPlot sankey) {
 //		try {
 		sankey.setStreamFillMode(StreamFillMode.GRADIENT);

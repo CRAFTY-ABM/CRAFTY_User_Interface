@@ -82,6 +82,8 @@ public class TabPaneController {
 		regionalBox.setSelected(CellsLoader.regionalization);
 		// regionalBox.setDisable(ServiceSet.isRegionalServicesExisted());
 		MenuBarController.getInstance().getDataAnalysis().setDisable(false);
+		
+		regionalBox.setDisable(true);
 	}
 
 	@FXML
@@ -96,7 +98,7 @@ public class TabPaneController {
 				CellsCanvas.ColorP(c, color);
 			});
 		});
-		CellsCanvas.gc.drawImage(CellsCanvas.writableImage, 0, 0);
+	//	CellsCanvas.gc.drawImage(CellsCanvas.writableImage, 0, 0);
 		// regionalBox.setSelected(CellsLoader.regionsNamesSet.size() > 1);
 	}
 
@@ -132,7 +134,9 @@ public class TabPaneController {
 						}
 					}
 				}
+//				CellsCanvas.colorMap("Mock");
 //				}
+				
 			}
 		}
 	}

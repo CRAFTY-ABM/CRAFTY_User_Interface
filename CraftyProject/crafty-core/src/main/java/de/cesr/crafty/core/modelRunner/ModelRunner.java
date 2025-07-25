@@ -2,6 +2,8 @@ package de.cesr.crafty.core.modelRunner;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
@@ -48,9 +50,11 @@ public class ModelRunner extends AbstractModelRunner {
 		getScheduled().add(aftsUpdater);
 		getScheduled().add(new CellBehaviourUpdater());
 		getScheduled().add(new LandMaskUpdater());
+//		getScheduled().add(new RegionalShocksUpdater());
+//		getScheduled().add(new CellsShocksUpdater());
+		getScheduled().add(new SupplyUpdater());
 		getScheduled().add(new Listener());
 		getScheduled().add(new Tracker());
-		getScheduled().add(new SupplyUpdater());
 		getScheduled().add(new RegionsModelRunnerUpdater());
 	}
 
@@ -93,9 +97,38 @@ public class ModelRunner extends AbstractModelRunner {
 
 	private static void RegionalDemandEquilibrium_calculation() {
 		ModelRunner.capitalUpdater.step();
+
+		// Calculate EQ
+		// remumber the service has 0 supply hashMap<regionName, List<servicesNames>>
+		// calculate the average EQ
+		// go to 0 supply services and repleas them with the average
+
 		RegionsModelRunnerUpdater.regionsModelRunner.values().forEach(RegionalRunner -> {
+			ServiceSet.NoInitialSupplyServices.put(RegionalRunner.R.getName(), new ArrayList<>());
 			RegionalRunner.initialDSEquilibriumFactorCalculation();
 		});
+
+		// calculate the average
+		HashMap<String, Double> averageEQ = new HashMap<>();
+		RegionsModelRunnerUpdater.regionsModelRunner.values().forEach(RegionalRunner -> {
+			ServiceSet.getServicesList().forEach(serviceName -> {
+				double av = RegionalRunner.R.getServicesHash().get(serviceName).getCalibration_Factor()
+						/ RegionsModelRunnerUpdater.regionsModelRunner.size();
+				averageEQ.merge(serviceName, av, Double::sum);
+			});
+		});
+
+		// comeback to NoInitialSupplyServices-EQ with the averageEQ
+		RegionsModelRunnerUpdater.regionsModelRunner.values().forEach(RegionalRunner -> {
+			ServiceSet.getServicesList().forEach(serviceName -> {
+				if (ServiceSet.NoInitialSupplyServices.get(RegionalRunner.R.getName()).contains(serviceName)) {
+					RegionalRunner.R.getServicesHash().get(serviceName)
+							.setCalibration_Factor(averageEQ.get(serviceName));
+				}
+			});
+
+		});
+
 	}
 
 	private static void initialTotalDSEquilibriumListrner() {

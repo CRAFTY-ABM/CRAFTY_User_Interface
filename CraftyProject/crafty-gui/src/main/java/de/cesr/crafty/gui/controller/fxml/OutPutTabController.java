@@ -8,15 +8,24 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.utils.general.Utils;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
+import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.utils.graphical.FileTreeView;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
-import javafx.event.Event;
-import javafx.event.EventHandler;
+import de.cesr.crafty.gui.utils.graphical.WarningWindowes;
 
 public class OutPutTabController {
 	@FXML
@@ -24,12 +33,13 @@ public class OutPutTabController {
 	@FXML
 	private Tab addTab;
 	@FXML
-	private Tab tmp;
-	@FXML
 	private Button selecserivce;
+	@FXML
+	private VBox fileTreeView;
 
 	NewWindow colorbox = new NewWindow();
 	public static RadioButton[] radioColor;
+	TreeView<Path> tree;
 
 	private static OutPutTabController instance;
 
@@ -53,19 +63,51 @@ public class OutPutTabController {
 			}
 			radioColor[i].setToggleGroup(radiosgroup);
 			int k = i;
-			radioColor[i].setOnAction(e -> {
+			radioColor[i].setOnAction(_ -> {
 				CellsCanvas.colorMap(radioColor[k].getText());
 			});
 
 		}
 
-		tmp.setClosable(false);
-		addTab.setClosable(false);
-		addTab.setOnSelectionChanged(new EventHandler<Event>() {
-			@Override
-			public void handle(Event t) {
-				if (addTab.isSelected()) {
-					createNewTab("OutPut " + (tabpane.getTabs().size() - 1));
+		treeFiles();
+//		Scale scaleTransform = new Scale(1/FxMain.graphicScaleX, 1/FxMain.graphicScaleY, 0, 0);
+//		tree.getChildrenUnmodifiable().forEach(e->{
+//			e.getTransforms().add(scaleTransform);
+//		});
+		
+		
+	}
+	
+	@FXML 
+	public void reload(){
+		fileTreeView.getChildren().remove(tree);
+		treeFiles();
+	}
+	
+	private void treeFiles() {
+		Path output = Paths.get(ProjectLoader.getProjectPath() + File.separator + "output");
+		tree = FileTreeView.build(output, null, 1);
+		fileTreeView.getChildren().add(tree);
+		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
+		tree.setMaxHeight(scaleY);
+		tree.setMinHeight(scaleY);
+		mouseTreeFiles(tree);
+	}
+	
+
+	private void mouseTreeFiles(TreeView<Path> tree) {
+		tree.setOnMouseClicked(evt -> {
+			// react only to a double–click (use 1 for single-click)
+			if (evt.getClickCount() == 2) {
+				TreeItem<Path> selected = tree.getSelectionModel().getSelectedItem();
+				if (selected != null) {
+					WarningWindowes.showWaitingDialog(_ -> {
+						Path path = selected.getValue();
+						OutPuterController.outputpath = path.toAbsolutePath();
+						if (Utils.checkDirectFiles(path, "Total-AggregateServiceDemand.csv")) {
+							createNewTab(path.getFileName().toString());
+						}
+					});
 				}
 			}
 		});
@@ -78,7 +120,6 @@ public class OutPutTabController {
 			g.getChildren().addAll(radioColor);
 			colorbox.creatwindows("Display Services and AFT distribution", g);
 		}
-
 	}
 
 	public void createNewTab(String name) {

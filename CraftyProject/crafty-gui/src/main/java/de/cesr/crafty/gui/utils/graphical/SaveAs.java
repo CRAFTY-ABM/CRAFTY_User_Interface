@@ -14,7 +14,6 @@ import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;

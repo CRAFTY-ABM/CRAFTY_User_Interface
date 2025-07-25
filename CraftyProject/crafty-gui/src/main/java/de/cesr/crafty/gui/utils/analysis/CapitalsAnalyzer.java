@@ -44,6 +44,7 @@ public class CapitalsAnalyzer {
 				capiHash.merge(cn, cv, Double::sum);
 			});
 		});
+		System.out.println( CellsLoader.getNbrOfCells() + " cells in the map for year: " + year);
 		CapitalUpdater.getCapitalsList().forEach(cn -> {
 			capiHash.put(cn, capiHash.get(cn) / CellsLoader.getNbrOfCells());
 		});
@@ -90,7 +91,7 @@ public class CapitalsAnalyzer {
 		});
 	}
 
-	public static LineChart<Number, Number> generateCapitalChart(String titel, Map<String, ArrayList<Double>> data) {
+	public static LineChart<Number, Number> generateCapitalChart(String titel, Map<String, List<Double>> data) {
 		LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
 		chart.setTitle(titel);
 		lineChart(chart, data, titel);
@@ -100,7 +101,7 @@ public class CapitalsAnalyzer {
 		double maxY = getMaximumValue(data);
 		LineChartTools.configurexYxis(chart, minY, maxY);
 		String ItemName = "Save as CSV";
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			SaveAs.exportLineChartDataToCSV(chart);
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
@@ -108,29 +109,31 @@ public class CapitalsAnalyzer {
 		return chart;
 	}
 
-	public static void lineChart(LineChart<Number, Number> lineChart, Map<String, ArrayList<Double>> hash,
+	public static void lineChart(LineChart<Number, Number> lineChart, Map<String, List<Double>> hash,
 			String titel) {
 
-		Series<Number, Number>[] series = new XYChart.Series[hash.size()];
+		List<Series<Number, Number>> series = new ArrayList<>();
 
 		AtomicInteger i = new AtomicInteger();
 		List<String> sortedKeys = new ArrayList<>(hash.keySet());
 		Collections.sort(sortedKeys);
 		for (String key : sortedKeys) {
-			ArrayList<Double> value = hash.get(key);
+			List<Double> value = hash.get(key);
 			if (value != null) {
-				series[i.get()] = new XYChart.Series<Number, Number>();
-				series[i.get()].setName(key);
-				lineChart.getData().add(series[i.get()]);
+				// Create a new series for each key
+				Series<Number, Number> s = new XYChart.Series<Number, Number>();
+				s.setName(key);
+				series.add(s);
+				lineChart.getData().add(series.get(i.get()));
 				i.getAndIncrement();
 			}
 		}
 
 		AtomicInteger k = new AtomicInteger();
 		sortedKeys.forEach((key) -> {
-			ArrayList<Double> value = hash.get(key);
+			List<Double> value = hash.get(key);
 			for (int j = 0; j < value.size(); j++) {
-				series[k.get()].getData().add(new XYChart.Data<>(j + Timestep.getStartYear(), value.get(j)));
+				series.get(k.get()).getData().add(new XYChart.Data<>(j + Timestep.getStartYear(), value.get(j)));
 			}
 			k.getAndIncrement();
 		});
@@ -140,10 +143,10 @@ public class CapitalsAnalyzer {
 		LineChartTools.addSeriesTooltips(lineChart);
 	}
 
-	public static double getMinimumValue(Map<String, ArrayList<Double>> hash) {
+	public static double getMinimumValue(Map<String, List<Double>> hash) {
 		double min = Double.MAX_VALUE;
 
-		for (Map.Entry<String, ArrayList<Double>> entry : hash.entrySet()) {
+		for (Map.Entry<String, List<Double>> entry : hash.entrySet()) {
 			for (double val : entry.getValue()) {
 				if (val < min) {
 					min = val;
@@ -153,10 +156,10 @@ public class CapitalsAnalyzer {
 		return min;
 	}
 
-	public static double getMaximumValue(Map<String, ArrayList<Double>> hash) {
+	public static double getMaximumValue(Map<String, List<Double>> hash) {
 		double max = Double.MIN_VALUE;
 
-		for (Map.Entry<String, ArrayList<Double>> entry : hash.entrySet()) {
+		for (Map.Entry<String, List<Double>> entry : hash.entrySet()) {
 			for (double val : entry.getValue()) {
 				if (val > max) {
 					max = val;

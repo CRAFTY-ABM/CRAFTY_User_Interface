@@ -48,7 +48,7 @@ public class ServiceWeightLoader {
 			return;
 		}
 		LOGGER.info("Update Weight for [" + R + "]: ");
-		HashMap<String, ArrayList<String>> hashWeight = CsvProcessors.ReadAsaHash(path);
+		Map<String, List<String>> hashWeight = CsvProcessors.ReadAsaHash(path);
 
 		hashWeight.forEach((serviceName, vect) -> {
 			if (ServiceSet.getServicesList().contains(serviceName)) {

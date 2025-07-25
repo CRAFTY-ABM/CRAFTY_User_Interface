@@ -1,5 +1,6 @@
 package de.cesr.crafty.core.main;
 
+
 import java.nio.file.Paths;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
@@ -7,14 +8,12 @@ import de.cesr.crafty.core.cli.CraftyOptions;
 import de.cesr.crafty.core.cli.OptionsParser;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.modelRunner.ModelRunner;
-import de.cesr.crafty.core.utils.analysis.CustomLogger;
 
 /*
  * @author Mohamed Byari
  *
  */
 public class MainHeadless {
-	private static final CustomLogger LOGGER = new CustomLogger(MainHeadless.class);
 	public static ModelRunner runner;
 
 	public static void main(String[] args) {
@@ -27,9 +26,7 @@ public class MainHeadless {
 	}
 
 	public static void initializeConfig(String[] args) {
-
 		System.setProperty("java.awt.headless", "true");
-		LOGGER.info("--Starting CRAFTY execution--");
 		// Load config using the path from CraftyOptions
 		CraftyOptions options = OptionsParser.parseArguments(args);
 		ConfigLoader.configPath = options.getConfigFilePath();

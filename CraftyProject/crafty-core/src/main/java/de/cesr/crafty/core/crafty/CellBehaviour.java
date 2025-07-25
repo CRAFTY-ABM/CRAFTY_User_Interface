@@ -13,13 +13,13 @@ import de.cesr.crafty.core.utils.general.CellsSubSets;
  */
 public class CellBehaviour {
 
-	double Attitude_intensification = 0;
-	double Weight_inertia = 0.2;
-	double weight_social = 0.5;
-	double Critical_mass = 0.5;
-	int neighborhood_size = 2;
+	double Attitude_intensification;
+	double Weight_inertia;//
+	double weight_social;
+	double Critical_mass;//
+	int neighborhood_size;
 	double steepness_logistic_eq = 7;
-	double maxGive_in = 0.5;
+	double maxGive_in;
 	private Cell c;
 
 	public CellBehaviour(Cell c) {
@@ -29,8 +29,10 @@ public class CellBehaviour {
 	public double give_In(Aft competitor) {
 		int intesificationGap = competitor.getCategory().getIntensityLevel()
 				- c.owner.getCategory().getIntensityLevel();
-		return maxGive_in / (1 + Math.exp(steepness_logistic_eq * ((1 - weight_social) * Attitude_influence(competitor)
-				+ weight_social * social_influence(competitor))+ Weight_inertia * Math.abs(intesificationGap)));
+
+		return maxGive_in / (1 + Math.exp(steepness_logistic_eq
+				* ((1 - weight_social) * Attitude_influence(competitor) + weight_social * social_influence(competitor))
+				+ Weight_inertia * Math.abs(intesificationGap)));
 	}
 
 	private double social_influence(Aft competitor) {
@@ -42,11 +44,11 @@ public class CellBehaviour {
 				if (competitor.category.getIntensityLevel() > c.owner.category.getIntensityLevel()) {
 					return Math.max(Math.min(2 * fractionOfNeighbors(
 							neighbor -> neighbor.category.getIntensityLevel() > competitor.category.getIntensityLevel())
-							- CellBehaviourUpdater.cellsBehevoir.get(c).getCritical_mass(), 1), -1);
+							- Critical_mass, 1), -1);
 				} else {
 					return Math.max(Math.min(2 * fractionOfNeighbors(
 							neighbor -> neighbor.category.getIntensityLevel() < competitor.category.getIntensityLevel())
-							- CellBehaviourUpdater.cellsBehevoir.get(c).getCritical_mass(), 1), -1);
+							- Critical_mass, 1), -1);
 				}
 			}
 		}

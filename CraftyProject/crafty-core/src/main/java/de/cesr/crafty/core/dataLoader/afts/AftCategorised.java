@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +37,7 @@ public class AftCategorised {
 	public static void CategoriesLoader() {
 
 		Path aftsmetadataPath = PathTools.fileFilter(PathTools.asFolder("csv"), "AFTsMetaData").iterator().next();
-		HashMap<String, ArrayList<String>> csv = CsvProcessors.ReadAsaHash(aftsmetadataPath);
+		Map<String, List<String>> csv = CsvProcessors.ReadAsaHash(aftsmetadataPath);
 
 		if (csv.get("Category") != null) {
 			for (int i = 0; i < csv.get("Category").size(); i++) {

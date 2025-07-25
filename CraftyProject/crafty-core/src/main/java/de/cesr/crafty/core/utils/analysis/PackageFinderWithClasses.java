@@ -51,7 +51,7 @@ public class PackageFinderWithClasses {
                              // Find any class/interface/enum matches
                              Matcher matcher = classPattern.matcher(line);
                              while (matcher.find()) {
-                                 String type = matcher.group(1);
+//                                 String type = matcher.group(1);
                                  String className = matcher.group(2);
                                  // Optionally combine type and name, e.g. "class MyClass"
                                  // For now, we'll store just the class name.

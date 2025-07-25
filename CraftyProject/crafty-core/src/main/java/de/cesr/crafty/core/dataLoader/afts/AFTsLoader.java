@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -129,7 +130,7 @@ public class AFTsLoader extends HashSet<Aft> {
 	void initializeAftTypes() {// mask, AFT, or unmanaged //
 		hashAFTs.clear();
 		Path aftsmetadataPath = PathTools.fileFilter(PathTools.asFolder("csv"), "AFTsMetaData").iterator().next();
-		HashMap<String, ArrayList<String>> matrix = CsvProcessors.ReadAsaHash(aftsmetadataPath);
+		Map<String, List<String>> matrix = CsvProcessors.ReadAsaHash(aftsmetadataPath);
 		if (matrix.get("Type") != null) {
 			for (int i = 0; i < matrix.get("Label").size(); i++) {
 				String label = matrix.get("Label").get(i);
@@ -160,7 +161,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		Aft a = new Aft("Abandoned");
 		a.setType(ManagerTypes.Abandoned);
 		unmanagedManagerLabel = a.getLabel();
-		a.setColor("#848484");
+		a.setColor("#9133ff");
 		a.setCategory(new AftCategory("Uncategorized"));
 		hashAFTs.put(a.getLabel(), a);
 	}

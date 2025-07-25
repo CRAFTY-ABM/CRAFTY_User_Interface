@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.modelRunner.ModelRunner;
@@ -80,7 +79,7 @@ public class PieChartTools {
 			colorPicker.setShape(new Circle());
 			label.setGraphic(colorPicker);
 
-			colorPicker.setOnAction(e -> {
+			colorPicker.setOnAction(_ -> {
 				for (int j = 0; j < data.size(); j++) {
 					if (data.get(j).getName().equals(label.getText())) {
 						for (Node n : chart.lookupAll(".data" + j)) {
@@ -103,7 +102,7 @@ public class PieChartTools {
 			colorPicker.setShape(new Circle());
 			label.setGraphic(colorPicker);
 
-			colorPicker.setOnAction(e -> {
+			colorPicker.setOnAction(_ -> {
 				for (int j = 0; j < data.size(); j++) {
 					if (data.get(j).getName().equals(label.getText())) {
 						for (Node n : chart.lookupAll(".data" + j)) {

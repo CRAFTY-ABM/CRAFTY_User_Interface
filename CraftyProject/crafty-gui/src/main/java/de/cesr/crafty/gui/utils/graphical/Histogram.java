@@ -12,7 +12,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import kotlin.random.Random;
 
 /**
  * @author Mohamed Byari
@@ -32,7 +31,7 @@ public class Histogram {
 		}
 		histogram.getData().add(dataSeries);
 		String ItemName = "Clear Histogram";
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			histogram.getData().clear();
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
@@ -89,7 +88,7 @@ public class Histogram {
 
 	public static void mouseHistogrameController(BarChart<String, Number> histogram) {
 		String ItemName = "Clear Histogram";
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			histogram.getData().clear();
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();

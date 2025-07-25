@@ -192,7 +192,7 @@ public final class CSVTableView extends TableView<String> {
 
 		// Set a constrained resize policy so columns expand/shrink to fill available
 		// width
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		tableView.setColumnResizePolicy(param -> TableView.UNCONSTRAINED_RESIZE_POLICY.equals(param.getTable().getColumnResizePolicy()));
 
 		// Optionally let the table be editable
 		tableView.setEditable(true);

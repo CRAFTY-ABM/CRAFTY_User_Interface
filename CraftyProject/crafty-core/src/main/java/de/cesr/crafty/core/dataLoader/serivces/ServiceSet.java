@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.core.crafty.Service;
@@ -19,6 +20,7 @@ public class ServiceSet {
 	private static final CustomLogger LOGGER = new CustomLogger(ServiceSet.class);
 	private static List<String> servicesList;
 	public static ConcurrentHashMap<String, Service> worldService = new ConcurrentHashMap<>();
+	public static ConcurrentHashMap<String, List<String>> NoInitialSupplyServices = new ConcurrentHashMap<>();
 
 	public static void initialseServices() {
 		CellsLoader.regions.values().forEach(r -> {
@@ -29,11 +31,12 @@ public class ServiceSet {
 		getServicesList().forEach((ns) -> {
 			worldService.put(ns, new Service(ns));
 		});
+
 	}
 
 	public static void loadServiceList() {
 		servicesList = Collections.synchronizedList(new ArrayList<>());
-		HashMap<String, ArrayList<String>> servicesFile = CsvProcessors
+		Map<String, List<String>> servicesFile = CsvProcessors
 				.ReadAsaHash(PathTools.fileFilter(File.separator + "Services.csv").get(0));
 		String label = servicesFile.keySet().contains("Label") ? "Label" : "Name";
 		servicesList = servicesFile.get(label);
@@ -41,10 +44,13 @@ public class ServiceSet {
 	}
 
 	public static boolean isRegionalServicesExisting() {
+		System.out.println("!-Regoinal-! " + CellsLoader.regions.keySet());
 		for (String r : CellsLoader.regions.keySet()) {
-			ArrayList<Path> paths = PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"), r);
+			ArrayList<Path> paths = PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"),
+					"_" + r + ".csv");
+			LOGGER.info("! " + r + " DEMAND PATH:--> " + paths);
 			if (paths == null) {
-				LOGGER.warn("Demand file not fund, for Region |" + r + "|. Regionalisation Not Possible");
+				LOGGER.error("Demand file not fund, for Region |" + r + "|. Regionalisation Not Possible");
 				return false;
 			}
 		}

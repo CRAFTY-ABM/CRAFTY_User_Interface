@@ -39,9 +39,9 @@
 			</graphic> -->
 		</MenuItem>
 	</Menu>
-	<Menu text="View">
+<!-- 	<Menu text="View">
 		<MenuItem text="Map Color Palettes" onAction="#colorPallet" />
-	</Menu>
+	</Menu> -->
 	<Menu text="Help">
 		<MenuItem text="CRAFTY Website" onAction="#welcome" />
 	</Menu>

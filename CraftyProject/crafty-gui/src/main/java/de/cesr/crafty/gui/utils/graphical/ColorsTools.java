@@ -98,7 +98,7 @@ public class ColorsTools {
 		}
 		for (int i = 0; i < r.length; i++) {
 			int k = i;
-			paletteList.get(i).setOnAction(e -> {
+			paletteList.get(i).setOnAction(_-> {
 				action.accept(paletteList.get(k));
 				for (int j = 0; j < r.length; j++) {
 					if (k != j) {

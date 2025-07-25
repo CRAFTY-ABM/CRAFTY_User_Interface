@@ -35,7 +35,7 @@ public class ServiceDemandLoader {
 			return;
 		}
 		LOGGER.info("Update Demand for [" + R.getName() + "]: ");
-		HashMap<String, ArrayList<String>> hashDemand = CsvProcessors.ReadAsaHash(path);
+		Map<String, List<String>> hashDemand = CsvProcessors.ReadAsaHash(path);
 
 		hashDemand.forEach((serviceName, vect) -> {
 			if (ServiceSet.getServicesList().contains(serviceName)) {

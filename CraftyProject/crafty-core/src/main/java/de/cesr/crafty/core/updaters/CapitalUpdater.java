@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.modelRunner.Timestep;
@@ -27,7 +28,7 @@ public class CapitalUpdater extends AbstractUpdater {
 
 	public CapitalUpdater() {
 		capitalsList = Collections.synchronizedList(new ArrayList<>());
-		HashMap<String, ArrayList<String>> capitalsFile = CsvProcessors
+		Map<String, List<String>> capitalsFile = CsvProcessors
 				.ReadAsaHash(PathTools.fileFilter(File.separator + "Capitals.csv").get(0));
 		String label = capitalsFile.keySet().contains("Label") ? "Label" : "Name";
 		setCapitalsList(capitalsFile.get(label));

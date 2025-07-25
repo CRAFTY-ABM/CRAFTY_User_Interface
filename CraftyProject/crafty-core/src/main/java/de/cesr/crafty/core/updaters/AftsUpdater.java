@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
@@ -122,7 +123,7 @@ public class AftsUpdater extends AbstractUpdater {
 	}
 
 	public static void updateAFTBehevoir(Aft a, File file) {
-		HashMap<String, ArrayList<String>> reder = CsvProcessors.ReadAsaHash(file.toPath());
+		Map<String, List<String>> reder = CsvProcessors.ReadAsaHash(file.toPath());
 		a.setGiveInMean(Utils.sToD(reder.get("givingInDistributionMean").get(0)));
 		a.setGiveUpMean(Utils.sToD(reder.get("givingUpDistributionMean").get(0)));
 		a.setGiveInSD(Utils.sToD(reder.get("givingInDistributionSD").get(0)));

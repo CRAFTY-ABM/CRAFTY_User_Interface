@@ -1,6 +1,8 @@
 package de.cesr.crafty.gui.controller.fxml;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,13 +31,16 @@ import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
+import de.cesr.crafty.gui.utils.graphical.FileTreeView;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
 import de.cesr.crafty.gui.utils.graphical.ImageExporter;
 import de.cesr.crafty.gui.utils.graphical.ImagesToPDF;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
+import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.SankeyPlotGraph;
 import de.cesr.crafty.gui.utils.graphical.Tools;
+import de.cesr.crafty.gui.utils.graphical.WarningWindowes;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
@@ -61,6 +66,8 @@ import javafx.stage.Screen;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
@@ -91,6 +98,11 @@ public class OutPuterController {
 	private GridPane regionalGridChart;
 	@FXML
 	private VBox boxTracker;
+	@FXML
+	private Tab treeTab;
+	@FXML
+	private VBox treeBox;
+
 	private HBox boxAverageAndLAndEvent = new HBox();
 
 	ArrayList<CheckBox> radioListOfAFTs = new ArrayList<>();
@@ -98,6 +110,7 @@ public class OutPuterController {
 
 	public static boolean isCurrentResult = false;
 	public static Path outputpath;
+	private TreeView<Path> tree;
 
 	HashMap<String, HashMap<String, Integer>> h = new HashMap<>();
 
@@ -117,6 +130,90 @@ public class OutPuterController {
 		PlotLandEventNbr();
 		plotAverageUtility();
 		plotSupplyTraker();
+		treeFiles();
+	}
+
+	private void treeFiles() {
+		System.out.println(outputpath);
+		tree = FileTreeView.build(outputpath, ".csv", "-Cell-", -1);
+		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
+		tree.setMaxHeight(scaleY);
+		tree.setMinHeight(scaleY);
+		treeBox.getChildren().add(tree);
+		mouseTreeFiles(tree);
+	}
+	@FXML 
+	public void reload(){
+		treeBox.getChildren().remove(tree);
+		treeFiles();
+	}
+
+	private void mouseTreeFiles(TreeView<Path> tree) {
+		tree.setOnMouseClicked(evt -> {
+			// react only to a double–click (use 1 for single-click)
+			if (evt.getClickCount() == 2) {
+				TreeItem<Path> selected = tree.getSelectionModel().getSelectedItem();
+				if (selected != null) {
+					WarningWindowes.showWaitingDialog(_ -> {
+						String name = selected.getValue().getFileName().toString();
+						/*
+						 * if (name.contains("-Cell-")) { //.. a grid of Map show AFTs service
+						 * distribution - Later } else
+						 */
+						if (name.contains("SupplyTracker")) {
+							histo(selected.getValue());
+						} else if (name.contains("AggregateAFTComposition.csv")
+								|| name.contains("-AverageUtilities.csv") || name.contains("-landEventCounter.csv")
+								|| name.contains("Total-AggregateServiceDemand")) {
+							chart(selected.getValue());
+						} else if (name.contains(".csv")) {
+							openFile(selected.getValue());
+						}
+					});
+				}
+			}
+		});
+	}
+
+	public static void openFile(Path csv) {
+		// 2. Check whether the Desktop integration is available
+		if (!Desktop.isDesktopSupported()) {
+			System.err.println("Desktop API not supported on this platform.");
+			return;
+		}
+
+		Desktop desktop = Desktop.getDesktop();
+
+		// 3. Make sure the OPEN action is available
+		if (!desktop.isSupported(Desktop.Action.OPEN)) {
+			System.err.println("OPEN action not supported on this platform.");
+			return;
+		}
+
+		// 4. Open the file
+		try {
+			desktop.open(csv.toFile());
+		} catch (IOException e) {
+			e.printStackTrace(); // or log / re‑throw according to your needs
+		}
+	}
+
+	private void chart(Path p) {
+		// readfile as has-double
+		Map<String, List<Double>> data = CsvProcessors.ReadAsaHashDouble(p);
+		data.remove("Year");
+		data.remove("year");
+		// create chart
+		LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
+		VBox vbox = new VBox(chart);
+		new LineChartTools().lineChart(vbox, chart, data);
+		// create new window
+		NewWindow.createWin(p.getFileName().toString(), vbox);
+	}
+
+	private void histo(Path path) {
+		ScrollPane scroll = new ScrollPane(gridHisto(path));
+		new NewWindow().creatwindows(path.getFileName().toString(), 0.5, 0.5, scroll);
 	}
 
 	private void forceResizing() {
@@ -146,15 +243,19 @@ public class OutPuterController {
 				regionsBox.getValue() + "-AggregateAFTComposition.csv");
 
 	}
+	
+
 
 	HashMap<String, HashMap<String, Integer>> stateToHashSankey(String lastYear) {
 		HashMap<String, String> copyfirstYearHash = new HashMap<>();
 		CellsLoader.hashCell.forEach((coor, c) -> {
-			if (c.getOwner() != null)
+			if (c.getOwner() != null) {
 				copyfirstYearHash.put(coor, c.getOwner().getLabel());
+			} else {
+				copyfirstYearHash.put(coor, "Abandoned");
+			}
 		});
 		// Find file in the correct folder and update hashCell
-
 		yearChoice.getItems().stream().filter(str -> str.contains(lastYear)).findFirst().ifPresent(this::newOutPut);
 
 		HashMap<String, Integer> h = new HashMap<>();
@@ -162,6 +263,8 @@ public class OutPuterController {
 			Aft owner = CellsLoader.hashCell.get(coor).getOwner();
 			if (owner != null) {
 				h.merge(label + "," + owner.getLabel(), 1, Integer::sum);
+			} else {
+				h.merge(label + "," + "Abandoned", 1, Integer::sum);
 			}
 		});
 
@@ -187,12 +290,13 @@ public class OutPuterController {
 	}
 
 	public void selectoutPut() {
+		System.out.println(!isCurrentResult && outputpath == null);
 		if (!isCurrentResult) {
-			File selectedDirectory = Tools.selectFolder(ProjectLoader.getProjectPath() + File.separator + "output");
-			if (selectedDirectory != null) {
-				outputpath = Paths.get(selectedDirectory.getAbsolutePath());
-			} else {
-				outputpath = null;
+			if (outputpath == null) {
+				File selectedDirectory = Tools.selectFolder(ProjectLoader.getProjectPath() + File.separator + "output");
+				if (selectedDirectory != null) {
+					outputpath = Paths.get(selectedDirectory.getAbsolutePath());
+				}
 			}
 		} else {
 			if (ConfigLoader.config.output_folder_name != null) {
@@ -209,12 +313,14 @@ public class OutPuterController {
 				if (tmp.contains("-Cell-"))
 					yearList.add(tmp);
 			});
-			LOGGER.info("output files List: " + yearList);
+			LOGGER.info("output files List size: " + yearList.size());
 			yearChoice.getItems().addAll(yearList);
-			yearChoice.setValue(yearList.get(0));
+			yearChoice.setValue(yearList.getFirst());
 			sankeyBox.getItems().addAll(yearList);
-			sankeyBox.setValue(yearList.get(yearList.size() - 1));
-			OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].setSelected(true);
+			sankeyBox.setValue(yearList.getLast());
+			yearChoice.setValue(yearList.getLast());
+//			OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].setSelected(true);
+			CellsCanvas.colorMap(OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].getText());
 			Graphs(gridChart, "Total-AggregateServiceDemand.csv", "Total-AggregateAFTComposition.csv");
 		}
 	}
@@ -340,7 +446,7 @@ public class OutPuterController {
 				radioListOfAFTs.add(radio);
 				radio.setSelected(true);
 				selectedItemsSet.add(radio.getText());
-				radio.setOnAction(e -> {
+				radio.setOnAction(_ -> {
 					if (radio.isSelected()) {
 						selectedItemsSet.add(radio.getText());
 					} else {
@@ -461,8 +567,8 @@ public class OutPuterController {
 	private SankeyPlot addsankeyCategories(HashMap<String, HashMap<String, Integer>> h) {
 		HashMap<String, HashMap<String, Integer>> m = sankyBycategories(h);
 
-		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey, e -> Color.web(e.getValue()), (oldValue, newValue) -> newValue, HashMap::new));
+		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors
+				.toMap(Map.Entry::getKey, e -> Color.web(e.getValue()), (_, newValue) -> newValue, HashMap::new));
 		SankeyPlot sankeyCategories = SankeyPlotGraph.AFtsToSankeyPlot(m, colors);
 		MousePressed.mouseControle(borderPane, sankeyCategories);
 		return sankeyCategories;
@@ -484,7 +590,7 @@ public class OutPuterController {
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
 		ArrayList<Path> servicespath = PathTools.fileFilter(outputpath.toString(), serviceDemand);
-		HashMap<String, ArrayList<String>> reder = CsvProcessors.ReadAsaHash(servicespath.get(0));
+		Map<String, List<String>> reder = CsvProcessors.ReadAsaHash(servicespath.get(0));
 
 		ArrayList<HashMap<String, List<Double>>> has = new ArrayList<>();
 		ServiceSet.getServicesList().forEach(serviceName -> {
@@ -527,7 +633,7 @@ public class OutPuterController {
 			}
 
 			String ItemName = "Save as CSV";
-			Consumer<String> action = x -> {
+			Consumer<String> action = _ -> {
 				SaveAs.exportLineChartDataToCSV(Ch);
 			};
 			HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
@@ -548,7 +654,7 @@ public class OutPuterController {
 
 	HashMap<String, List<Double>> updatComposition(String path, String nameFile) {
 
-		HashMap<String, ArrayList<String>> reder = CsvProcessors.ReadAsaHash(PathTools.fileFilter(path, nameFile).get(0));
+		Map<String, List<String>> reder = CsvProcessors.ReadAsaHash(PathTools.fileFilter(path, nameFile).get(0));
 		HashMap<String, List<Double>> has = new HashMap<>();
 
 		reder.forEach((name, value) -> {
@@ -564,8 +670,7 @@ public class OutPuterController {
 	}
 
 	private void plotSupplyTraker() {
-		// check if the is a file
-
+		// check if there is a file
 		ArrayList<Path> pathsList = PathTools.fileFilter("SupplyTracker_", ".csv");
 
 		if (pathsList != null && pathsList.size() != 0) {
@@ -574,46 +679,47 @@ public class OutPuterController {
 				filesDispo.getItems().add(path.getFileName().toString());
 			});
 			boxTracker.getChildren().add(filesDispo);
-			
 
-			filesDispo.valueProperty().addListener((obs, oldValue, newValue) -> {
+			filesDispo.valueProperty().addListener((_, _, newValue) -> {
 				boxTracker.getChildren().removeIf(node -> ("grid".equals(node.getId())));
-
 				Path path = pathsList.stream().filter(p -> p.getFileName().toString().equals(newValue)).findFirst()
 						.orElse(pathsList.get(0));
-				// readfile
-				HashMap<String, Double> rawData = CsvProcessors.readCsvToMatrixMap(path);
-				GridPane grid = new GridPane();
-				grid.setId("grid");
-				AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
-				ServiceSet.getServicesList().forEach(serviceName -> {
-					BarChart<String, Number> histogram = new BarChart<>(new CategoryAxis(), new NumberAxis());
-					Map<String, Double> data = new HashMap<>();
-					AFTsLoader.getAftHash().keySet().forEach(aftName -> {
-						if (rawData.get(aftName + "|" + serviceName) != 0)
-							data.put(aftName, rawData.get(aftName + "|" + serviceName));
-					});
-					Histogram.histo(serviceName + " supply", histogram, data);
-					HBox box = new HBox(histogram);
-					MousePressed.mouseControle(box, histogram);
-					if (histogram != null && data.size() > 0) {
-						if (i.get() % 5 == 0) {
-							i.set(0);
-							j.getAndIncrement();
-						}
-						i.getAndIncrement();
-						grid.add(box, i.get(), j.get());
-						box.setMaxWidth(TopBox.getMinWidth() / 5);
-
-					}
-				});
+				GridPane grid = gridHisto(path);
 				boxTracker.getChildren().add(grid);
 				grid.setMinWidth(TopBox.getMinWidth());
 				Tools.forceResisingHeight(1.4, grid);
 			});
 			filesDispo.setValue(pathsList.iterator().next().getFileName().toString());
 		}
+	}
 
+	private GridPane gridHisto(Path path) {
+		// readfile
+		HashMap<String, Double> rawData = CsvProcessors.readCsvToMatrixMap(path);
+		GridPane grid = new GridPane();
+		grid.setId("grid");
+		AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
+		ServiceSet.getServicesList().forEach(serviceName -> {
+			BarChart<String, Number> histogram = new BarChart<>(new CategoryAxis(), new NumberAxis());
+			Map<String, Double> data = new HashMap<>();
+			AFTsLoader.getAftHash().keySet().forEach(aftName -> {
+				if (rawData.get(aftName + "|" + serviceName) != 0)
+					data.put(aftName, rawData.get(aftName + "|" + serviceName));
+			});
+			Histogram.histo(serviceName + " supply", histogram, data);
+			HBox box = new HBox(histogram);
+			MousePressed.mouseControle(box, histogram);
+			if (histogram != null && data.size() > 0) {
+				if (i.get() % 5 == 0) {
+					i.set(0);
+					j.getAndIncrement();
+				}
+				i.getAndIncrement();
+				grid.add(box, i.get(), j.get());
+				box.setMaxWidth(TopBox.getMinWidth() / 5);
+			}
+		});
+		return grid;
 	}
 
 //	private void chengeMapColorToUtility() {
@@ -629,12 +735,10 @@ public class OutPuterController {
 		ArrayList<Path> pathsList = PathTools.fileFilter("-landEventCounter.csv");
 		if (pathsList != null && pathsList.size() != 0) {
 			// readfile as has-double
-			HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
+			Map<String, List<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
 			data.remove("year");
-			Map<String, List<Double>> m = data.entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
 
-			AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart("land EventCounter", m);
+			AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart("land EventCounter", data);
 			VBox vbox = new VBox(chart);
 			boxAverageAndLAndEvent.getChildren().add(vbox);
 			MousePressed.mouseControle(vbox, chart);
@@ -647,13 +751,11 @@ public class OutPuterController {
 		ArrayList<Path> pathsList = PathTools.fileFilter("-AverageUtilities.csv");
 		if (pathsList != null && pathsList.size() != 0) {
 			// readfile as has-double
-			HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
+			Map<String, List<Double>> data = CsvProcessors.ReadAsaHashDouble(pathsList.get(0));
 			data.remove("Year");
-			Map<String, List<Double>> m = data.entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
 
 			LineChart<Number, Number> chart = new LineChart<>(new NumberAxis(), new NumberAxis());
-			new LineChartTools().lineChart((Pane) chart.getParent(), chart, m);
+			new LineChartTools().lineChart((Pane) chart.getParent(), chart, data);
 
 //			AreaChart<Number, Number> chart = AftAnalyzer.generateAreaChart("landEventCounter", m);
 			VBox vbox = new VBox(chart);

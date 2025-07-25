@@ -108,11 +108,14 @@ public class AFTsMapsController {
 	@FXML
 	public void aftColorsAction() {
 		CellsCanvas.colorMap("AFT");
+//		SmoothMockField.writeMockData();
+//		CellsCanvas.colorMap("Shocks");
 	}
 
 	@FXML
 	public void CategoriesColorsAction() {
 		CellsCanvas.colorMap("Categories");
+//		CellsCanvas.colorMap("Mock");
 	}
 
 	private void updatePieAFTsDistrebution(PieChart chart) {
@@ -127,7 +130,7 @@ public class AFTsMapsController {
 		chart.setLegendSide(Side.LEFT);
 		// * add menu to PiChart*//
 		HashMap<String, Consumer<String>> newItemMenu = new HashMap<>();
-		Consumer<String> reset = x -> {
+		Consumer<String> reset = _ -> {
 			AFTsLoader.getAftHash().values().forEach((a) -> {
 				color.put(a.getLabel(), Color.web(a.getColor()));
 			});
@@ -152,7 +155,7 @@ public class AFTsMapsController {
 		ConcurrentHashMap<String, Double> convertedMap = new ConcurrentHashMap<>(hashCategoryNbr().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().doubleValue())));
 		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey, e -> Color.web(e.getValue()), (oldValue, newValue) -> newValue, HashMap::new));
+				Map.Entry::getKey, e -> Color.web(e.getValue()), (_, newValue) -> newValue, HashMap::new));
 		new PieChartTools().updateChart(convertedMap, colors, chart, false);
 		chart.setLegendSide(Side.LEFT);
 		MousePressed.mouseControle((Pane) chart.getParent(), chart);

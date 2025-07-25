@@ -26,9 +26,8 @@
 					<tabs>
 						<Tab text="Supply and Demand Evolution "
 							style="-fx-background-color: #bddee9;">
-							<!-- <graphic>
-								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
-							</graphic> -->
+							<!-- <graphic> <FontIcon iconLiteral="fas-chart-pie" iconSize="15" 
+								/> </graphic> -->
 							<tooltip>
 								<Tooltip text="Supply and Demand Evolution" />
 							</tooltip>
@@ -40,9 +39,8 @@
 						</Tab>
 						<Tab text="Results analysis"
 							style="-fx-background-color: #bddee9;">
-							<!-- <graphic>
-								<FontIcon iconLiteral="fas-chart-line" iconSize="15" />
-							</graphic> -->
+							<!-- <graphic> <FontIcon iconLiteral="fas-chart-line" iconSize="15" 
+								/> </graphic> -->
 							<tooltip>
 								<Tooltip text="Results analysis" />
 							</tooltip>
@@ -61,9 +59,8 @@
 											onAction="#saveAllFilAsPNGAction" mnemonicParsing="false"
 											text="Snapshots maps and charts as a PNG"
 											styleClass="button-icon">
-											<!-- <graphic>
-												<FontIcon iconLiteral="far-save" iconSize="15" />
-											</graphic> -->
+											<!-- <graphic> <FontIcon iconLiteral="far-save" iconSize="15" 
+												/> </graphic> -->
 											<tooltip>
 												<Tooltip text="Select Existing Model Result" />
 											</tooltip>
@@ -75,9 +72,8 @@
 						<!--?????? -->
 						<Tab text="Supply and land use change tracker"
 							style="-fx-background-color: #bddee9;">
-							<!-- <graphic>
-								<FontIcon iconLiteral="fas-chart-area" iconSize="15" />
-							</graphic> -->
+							<!-- <graphic> <FontIcon iconLiteral="fas-chart-area" iconSize="15" 
+								/> </graphic> -->
 							<tooltip>
 								<Tooltip text="landuseEvent" />
 							</tooltip>
@@ -89,12 +85,31 @@
 							</content>
 						</Tab>
 						<!--?????? -->
+						<Tab fx:id="treeTab" text="Output Files"
+							style="-fx-background-color: #bddee9;">
+							<!--< graphic> <FontIcon iconLiteral="fas-map-marked-alt" iconSize="15" 
+								/> </graphic> -->
+							<tooltip>
+								<Tooltip text="tree output Files " />
+							</tooltip>
+							<content>
+								<VBox spacing="2.0" fx:id="treeBox">
+								<Button  onAction="#reload" 
+											text="Reload Files">
+											<!-- <graphic> <FontIcon iconLiteral="far-save" iconSize="15" 
+												/> </graphic> -->
+											<tooltip>
+												<Tooltip text="Reload Files" />
+											</tooltip>
+										</Button>
+								</VBox>
+							</content>
+						</Tab>
+						<!--?????? -->
 						<Tab fx:id="regionTab" text="Regions Output"
 							style="-fx-background-color: #bddee9;">
-							<!--< graphic>
-								<FontIcon iconLiteral="fas-map-marked-alt"
-									iconSize="15" />
-							</graphic> -->
+							<!--< graphic> <FontIcon iconLiteral="fas-map-marked-alt" iconSize="15" 
+								/> </graphic> -->
 							<tooltip>
 								<Tooltip text="Regional Results " />
 							</tooltip>

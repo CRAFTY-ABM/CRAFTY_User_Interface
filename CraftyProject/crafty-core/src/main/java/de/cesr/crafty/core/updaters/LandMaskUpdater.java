@@ -5,14 +5,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.crafty.Cell;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.CsvProcessors;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
-import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.CsvTools;
@@ -58,11 +59,11 @@ public class LandMaskUpdater extends AbstractUpdater {
 		Path path = MaskRestrictionDataLoader.hashMasksPaths.get(maskType).stream()
 				.filter(filePath -> filePath.toString().contains(String.valueOf(year))).findFirst().orElse(null);
 		if (path != null) {
-			HashMap<String, ArrayList<String>> csv = CsvProcessors.ReadAsaHash(path, true);
+			Map<String, List<String>> csv = CsvProcessors.ReadAsaHash(path, true);
 			if (csv != null) {
 				MaskRestrictionDataLoader.cleanMaskType(maskType);
 				for (int i = 0; i < csv.values().iterator().next().size(); i++) {
-					Cell c = ModelRunner.cellsSet.getCell((int) Utils.sToD(csv.get("X").get(i)),
+					Cell c = CellsLoader.getCell((int) Utils.sToD(csv.get("X").get(i)),
 							(int) Utils.sToD(csv.get("Y").get(i)));
 					int ii = i;
 					csv.keySet().forEach(key -> {

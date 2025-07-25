@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.main.MainHeadless;
+import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.CsvProcessors;
 import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.utils.file.CsvTools;
@@ -27,19 +28,34 @@ public class CraftyDataUpscaler {
 	static double scale = 2;
 	static String DataFolderPath;
 
-	static void createDataTemplate() {
-		copyFolder(ProjectLoader.getProjectPath() + File.separator + "agents",
-				DataFolderPath + File.separator + "agents");
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		System.out.println("--Starting CRAFTY CraftyDataUpscaler --");
+		MainHeadless.initializeConfig(args);
+		ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
+		MainHeadless.runner = new ModelRunner();
+		MainHeadless.runner.start();
+		DataFolderPath = PathTools.makeDirectory(ProjectLoader.getProjectPath() + "_upscaled_" + scale);
+		createDataTemplate(DataFolderPath);
+		System.out.println(DataFolderPath);
+		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("worlds"));
+		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("GIS"));
+
+	}
+
+	static void createDataTemplate(String DataFolderPath) {
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "AFTs",
+				DataFolderPath + File.separator + "AFTs");
 		copyFolder(ProjectLoader.getProjectPath() + File.separator + "csv", DataFolderPath + File.separator + "csv");
-		copyFolder(ProjectLoader.getProjectPath() + File.separator + "production",
-				DataFolderPath + File.separator + "production");
+//		copyFolder(ProjectLoader.getProjectPath() + File.separator + "production",
+//				DataFolderPath + File.separator + "production");
 		copyFolder(ProjectLoader.getProjectPath() + File.separator + "services",
 				DataFolderPath + File.separator + "services");
 		PathTools.makeDirectory(DataFolderPath + File.separator + "output");
 	}
 
 	static void upscaleCsvMap(Path pathInput, Path pathoutput) {
-		HashMap<String, ArrayList<String>> reader = CsvProcessors.ReadAsaHash(pathInput);
+		Map<String, List<String>> reader = CsvProcessors.ReadAsaHash(pathInput);
 		Map<String, HashMap<String, String>> newMap = new HashMap<>();
 		String xx = reader.get("X") != null ? "X" : "x";
 		String yy = reader.get("Y") != null ? "Y" : "y";
@@ -82,35 +98,33 @@ public class CraftyDataUpscaler {
 		CsvTools.writeCSVfile(csv, pathoutput);
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-		MainHeadless.runner = new ModelRunner();
-		MainHeadless.runner.start();
-		DataFolderPath = PathTools.makeDirectory(ProjectLoader.getProjectPath() + "_upscaled_" + scale);
-		createDataTemplate();
-		System.out.println(DataFolderPath);
-		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("worlds"));
-		folderUpscaler(ProjectLoader.getProjectPath() + PathTools.asFolder("GIS"));
-
-	}
-
 	static void folderUpscaler(String folderPath) {
-		PathTools.makeDirectory(oToUp(folderPath.toString()));
+		PathTools.makeDirectory(switchPaths(folderPath.toString(), DataFolderPath));
 		List<Path> listSubFolders = PathTools.getAllFolders(folderPath);
 		listSubFolders.forEach(l -> {
 			System.out.println(l);
-			PathTools.makeDirectory(oToUp(l.toString()));
+			PathTools.makeDirectory(switchPaths(l.toString(), DataFolderPath));
 		});
 		ArrayList<Path> foldersinCapitals = PathTools.fileFilter(folderPath);
 		foldersinCapitals.forEach(path -> {
-			if (path.toString().contains(".csv") && !path.toString().contains("Restrictions"))
-				upscaleCsvMap(path, Paths.get(oToUp(path.toString())));
+			if (path.toString().contains(".csv")) {
+				if (!path.toString().contains("Restrictions")) {
+					upscaleCsvMap(path, Paths.get(switchPaths(path.toString(), DataFolderPath)));
+				} else {
+					try {
+						Files.copy(path, Paths.get(switchPaths(path.toString(), DataFolderPath)),
+								StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		});
 	}
 
-	static String oToUp(String path) {
-		return path.replace(ProjectLoader.getProjectPath().toString(), DataFolderPath);
+	static String switchPaths(String path, String outputFolderPath) {
+		return path.replace(ProjectLoader.getProjectPath().toString(), outputFolderPath);
 	}
 
 	public static void copyFolder(String sourcePath, String destinationPath) {

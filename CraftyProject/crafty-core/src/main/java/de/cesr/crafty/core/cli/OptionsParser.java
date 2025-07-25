@@ -15,7 +15,7 @@ public class OptionsParser {
 		Options options = new Options();
 
 		Option configOption = Option.builder("c").longOpt("config-file").desc("Path to the YAML config file.")
-				.hasArg(true).argName("CONFIG_FILE").required(true).build();
+				.hasArg(true).argName("CONFIG_FILE").required(false).build();
 		options.addOption(configOption);
 
 		Option projectDirOption = Option.builder("p").longOpt("project-dir")

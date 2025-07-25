@@ -1,0 +1,16 @@
+
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_16
+C:\Users\byari-m\Desktop\Behaviour_Model\CRAFTY-EU_16_behaviour
+C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DE
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-1km_upscaled_8.0
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-5km-data
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-Gg1-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-Gg2-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-Gg3-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-tGg1-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-tGg3-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-med-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-north-Region
+C:\Users\byari-m\Desktop\CRAFTY_DATA\CRAFTY-EU-Upscaled-est-Region
+C:\Users\byari-m\Desktop\CRAFTYFinland
+C:\Users\byari-m\Desktop\CRAFTY_DATA\data-DEo

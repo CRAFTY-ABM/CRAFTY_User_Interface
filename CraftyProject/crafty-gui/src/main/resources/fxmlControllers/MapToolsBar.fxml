@@ -12,81 +12,69 @@
 	fx:controller="de.cesr.crafty.gui.controller.fxml.MapToolsBarController">
 	<ToolBar>
 		<Button fx:id="colorPallet" text="Color Pallet"
-			onAction="#colorPallet" styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-list-ul" iconSize="15" />
-			</graphic> -->
+			onAction="#colorPallet">
+			<!-- <graphic> <FontIcon iconLiteral="fas-list-ul" iconSize="15" /> </graphic> -->
 			<tooltip>
 				<Tooltip text="Select colour Pallet" />
 			</tooltip>
 		</Button>
-		<Button fx:id="mousePointer" onAction="#pointer" styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-mouse-pointer" iconSize="15" />
-			</graphic> -->
+<!-- 		<Button fx:id="mousePointer" onAction="#pointer"
+			text="Selecet Tool">
+			<graphic> <FontIcon iconLiteral="fas-mouse-pointer" iconSize="15" 
+				/> </graphic>
 			<tooltip>
 				<Tooltip text=" " />
 			</tooltip>
-		</Button>
+		</Button> -->
 		<Button fx:id="hand" onAction="#handleHandAction"
-			styleClass="button-icon">
+			text="Hand Tool">
 			<tooltip>
-				<Tooltip text=" Pan around the Map &#10;Second Line&#10;Third Line" />
+				<Tooltip
+					text=" Pan around the Map &#10;Second Line&#10;Third Line" />
 			</tooltip>
-			<!-- <graphic>
-				<FontIcon iconLiteral="far-hand-paper" iconSize="15" />
-			</graphic> -->
+			<!-- <graphic> <FontIcon iconLiteral="far-hand-paper" iconSize="15" /> 
+				</graphic> -->
 		</Button>
-		<Button fx:id="zoom" onAction="#zoomAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-search" iconSize="15" />
-			</graphic> -->
+		<Button fx:id="zoom" onAction="#zoomAction" text="Marquee Zoom">
+			<!-- <graphic> <FontIcon iconLiteral="fas-search" iconSize="15" /> </graphic> -->
 			<tooltip>
 				<Tooltip text=" Zoom &#10;" />
 			</tooltip>
 		</Button>
-		<Button fx:id="zoomIn" onAction="#handleZoomInAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-search-plus" iconSize="15" />
-			</graphic> -->
+		<!-- <Button fx:id="zoomIn" onAction="#handleZoomInAction"
+			text="Zoom In">
+			<graphic> <FontIcon iconLiteral="fas-search-plus" iconSize="15" /> 
+				styleClass="button-icon" </graphic>
 			<tooltip>
 				<Tooltip text="Zoom In &#10;" />
 			</tooltip>
 		</Button>
 		<Button fx:id="zoomOut" onAction="#handleZoomOutAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-search-minus" iconSize="15" />
-			</graphic> -->
+			text="Zoom Out">
+			<graphic> <FontIcon iconLiteral="fas-search-minus" iconSize="15" 
+				styleClass="button-icon" /> </graphic>
 			<tooltip>
 				<Tooltip text="Zoom Out &#10;" />
 			</tooltip>
-		</Button>
+		</Button> -->
 		<Button fx:id="earth" onAction="#handleearthAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-globe-africa" iconSize="15" />
-			</graphic> -->
+			text="Default camera">
+			<!-- <graphic> <FontIcon iconLiteral="fas-globe-africa" iconSize="15" 
+				styleClass="button-icon" /> </graphic> -->
 			<tooltip>
 				<Tooltip text="Default map view#10;" />
 			</tooltip>
 		</Button>
 		<Button fx:id="gis" onAction="#gisAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="far-map" iconSize="15" />
-			</graphic> -->
+			text="color by regions">
+			<!-- styleClass="button-icon"> -->
+			<!-- <graphic> <FontIcon iconLiteral="far-map" iconSize="15" /> </graphic> -->
 			<tooltip>
 				<Tooltip text="Display Regions &#10;" />
 			</tooltip>
 		</Button>
-		<Button fx:id="png" onAction="#handlePNGAction"
-			styleClass="button-icon">
-			<!-- <graphic>
-				<FontIcon iconLiteral="fas-camera" iconSize="15" />
-			</graphic> -->
+		<Button fx:id="png" onAction="#handlePNGAction" text="Save as PNG">
+			<!-- <graphic> <FontIcon iconLiteral="fas-camera" iconSize="15" /> </graphic> -->
 			<tooltip>
 				<Tooltip text="Save Map as PNG &#10;" />
 			</tooltip>

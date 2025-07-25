@@ -114,7 +114,7 @@ public class RunCofigController {
 	static public ModelRunnerController CA;
 
 //	mutationInterval.setValue(CA.R.mutationIntval );
-//	mutationInterval.valueProperty().addListener((ov, oldval, newval) -> {
+//	mutationInterval.valueProperty().addListener((_, _, _) -> {
 //		CA.R.mutationIntval = mutationInterval.getValue();
 //	});
 
@@ -133,53 +133,53 @@ public class RunCofigController {
 
 		cellsPersS.setValue(ConfigLoader.config.participating_cells_percentage * 100);
 		CellPersT.setText(Math.round(cellsPersS.getValue() * 10) / 10. + "");
-		cellsPersS.valueProperty().addListener((ov, oldval, newval) -> {
+		cellsPersS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.participating_cells_percentage = cellsPersS.getValue() / 100;
 			CellPersT.setText(Math.round(cellsPersS.getValue() * 10) / 10. + ""); // ;
 		});
 
 		MapSync_GapS.setValue(Config.mapSynchronisationGap);
 		MapSync_GapT.setText((int) MapSync_GapS.getValue() + "");
-		MapSync_GapS.valueProperty().addListener((ov, oldval, newval) -> {
+		MapSync_GapS.valueProperty().addListener((_, _, _) -> {
 			Config.mapSynchronisationGap = (int) MapSync_GapS.getValue();
 			MapSync_GapT.setText((int) MapSync_GapS.getValue() + "");
 		});
 
 		chartSync_GapS.setValue(Config.chartSynchronisationGap);
 		chartSync_GapT.setText((int) chartSync_GapS.getValue() + "");
-		chartSync_GapS.valueProperty().addListener((ov, oldval, newval) -> {
+		chartSync_GapS.valueProperty().addListener((_, _, _) -> {
 			Config.chartSynchronisationGap = (int) chartSync_GapS.getValue();
 			chartSync_GapT.setText((int) chartSync_GapS.getValue() + "");
 		});
 		CSV_GapS.setValue(ConfigLoader.config.map_output_frequency);
 		CSV_GapT.setText((int) CSV_GapS.getValue() + "");
-		CSV_GapS.valueProperty().addListener((ov, oldval, newval) -> {
+		CSV_GapS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.map_output_frequency = (int) CSV_GapS.getValue();
 			CSV_GapT.setText((int) CSV_GapS.getValue() + "");
 		});
 //		nbrOfSubSetS.setValue(ModelRunner.nbrOfSubSet);
 //		nbrOfSubSetT.setText((int) nbrOfSubSetS.getValue() + "");
-//		nbrOfSubSetS.valueProperty().addListener((ov, oldval, newval) -> {
+//		nbrOfSubSetS.valueProperty().addListener((_, _, _) -> {
 //			ModelRunner.nbrOfSubSet = (int) nbrOfSubSetS.getValue();
 //			nbrOfSubSetT.setText((int) nbrOfSubSetS.getValue() + "");
 //		});
 		NeighbourRadiusS.setValue(ConfigLoader.config.neighbor_radius);
 		NeighbourRadiusT.setText((int) NeighbourRadiusS.getValue() + "");
-		NeighbourRadiusS.valueProperty().addListener((ov, oldval, newval) -> {
+		NeighbourRadiusS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.neighbor_radius = (int) NeighbourRadiusS.getValue();
 			NeighbourRadiusT.setText((int) NeighbourRadiusS.getValue() + "");
 		});
 
 		percentageOfGiveUpS.setValue(ConfigLoader.config.land_abandonment_percentage * 100);
 		percentageOfGiveUpT.setText(Math.round(percentageOfGiveUpS.getValue() * 10) / 10. + "");
-		percentageOfGiveUpS.valueProperty().addListener((ov, oldval, newval) -> {
+		percentageOfGiveUpS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.land_abandonment_percentage = percentageOfGiveUpS.getValue() / 100;
 			percentageOfGiveUpT.setText(Math.round(percentageOfGiveUpS.getValue() * 10) / 10. + ""); // ;
 		});
 
 		BestAftS.setValue(ConfigLoader.config.MostCompetitorAFTProbability * 100);
 		BestAftT.setText(Math.round(BestAftS.getValue() * 10) / 10. + "");
-		BestAftS.valueProperty().addListener((ov, oldval, newval) -> {
+		BestAftS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.MostCompetitorAFTProbability = BestAftS.getValue() / 100;
 			BestAftT.setText(Math.round(BestAftS.getValue() * 10) / 10. + "");
 			RandomAftT.setText(Math.round(1000 - BestAftS.getValue() * 10) / 10. + "");
@@ -188,7 +188,7 @@ public class RunCofigController {
 
 		RandomAftS.setValue(100 - ConfigLoader.config.MostCompetitorAFTProbability * 100);
 		RandomAftT.setText(100 - Math.round(BestAftS.getValue() * 10) / 10. + "");
-		RandomAftS.valueProperty().addListener((ov, oldval, newval) -> {
+		RandomAftS.valueProperty().addListener((_, _, _) -> {
 			ConfigLoader.config.MostCompetitorAFTProbability = 1 - RandomAftS.getValue() / 100;
 			RandomAftT.setText(Math.round(RandomAftS.getValue() * 10) / 10. + ""); // ;
 			BestAftT.setText(Math.round(1000 - RandomAftS.getValue() * 10) / 10. + "");

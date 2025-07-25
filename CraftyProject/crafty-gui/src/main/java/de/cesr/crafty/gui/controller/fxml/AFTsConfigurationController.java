@@ -20,7 +20,6 @@ import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
@@ -102,7 +101,7 @@ public class AFTsConfigurationController {
 				.forEach(entry -> InteractAFTs.put(entry.getKey(), entry.getValue()));
 		Tools.choiceBox(AFTChoisButton, new ArrayList<>(InteractAFTs.keySet()));
 
-		plotOptimalLandon.setOnAction(e2 -> {
+		plotOptimalLandon.setOnAction(_ -> {
 			plotInitialDistrebution.setSelected(false);
 			colorland(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()));
 		});
@@ -126,8 +125,8 @@ public class AFTsConfigurationController {
 				.add(AFTsProductionController.productivitySampleChart(a.getLabel(),false));
 		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
 				a.getProductivityLevel());
-		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),// to be change
-				a.getLabel(), ".csv");
+//		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),// to be change
+//				a.getLabel(), ".csv");
 //		AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
 		GridPane grid = new GridPane();
 		ubdateRadarchart(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), grid);
@@ -141,9 +140,9 @@ public class AFTsConfigurationController {
 	}
 
 	void colorland(Aft a) {
-		CellsLoader.hashCell.values().forEach(C -> {
-			// C.landStored(a);
-		});
+//		CellsLoader.hashCell.values().forEach(_ -> {
+//			// C.landStored(a);
+//		});
 		CellsCanvas.colorMap("tmp");
 	}
 
@@ -225,8 +224,10 @@ public class AFTsConfigurationController {
 				, new RadialGradient(0, 0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
 						ColorsTools.colorYchart(new Random().nextInt(4))),
 				Color.GRAY);
-
-		YChart<ValueChartItem> chart = new YChart(new YPane(categories, series));
+		@SuppressWarnings("unchecked")
+		YPane<ValueChartItem> pane = new YPane<>(categories, series);
+		YChart<ValueChartItem> chart = new YChart<>(pane);
+//		YChart<ValueChartItem> chart = new YChart(new YPane(categories, series));
 		// chart.setPrefSize(scale, scale);
 
 		return chart;

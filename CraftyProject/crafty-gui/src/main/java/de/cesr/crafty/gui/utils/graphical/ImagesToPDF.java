@@ -13,7 +13,7 @@ import java.io.IOException;
 public class ImagesToPDF {
 	public static void createPDFWithImages(String folderPath, String outputPath) {
         File folder = new File(folderPath);
-        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+        File[] files = folder.listFiles((_, name) -> name.toLowerCase().endsWith(".png"));
 
         try (PDDocument document = new PDDocument()) {
             for (File file : files) {
@@ -55,7 +55,7 @@ public class ImagesToPDF {
 	
 	 public static void createPDFWithImages(String folderPath, String PDFname, int columns, int rows) {
 	        File folder = new File(folderPath);
-	        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+	        File[] files = folder.listFiles((_, name) -> name.toLowerCase().endsWith(".png"));
 
 	        try (PDDocument document = new PDDocument()) {
 	            PDPage page = new PDPage(PDRectangle.A4);

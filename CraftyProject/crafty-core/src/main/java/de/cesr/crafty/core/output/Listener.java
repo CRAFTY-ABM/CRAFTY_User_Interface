@@ -1,10 +1,6 @@
 package de.cesr.crafty.core.output;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -15,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.ibm.icu.impl.data.ResourceReader;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.crafty.Region;
@@ -194,28 +188,26 @@ public class Listener extends AbstractUpdater {
 	public static void initializeListExportingYearsMap() {
 		for (int year = Timestep.getStartYear(); year <= Timestep.getEndtYear(); year++) {
 			if (ConfigLoader.config.generate_map_output_files) {
-				if (ConfigLoader.config.map_output_frequency != 0) {
+				if (ConfigLoader.config.map_output_years instanceof Integer) {
+					ConfigLoader.config.map_output_frequency = (int) ConfigLoader.config.map_output_years;
+					if (ConfigLoader.config.map_output_frequency != 0) {
+						if ((Timestep.getCurrentYear() - Timestep.getStartYear())
+								% ConfigLoader.config.map_output_frequency == 0
+								|| Timestep.getCurrentYear() == Timestep.getEndtYear()) {
+							yearsMapExporting.add(year);
+						}
+					}
+				} else if (ConfigLoader.config.map_output_years instanceof List<?>) {
+					@SuppressWarnings("unchecked")
+					ArrayList<Integer> listYears = (ArrayList<Integer>) ConfigLoader.config.map_output_years;
+					if (listYears.contains(year)) {
+						yearsMapExporting.add(year);
+					}
+				} else if (ConfigLoader.config.map_output_frequency != 0) {
 					if ((Timestep.getCurrentYear() - Timestep.getStartYear())
 							% ConfigLoader.config.map_output_frequency == 0
 							|| Timestep.getCurrentYear() == Timestep.getEndtYear()) {
 						yearsMapExporting.add(year);
-					}
-				} else {
-					if (ConfigLoader.config.map_output_years instanceof Integer) {
-						ConfigLoader.config.map_output_frequency = (int) ConfigLoader.config.map_output_years;
-						if (ConfigLoader.config.map_output_frequency != 0) {
-							if ((Timestep.getCurrentYear() - Timestep.getStartYear())
-									% ConfigLoader.config.map_output_frequency == 0
-									|| Timestep.getCurrentYear() == Timestep.getEndtYear()) {
-								yearsMapExporting.add(year);
-							}
-						}
-					} else if (ConfigLoader.config.map_output_years instanceof List<?>) {
-						@SuppressWarnings("unchecked")
-						ArrayList<Integer> listYears = (ArrayList<Integer>) ConfigLoader.config.map_output_years;
-						if (listYears.contains(year)) {
-							yearsMapExporting.add(year);
-						}
 					}
 				}
 			}
@@ -246,28 +238,29 @@ public class Listener extends AbstractUpdater {
 	}
 
 	public static String exportConfigurationFile() {
-		String configuration = "";
-
-		Path path = Paths.get(ConfigLoader.configPath);
-		boolean isAbsoluteFile = path.isAbsolute() && Files.exists(path);
-
-		if (isAbsoluteFile) {
-			try {
-				configuration = Files.readString(path, StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			try (InputStream inputStream = ResourceReader.class.getResourceAsStream(ConfigLoader.configPath)) {
-				if (inputStream == null) {
-					System.err.println("Resource not found: " + ConfigLoader.configPath);
-				} else {
-					configuration = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return configuration;
+//		String configuration = "";
+//
+//		Path path = Paths.get(ConfigLoader.configPath);
+//		boolean isAbsoluteFile = path.isAbsolute() && Files.exists(path);
+//
+//		if (isAbsoluteFile) {
+//			try {
+//				configuration = Files.readString(path, StandardCharsets.UTF_8);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		} else {
+//			try (InputStream inputStream = ResourceReader.class.getResourceAsStream(ConfigLoader.configPath)) {
+//				if (inputStream == null) {
+//					System.err.println("Resource not found: " + ConfigLoader.configPath);
+//				} else {
+//					configuration = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+//				}
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return configuration;
+		return ConfigLoader.config.toString();
 	}
 }

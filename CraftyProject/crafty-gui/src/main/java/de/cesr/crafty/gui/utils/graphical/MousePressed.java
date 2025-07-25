@@ -23,9 +23,11 @@ public class MousePressed {
 	public static void mouseControle(Pane pane, Node node) {
 		mouseControle(pane, node, null, "titel");
 	}
+
 	public static void mouseControle(Pane pane, Node node, String titel) {
 		mouseControle(pane, node, null, titel);
 	}
+
 	public static void mouseControle(Pane box, Node node, HashMap<String, Consumer<String>> othersMenuItems) {
 		mouseControle(box, node, othersMenuItems, "titel");
 	}
@@ -39,7 +41,7 @@ public class MousePressed {
 			});
 		}
 
-		hashAction.put("Save as PNG", (x) -> {
+		hashAction.put("Save as PNG", _ -> {
 			SaveAs.png(titel, node);
 
 		});
@@ -47,12 +49,12 @@ public class MousePressed {
 //			Parent m = node.getParent();
 //			((Pane) m).getChildren().remove(node);
 //		});
-		hashAction.put("Detach", (x) -> {
+		hashAction.put("Detach", _ -> {
 			List<Integer> findpath = Tools.findIndexPath(node, box);
 			Tools.reInsertChildAtIndexPath(new Separator(), box, findpath);
 			NewWindow win = new NewWindow();
 			win.creatwindows("", node);
-			win.setOnCloseRequest(event -> {
+			win.setOnCloseRequest(_ -> {
 				Tools.reInsertChildAtIndexPath(node, box, findpath);
 			});
 		});
@@ -67,7 +69,7 @@ public class MousePressed {
 		hash.forEach((k, v) -> {
 			item[i.get()] = new MenuItem(k);
 			cm.getItems().add(item[i.get()]);
-			item[i.get()].setOnAction(e -> {
+			item[i.get()].setOnAction(_ -> {
 				v.accept(k);
 			});
 			i.getAndIncrement();

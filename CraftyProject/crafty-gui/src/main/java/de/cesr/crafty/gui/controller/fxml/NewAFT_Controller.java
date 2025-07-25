@@ -53,7 +53,7 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 		Aft newAFT = new Aft();
 		newAFT.setLabel("newAFT");
 
-		colorPicker.setOnAction(e -> {
+		colorPicker.setOnAction(_ -> {
 			newAFT.setColor(ColorsTools.toHex(colorPicker.getValue()));
 		});
 
@@ -64,7 +64,7 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 			production[1][j] = "0.0";
 		}
 		Button productionFire = new Button();
-		Consumer<String> actionP = x -> {
+		Consumer<String> actionP = _ -> {
 			productionFire.fire();
 		};
 
@@ -86,7 +86,7 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 			}
 		}
 		Button sensitivtyFire = new Button();
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			sensitivtyFire.fire();
 		};
 
@@ -98,22 +98,22 @@ public class NewAFT_Controller extends AFTsConfigurationController {
 		GridPane gridRadar = Tools.grid(10, 15);
 		Text name = new Text();
 
-		sensitivtyFire.setOnAction(e -> {
+		sensitivtyFire.setOnAction(_ -> {
 			updateSensitivty(newAFT, gridRadar, tableSensetivty);
 		});
-		fieldText.setOnAction(e -> {
+		fieldText.setOnAction(_ -> {
 			String n = fieldText.getText();
 			name.setText(n);
 			newAFT.setCompleteName(n);
 			newAFT.setLabel(n);
 
 		});
-		addToDATA.setOnAction(e -> {
+		addToDATA.setOnAction(_ -> {
 			addToThisSimulation.fire();
 			creatCsvFiles(newAFT, textArea.getText());
 		});
 
-		addToThisSimulation.setOnAction(e -> {
+		addToThisSimulation.setOnAction(_ -> {
 			System.out.println(newAFT);
 			AFTsLoader.getAftHash().put(newAFT.getLabel(), newAFT);
 			parent.updaChoisButton();

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.DoubleStream;
-
 
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.modelRunner.ModelRunner;
@@ -40,7 +38,7 @@ public class LineChartTools {
 		}
 		configurexAxis(lineChart, Timestep.getStartYear(), Timestep.getEndtYear());
 		lineChart.getData().clear();
-		Series<Number, Number>[] series = new XYChart.Series[hash.size()];
+		List<Series<Number, Number>> series = new ArrayList<>();
 
 		AtomicInteger i = new AtomicInteger();
 		List<String> sortedKeys = new ArrayList<>(hash.keySet());
@@ -50,9 +48,10 @@ public class LineChartTools {
 		for (String key : sortedKeys) {
 			ArrayList<Double> value = (ArrayList<Double>) hash.get(key);
 			if (value != null) {
-				series[i.get()] = new XYChart.Series<Number, Number>();
-				series[i.get()].setName(key);
-				lineChart.getData().add(series[i.get()]);
+				XYChart.Series<Number, Number> s = new XYChart.Series<>();
+				s.setName(key);
+				series.add(s);
+				lineChart.getData().add(series.get(i.get()));
 				i.getAndIncrement();
 			}
 		}
@@ -62,7 +61,7 @@ public class LineChartTools {
 			ArrayList<Double> value = (ArrayList<Double>) hash.get(key);
 			if (value != null) {
 				for (int j = 0; j < value.size(); j++) {
-					series[k.get()].getData().add(new XYChart.Data<>(
+					series.get(k.get()).getData().add(new XYChart.Data<>(
 							j + ((NumberAxis) lineChart.getXAxis()).getLowerBound(), (Number) (value.get(j))));
 				}
 				k.getAndIncrement();
@@ -119,9 +118,8 @@ public class LineChartTools {
 					Tooltip.install(data.getNode(), dataPointTooltip);
 					// Optional: Highlight data points when hovered
 					data.getNode()
-							.setOnMouseEntered(event -> data.getNode().setStyle("-fx-scale-x: 1.5; -fx-scale-y: 1.5;"));
-					data.getNode()
-							.setOnMouseExited(event -> data.getNode().setStyle("-fx-scale-x: 1; -fx-scale-y: 1;"));
+							.setOnMouseEntered(_ -> data.getNode().setStyle("-fx-scale-x: 1.5; -fx-scale-y: 1.5;"));
+					data.getNode().setOnMouseExited(_ -> data.getNode().setStyle("-fx-scale-x: 1; -fx-scale-y: 1;"));
 				}
 			}
 		}
@@ -212,25 +210,8 @@ public class LineChartTools {
 	}
 
 	private static ArrayList<Double> loess_smoothing_data(List<Double> input) {
-
-		// ── 1. Prepare x and y arrays ──────────────────────────────────────────────
-		int n = input.size();
-		double[] x = DoubleStream.iterate(0, i -> i + 1).limit(n).toArray();
-		double[] y = input.stream().mapToDouble(Double::doubleValue).toArray();
-
-		// ── 2. Configure the smoother ──────────────────────────────────────────────
-		double bandwidth = 0.30; // fraction of points to include in each local fit
-		int robustnessIters = 2; // extra robustness iterations (0–4 is common)
-
-//		LoessInterpolator loess = new LoessInterpolator(bandwidth, robustnessIters);
 		LoessStandalone.loessSmoothingData(input);
-
-		// ── 3. Run the smoother
-//		double[] smoothed = loess.smooth(x, y);
-
 		ArrayList<Double> output = LoessStandalone.loessSmoothingData(input);
-//		for (double v : smoothed)
-//			output.add(Math.max(0, v));
 		return output;
 	}
 

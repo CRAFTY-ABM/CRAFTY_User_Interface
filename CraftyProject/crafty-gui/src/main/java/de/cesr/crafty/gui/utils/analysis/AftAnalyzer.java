@@ -23,7 +23,6 @@ import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
 import javafx.scene.layout.Pane;
 
 public class AftAnalyzer {
@@ -155,7 +154,7 @@ public class AftAnalyzer {
 		chart.setTitle(titel);
 		areachart(chart, data, titel);
 		String ItemName = "Save as CSV";
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			SaveAs.exportLineChartDataToCSV(chart);
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
@@ -164,33 +163,34 @@ public class AftAnalyzer {
 		return chart;
 	}
 
+	
 	public static void areachart(AreaChart<Number, Number> lineChart, Map<String, List<Double>> data, String titel) {
-		Series<Number, Number>[] series = new XYChart.Series[data.size()];
-		AtomicInteger i = new AtomicInteger();
-		List<String> sortedKeys = new ArrayList<>(data.keySet());
-		Collections.sort(sortedKeys);
-		for (String key : sortedKeys) {
-			ArrayList<Double> value = (ArrayList<Double>) data.get(key);
-			if (value != null) {
-				series[i.get()] = new XYChart.Series<Number, Number>();
-				series[i.get()].setName(key);
-				lineChart.getData().add(series[i.get()]);
-				i.getAndIncrement();
-			}
-		}
+	    List<XYChart.Series<Number, Number>> seriesList = new ArrayList<>();
+	    AtomicInteger i = new AtomicInteger();
+	    List<String> sortedKeys = new ArrayList<>(data.keySet());
+	    Collections.sort(sortedKeys);
+	    for (String key : sortedKeys) {
+	        ArrayList<Double> value = (ArrayList<Double>) data.get(key);
+	        if (value != null) {
+	            XYChart.Series<Number, Number> series = new XYChart.Series<>();
+	            series.setName(key);
+	            lineChart.getData().add(series);
+	            seriesList.add(series);
+	            i.getAndIncrement();
+	        }
+	    }
 
-		AtomicInteger k = new AtomicInteger();
-		sortedKeys.forEach((key) -> {
-			ArrayList<Double> value = (ArrayList<Double>) data.get(key);
-			for (int j = 0; j < value.size(); j++) {
-				series[k.get()].getData().add(new XYChart.Data<>(j, value.get(j)));
-			}
-			k.getAndIncrement();
-		});
+	    AtomicInteger k = new AtomicInteger();
+	    sortedKeys.forEach((key) -> {
+	        ArrayList<Double> value = (ArrayList<Double>) data.get(key);
+	        for (int j = 0; j < value.size(); j++) {
+	            seriesList.get(k.get()).getData().add(new XYChart.Data<>(j, value.get(j)));
+	        }
+	        k.getAndIncrement();
+	    });
 
-		MousePressed.mouseControle((Pane) lineChart.getParent(), lineChart, titel);
-
-		LineChartTools.addSeriesTooltips(lineChart);
+	    MousePressed.mouseControle((Pane) lineChart.getParent(), lineChart, titel);
+	    LineChartTools.addSeriesTooltips(lineChart);
 	}
 
 }

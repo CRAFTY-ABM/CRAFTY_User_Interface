@@ -80,16 +80,6 @@ public class Competitiveness {
 				}
 			}
 		}
-//		if (ProjectLoader.getCurrentYear() > 2030) {
-//			if (AftCategorised.aftCategories != null && AftCategorised.aftCategories.size() != 0) {
-//				if (c.owner != null && competitor != null) {
-//					if (c.owner.getCategory().getName().equals("forest")
-//							&& !competitor.getCategory().getName().equals("forest")) {
-//						makeCompetition = false;
-//					}
-//				}
-//			}
-//		}
 		return makeCompetition;
 	}
 
@@ -110,8 +100,10 @@ public class Competitiveness {
 	}
 
 	private static void landUsechangeNormalisedUtility(Cell c, Aft competitor, RegionalModelRunner r) {
-		double uC = utility(c, competitor, r) / r.maximumUtility.get(competitor);
-
+		if (r.maxUtility == r.minUtility) {
+			return;
+		}
+		double uC = (utility(c, competitor, r) - r.minUtility) / (r.maxUtility - r.minUtility);
 		if (c.owner == null || c.owner.isAbandoned()) {
 			if (uC > 0) {
 				takeOverAcell(c, competitor);
@@ -119,18 +111,17 @@ public class Competitiveness {
 			return;
 		}
 
-		double uO = utility(c, c.owner, r) / r.maximumUtility.get(c.owner);
+		double uO = (utility(c, c.owner, r) - r.minUtility) / (r.maxUtility - r.minUtility);
 
 		double giveIn = 0;
 		boolean sameCategories = c.owner.category.getName().equals(competitor.category.getName());
 		boolean sameIntesity = c.owner.category.getIntensityLevel() == (competitor.category.getIntensityLevel());
 
 		if (!sameCategories || (sameCategories && sameIntesity)) {
+//			return;// temp to cancel competition 
 			giveIn = giveInThreshold(c.owner, competitor);
-//			RegionalModelRunner.countNR.getAndIncrement();
 		} else {
 			giveIn = CellBehaviourUpdater.cellsBehevoir.get(c).give_In(competitor);
-//			RegionalModelRunner.countR.getAndIncrement();
 		}
 
 		if ((uC > uO + giveIn)) {

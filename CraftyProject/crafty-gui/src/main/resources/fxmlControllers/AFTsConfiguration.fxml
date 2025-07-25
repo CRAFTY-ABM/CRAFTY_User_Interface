@@ -48,14 +48,14 @@
 							width="39.0" />
 					</children>
 				</HBox>
-				<HBox spacing="10.0">
+				<!-- <HBox spacing="10.0">
 					<children>
 
 						<Button fx:id="removeBtn" onAction="#removeBtnSetOnAction"
 							text="Remove" styleClass="button-icon">
-							<!-- <graphic>
+							<graphic>
 								<FontIcon iconLiteral="far-trash-alt" iconSize="15" />
-							</graphic> -->
+							</graphic>
 							<tooltip>
 								<Tooltip text="Remove Current AFT from the list" />
 							</tooltip>
@@ -64,18 +64,18 @@
 						<Button fx:id="saveModeficationBtn"
 							onAction="#saveModefication" text="Save modifications"
 							styleClass="button-icon">
-							<!-- <graphic>
+							<graphic>
 								<FontIcon iconLiteral="far-save" iconSize="15" />
-							</graphic> -->
+							</graphic>
 							<tooltip>
 								<Tooltip text="Save modifications for the Current AFT" />
 							</tooltip>
 						</Button>
 						<Button fx:id="ResetBtn" mnemonicParsing="false"
 							text="Reset" styleClass="button-icon">
-							<!-- <graphic>
+							<graphic>
 								<FontIcon iconLiteral="fas-redo-alt" iconSize="15" />
-							</graphic> -->
+							</graphic>
 							<tooltip>
 								<Tooltip text="Reset Current AFT Configuration" />
 							</tooltip>
@@ -83,9 +83,9 @@
 						<Button fx:id="addNewAftBtn" mnemonicParsing="false"
 							onAction="#addAFTSetOnAction" text="Add new AFT"
 							styleClass="button-icon">
-							<!-- <graphic>
+							<graphic>
 								<FontIcon iconLiteral="far-plus-square" iconSize="15" />
-							</graphic> -->
+							</graphic>
 							<tooltip>
 								<Tooltip text="Add new AFT to the list" />
 							</tooltip>
@@ -93,15 +93,15 @@
 						<Button fx:id="AFTAnalisisBtn" mnemonicParsing="false"
 							onAction="#AftAnalyseSetOnAction" text="AFT analysis"
 							styleClass="button-icon">
-							<!-- <graphic>
+							<graphic>
 								<FontIcon iconLiteral="far-chart-bar" iconSize="15" />
-							</graphic> -->
+							</graphic>
 							<tooltip>
 								<Tooltip text="Current AFT analysis" />
 							</tooltip>
 						</Button>
 					</children>
-				</HBox>
+				</HBox> -->
 
 				<TabPane tabClosingPolicy="UNAVAILABLE">
 					<tabs>

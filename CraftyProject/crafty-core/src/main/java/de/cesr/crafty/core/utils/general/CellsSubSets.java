@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.crafty.Cell;
-import de.cesr.crafty.core.modelRunner.ModelRunner;
+import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 
 
 
@@ -31,12 +31,12 @@ public class CellsSubSets {
 		Set<Cell> neighborhood = Collections.synchronizedSet(new HashSet<>());
 		for (int i = (c.getX() - 1); i <= c.getX() + 1; i++) {
 			for (int j = (c.getY() - 1); j <= (c.getY()) + 1; j++) {
-				if (ModelRunner.cellsSet.getCell(i, j) != null) {
-					neighborhood.add(ModelRunner.cellsSet.getCell(i, j));
+				if (CellsLoader.getCell(i, j) != null) {
+					neighborhood.add(CellsLoader.getCell(i, j));
 				}
 			}
 		}
-		neighborhood.remove(ModelRunner.cellsSet.getCell(c.getX(), c.getY()));
+		neighborhood.remove(CellsLoader.getCell(c.getX(), c.getY()));
 
 		return neighborhood;
 	}
@@ -58,7 +58,7 @@ public class CellsSubSets {
 				if (i == c.getX() && j == c.getY()) {
 					continue;
 				}
-				Cell cell = ModelRunner.cellsSet.getCell(i, j);
+				Cell cell = CellsLoader.getCell(i, j);
 				if (cell != null) {
 					neighborhood.add(cell);
 				}

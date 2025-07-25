@@ -44,6 +44,8 @@ public class CellsLoader {
 		regionsInitialize();
 		AFTsLoader.hashAgentNbrRegions();
 		AFTsLoader.hashAgentNbr();
+		nbrOfCells = hashCell.size();
+		System.out.println("hashCell.size() = " + nbrOfCells);
 	}
 
 	public void servicesAndOwneroutPut(String year, String outputpath) {
@@ -52,7 +54,7 @@ public class CellsLoader {
 		CsvProcessors.processCSV(path, CsvKind.SERVICES);
 	}
 
-	public Cell getCell(int i, int j) {
+	public static Cell getCell(int i, int j) {
 		return hashCell.get(i + "," + j);
 	}
 
@@ -71,8 +73,8 @@ public class CellsLoader {
 					regions.get(c.getCurrentRegion()).getCells().put(c.getX() + "," + c.getY(), c);
 				}
 			});
-
-			if (!ServiceSet.isRegionalServicesExisting()) {
+			boolean isRegionalPossible = ServiceSet.isRegionalServicesExisting();
+			if (!isRegionalPossible) {
 				regionalization = false;
 				regionsInitialize();
 			}

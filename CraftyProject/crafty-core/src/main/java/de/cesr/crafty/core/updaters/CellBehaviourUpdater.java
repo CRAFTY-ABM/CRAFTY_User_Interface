@@ -2,7 +2,8 @@ package de.cesr.crafty.core.updaters;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.core.crafty.Cell;
@@ -43,7 +44,7 @@ public class CellBehaviourUpdater extends AbstractUpdater {
 			ArrayList<Path> files = PathTools.fileFilter(PathTools.asFolder("behaviour"), ProjectLoader.getScenario(),
 					"Cell_behaviour_parameters", Timestep.getCurrentYear() + ".csv");
 			if (files != null) {
-				HashMap<String, ArrayList<String>> csv = CsvProcessors.ReadAsaHash(files.get(0));
+				Map<String, List<String>> csv = CsvProcessors.ReadAsaHash(files.get(0));
 				for (int i = 0; i < csv.get("X").size(); i++) {
 					Cell c = CellsLoader.hashCell.get(csv.get("X").get(i) + "," + csv.get("Y").get(i));
 					CellBehaviour behaviour = new CellBehaviour(c);
@@ -51,7 +52,7 @@ public class CellBehaviourUpdater extends AbstractUpdater {
 					behaviour.setWeight_inertia(Utils.sToD(csv.get("Weight_inertia").get(i)));
 					behaviour.setWeight_social(Utils.sToD(csv.get("Weight-social").get(i)));
 					behaviour.setCritical_mass(Utils.sToD(csv.get("Critical_mass").get(i)));
-					behaviour.setNeighborhood_size((int) Utils.sToD(csv.get("Neighborhood_size").get(i)));
+					behaviour.setNeighborhood_size(Utils.sToI(csv.get("Neighborhood_size").get(i)));
 					behaviour.setMaxGive_in(Utils.sToD(csv.get("MaxGive_in").get(i)));
 					cellsBehevoir.put(c, behaviour);
 				}

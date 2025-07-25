@@ -153,11 +153,9 @@ public class PathTools {
 	public static List<File> detectFolders(String folderPath) {
 		List<File> filePaths = new ArrayList<>();
 		File folder = new File(folderPath);
-
 		// Check if the folder exists and is a directory
 		if (folder.exists() && folder.isDirectory()) {
 			File[] files = folder.listFiles();
-
 			// Iterate over the files in the folder
 			for (File file : files) {
 				// Check if it is a directory

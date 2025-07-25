@@ -33,7 +33,7 @@
 									<children>
 										<Label text=" Land abondenmant Percentage: " />
 										<Slider fx:id="percentageOfGiveUpS"
-											blockIncrement="1.0" majorTickUnit="1.0" max="25"
+											blockIncrement="1.0" majorTickUnit="1.0" max="40"
 											minorTickCount="2" showTickLabels="true" showTickMarks="true" />
 										<TextField fx:id="percentageOfGiveUpT"
 											onAction="#percentageOfGiveUpT" prefHeight="25.0"
@@ -86,7 +86,7 @@
 									<children>
 										<Label text="Percentage Cells  " />
 										<Slider fx:id="cellsPersS" blockIncrement="1.0"
-											majorTickUnit="1.0" max="10" minorTickCount="2"
+											majorTickUnit="1.0" max="40" minorTickCount="2"
 											showTickLabels="true" showTickMarks="true" />
 										<TextField fx:id="CellPersT" onAction="#cellspersT"
 											prefHeight="25.0" prefWidth="58.0" />

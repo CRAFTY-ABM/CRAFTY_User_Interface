@@ -8,13 +8,13 @@ import javafx.scene.control.SeparatorMenuItem;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -63,7 +63,7 @@ public class MenuBarController {
 	@FXML
 	public void open(ActionEvent event) {
 		openProject();
-
+		
 	}
 
 	@FXML
@@ -81,11 +81,11 @@ public class MenuBarController {
 		String message = "Generating a repository of data for capitals' trends across scenarios \n"
 				+ "may take time depending on the size of the data (size of the map),\n"
 				+ "the scenarios considered and the time period.";
-		Consumer<String> ok = x -> {
+		Consumer<String> ok = _ -> {
 			CapitalsAnalyzer.generateGrapheDataByScenarios(outputPath);
 		};
-		Consumer<String> cancel = x -> {
-			System.out.println("Cancel");
+		Consumer<String> cancel = _ -> {
+			System.out.println("Canceled");
 		};
 		WarningWindowes.showWarningMessage(message, "Continue", ok, "Cancel", cancel);
 	}
@@ -106,22 +106,30 @@ public class MenuBarController {
 		ColorsTools.windowzpalette(winColor);
 	}
 
+	
 	private void restartApplication() {
-		StringBuilder cmd = new StringBuilder();
-		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
-		for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-			cmd.append(jvmArg + " ");
-		}
-		cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
-		cmd.append(FxMain.class.getName()).append(" ");
+	    String javaHome = System.getProperty("java.home");
+	    String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+	    String classPath = ManagementFactory.getRuntimeMXBean().getClassPath();
+	    String mainClass = FxMain.class.getName();
 
-		try {
-			Runtime.getRuntime().exec(cmd.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	    // Build the command
+	    List<String> command = new ArrayList<>();
+	    command.add(javaBin);
+	    command.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
+	    command.add("-cp");
+	    command.add(classPath);
+	    command.add(mainClass);
 
-		System.exit(0);
+	    try {
+	        // Use ProcessBuilder to execute the command
+	        ProcessBuilder processBuilder = new ProcessBuilder(command);
+	        processBuilder.start();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    System.exit(0);
 	}
 
 	private void openProject() {
@@ -155,11 +163,14 @@ public class MenuBarController {
 		MainHeadless.runner.start();
 		if (ProjectLoader.getProjectPath() != null) {
 			initialsePanes();
+			
+			Platform.runLater(()->{FxMain.scaler();});
+			
 		}
 	}
 
 	private void initialsePanes() {
-		WarningWindowes.showWaitingDialog(x -> {
+		WarningWindowes.showWaitingDialog(_ -> {
 			try {
 				FxMain.anchor.setCenter(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
 				// FxMain.anchor.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
@@ -182,37 +193,6 @@ public class MenuBarController {
 
 		}
 	}
-
-	private void updateRecentFilesMenu2() {
-		recent.getItems().clear();
-		String[] paths = PathTools.read("RecentProject.txt").split("\n");
-		for (int i = paths.length - 1; i >= 0; i--) {
-			if (!paths[i].equals("")) {
-				MenuItem item = new MenuItem(paths[i]);
-				int j = i;
-				item.setOnAction(event -> {
-					ConfigLoader.config.project_path = paths[j];
-					ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
-					ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
-					runnerStartAndPaneInitialze();
-				});
-				recent.getItems().add(item);
-			}
-		}
-		MenuItem item = new MenuItem("Clear History");
-		item.setOnAction(event -> {
-			try {
-				new FileWriter("RecentProject.txt", false);
-				recent.getItems().clear();
-				recent.getItems().add(item);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-		recent.getItems().add(new SeparatorMenuItem());
-		recent.getItems().add(item);
-	}
 	
 	private void updateRecentFilesMenu() {
 	    recent.getItems().clear();
@@ -222,10 +202,11 @@ public class MenuBarController {
 
 	    for (Path p : paths) {
 	        MenuItem item = new MenuItem(p.toString());
-	        item.setOnAction(e -> {
+	        item.setOnAction(_ -> {
+	        	ConfigLoader.init();
 	        	ConfigLoader.config.project_path = p.toString();
 				ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
-				ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
+				ConfigLoader.config.scenario = ProjectLoader.getScenariosList().iterator().next();
 				runnerStartAndPaneInitialze();
 	        });
 	        recent.getItems().add(item);
@@ -233,7 +214,7 @@ public class MenuBarController {
 
 	    // “Clear history” entry
 	    MenuItem clear = new MenuItem("Clear History");
-	    clear.setOnAction(e -> {
+	    clear.setOnAction(_ -> {
 	        RecentProjects.clear();
 	        updateRecentFilesMenu();
 	    });
@@ -242,6 +223,8 @@ public class MenuBarController {
 	    recent.getItems().add(clear);
 	}
 	
-	
+
+
+
 
 }

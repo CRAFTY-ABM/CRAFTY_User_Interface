@@ -77,13 +77,13 @@ public class AFTsProductionController {
 		}
 		LineChart<Number, Number> chart = LineChartTools.createLineChartWithSmoothLines(aftLabel, data, withShade);
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
-		Consumer<String> relaod = x -> {
+		Consumer<String> relaod = _ -> {
 			Pane parent = (Pane) chart.getParent();
 			parent.getChildren().removeIf(node -> ("productivitySampleChart".equals(node.getId())));
 			parent.getChildren().add(productivitySampleChart(aftLabel, withShade));
 		};
 		othersMenuItems.put("Reload and Update", relaod);
-		Consumer<String> switchView = x -> {
+		Consumer<String> switchView = _ -> {
 			Pane parent = (Pane) chart.getParent();
 			parent.getChildren().removeIf(node -> ("productivitySampleChart".equals(node.getId())));
 			parent.getChildren().add(productivitySampleChart(aftLabel, !withShade));

@@ -6,22 +6,28 @@ public enum CsvKind {
 
 	CAPITALS {
 		@Override
-		void apply(String line, Map<String, Integer> idx) {
-			CsvProcessors.associateCapitalsToCells(idx, line);
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateCapitalsToCells(index, line);
+		}
+	},
+	SHOCKS {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateShockesToCells(index, line);
 		}
 	},
 
 	SERVICES {
 		@Override
-		void apply(String line, Map<String, Integer> idx) {
-			CsvProcessors.associateOutPutServicesToCells(idx, line);
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateOutPutServicesToCells(index, line);
 		}
 	},
 
 	BASELINE {
 		@Override
-		void apply(String line, Map<String, Integer> idx) {
-			CsvProcessors.createCells(idx, line);
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.createCells(index, line);
 		}
 	};
 

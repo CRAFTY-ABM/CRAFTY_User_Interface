@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -23,11 +24,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Scale;
 
 import java.util.stream.Collectors;
 
-import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.stage.DirectoryChooser;
@@ -158,14 +157,14 @@ public class Tools {
 		return indexPath;
 	}
 
-	public static ImageView logo(InputStream imageStream, double scale) {
-		ImageView imageView = new ImageView();
-		Image image = new Image(imageStream);
-		imageView.setImage(image);
-		Scale scaleTransform = new Scale(scale, scale, 0, 0);
-		imageView.getTransforms().add(scaleTransform);
+	public static ImageView logo(InputStream stream, double fractionOfScreen) {
+		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		Image image = new Image(stream, bounds.getWidth() * fractionOfScreen, 0, true, true);
 
-		return imageView;
+		ImageView iv = new ImageView(image);
+		iv.setPreserveRatio(true); // keeps height in sync
+		iv.setSmooth(true); // still use better interpolation
+		return iv; 
 	}
 
 	public static GridPane initializeGridpane(int colmunNBR, List<Node> nodes) {

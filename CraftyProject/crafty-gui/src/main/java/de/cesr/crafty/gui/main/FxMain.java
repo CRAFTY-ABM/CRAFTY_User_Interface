@@ -2,9 +2,6 @@ package de.cesr.crafty.gui.main;
 
 import java.io.InputStream;
 import java.net.URL;
-
-import de.cesr.crafty.core.utils.analysis.CustomLogger;
-import de.cesr.crafty.gui.utils.camera.Camera;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,47 +22,50 @@ import javafx.stage.Stage;
 
 public class FxMain extends Application {
 
-	private static final CustomLogger LOGGER = new CustomLogger(FxMain.class);
-
 	public static Stage primaryStage;
 	public static Scene scene;
 	public static VBox topLevelBox = new VBox();
 	public static BorderPane anchor = new BorderPane();
-	public static Camera camera = new Camera();
-	public static double graphicScaleX, graphicScaleY;
-	public static final double defaultWidth = 2800, defaultHeight = 1550;
+	private static ImageView logo;
+	public static double graphicScaleX = Screen.getPrimary().getBounds().getWidth() / 2560;
+	public static double graphicScaleY = Screen.getPrimary().getBounds().getHeight() / 1440;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		LOGGER.info("--Starting CRAFTY execution--");
-		FxMain.primaryStage = primaryStage;
-		graphicScaleX = Screen.getPrimary().getBounds().getWidth() / defaultWidth;
-		graphicScaleY = Screen.getPrimary().getBounds().getHeight() / defaultHeight; 
 
+		System.out.println("--Starting CRAFTY execution--");
+		FxMain.primaryStage = primaryStage;
 		URL fxml = FxMain.class.getResource("/fxmlControllers/MenuBar.fxml");
 		topLevelBox.getChildren().add(FXMLLoader.load(fxml));
 		topLevelBox.getChildren().add(anchor);
-		scaler();
 		addLogo();
-
 		scene = new Scene(new Group(topLevelBox));
 		scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 		primaryStage.setTitle(" CRAFTY User Interface ");
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true);
 		primaryStage.show();
-		primaryStage.setOnCloseRequest(event -> Platform.exit());
+		primaryStage.setOnCloseRequest(_ -> Platform.exit());
 	}
 
 	private void addLogo() {
 		InputStream imageStream = getClass().getResourceAsStream("/graphic/CRAFTY_logo_modern3.png");
-		ImageView imageView = Tools.logo(imageStream, 0.3);
-		anchor.setCenter(imageView);
+		logo = Tools.logo(imageStream, 1);
+		// TreeView<Path> tree =
+		// FileTreeView.build(Paths.get("C:\\Users\\byari-m\\Desktop\\CRAFTY_DATA\\CRAFTY-EU-5km-data\\output\\RCP2_6-SSP1\\runrun"),".csv","-Cell-",1);
+		anchor.setCenter(logo);
 	}
 
-	private static void scaler() {
-		Scale scaleTransform = new Scale(graphicScaleX, graphicScaleX, 0, 0);
-		anchor.getTransforms().add(scaleTransform);
+	private static boolean useOnlyOneTime = true;
+
+	public static void scaler() {
+		if (useOnlyOneTime) {
+			anchor.getChildren().remove(logo);
+			double scale = Math.min(graphicScaleX, graphicScaleY);
+			Scale scaleTransform = new Scale(scale, scale, 0, 0);
+			anchor.getTransforms().add(scaleTransform);
+			useOnlyOneTime = false;
+		}
 	}
 
 	public static void main(String[] args) {

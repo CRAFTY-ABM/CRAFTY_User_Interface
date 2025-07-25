@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceDemandLoader;
@@ -70,7 +71,7 @@ public class ServicesController {
 		new LineChartTools().lineChart((Pane) demandsChart.getParent(), demandsChart,
 				ServiceDemandLoader.serialisationWorldDemand());
 		String ItemName = "Save as CSV";
-		Consumer<String> action = x -> {
+		Consumer<String> action = _ -> {
 			SaveAs.exportLineChartDataToCSV(demandsChart);
 		};
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
@@ -99,7 +100,7 @@ public class ServicesController {
 			RadioButton r = new RadioButton(serviceName);
 			radioService.add(r);
 
-			r.setOnAction(e -> {
+			r.setOnAction(_ -> {
 				updatehistograms(serviceName);
 				TopBox.getChildren().removeIf(node -> ("randomCapitalServiceChart".equals(node.getId())));
 				LineChart<Number, Number> chart = productivitySampleChartService(serviceName, true);
@@ -123,16 +124,24 @@ public class ServicesController {
 	void updateHistoService(String serviceName) {
 		// initialise container
 		Map<String, Double> hash = new HashMap<>();
-		// loop for Services
-		CapitalUpdater.getCapitalsList().forEach(capitalName -> {
-			// loop for AFTs
-			AFTsLoader.getActivateAFTsHash().forEach((aftName, a) -> {
-				// aggreagte by service
-				if (a.getSensitivity().get((capitalName + "|" + serviceName)) != null&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0)
+		Map<String, Double> counter = new HashMap<>();
+
+		for (String capitalName : CapitalUpdater.getCapitalsList()) {
+//			boolean isCapitalsumNotNull = false;
+
+			for (Aft a : AFTsLoader.getActivateAFTsHash().values()) {
+				if (a.getSensitivity().get((capitalName + "|" + serviceName)) != null
+						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0) {
 					hash.merge(capitalName, a.getSensitivity().get((capitalName + "|" + serviceName)), Double::sum);
-			});
+					counter.merge(capitalName, 1., Double::sum);
+				}
+			}
+		}
+		hash.forEach((key, value) -> {
+			hash.put(key, value / counter.get(key));
 		});
-		Histogram.histo(serviceName + " aggregate sensitivity for each Capital", histoCapitalS, hash);
+
+		Histogram.histo("Service (" + serviceName + ") Average sensitivity for Capitals", histoCapitalS, hash);
 		Histogram.mouseHistogrameController(histoCapitalS);
 	}
 
@@ -150,12 +159,14 @@ public class ServicesController {
 						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0) {
 					hashS.merge(aftName, a.getSensitivity().get((capitalName + "|" + serviceName)), Double::sum);
 				}
-				if (a.getProductivityLevel().get(serviceName) != null&& a.getProductivityLevel().get(serviceName) != 0) {
+				if (a.getProductivityLevel().get(serviceName) != null
+						&& a.getProductivityLevel().get(serviceName) != 0) {
 					hashP.put(aftName, a.getProductivityLevel().get(serviceName));
 				}
 			});
 		});
-		Histogram.histo(serviceName + " aggregate sensitivity for each AFT", histoAftSensitivity, hashS);
+
+		Histogram.histo("Service (" + serviceName + ") aggregate sensitivity for AFTs", histoAftSensitivity, hashS);
 		Histogram.mouseHistogrameController(histoAftSensitivity);
 		Histogram.histo(serviceName + "Optimal Productivity Level", histoAftProductivity, hashP);
 		Histogram.mouseHistogrameController(histoAftProductivity);
@@ -170,13 +181,13 @@ public class ServicesController {
 		LineChart<Number, Number> chart = LineChartTools.createLineChartWithSmoothLines(serviceName, data, withShade);
 		chart.setAnimated(false);
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
-		Consumer<String> relaod = x -> {
+		Consumer<String> relaod = _ -> {
 			Pane parent = (Pane) chart.getParent();
 			parent.getChildren().removeIf(node -> ("randomCapitalServiceChart".equals(node.getId())));
 			parent.getChildren().add(productivitySampleChartService(serviceName, withShade));
 		};
 		othersMenuItems.put("Reload and Update", relaod);
-		Consumer<String> switchView = x -> {
+		Consumer<String> switchView = _ -> {
 			Pane parent = (Pane) chart.getParent();
 			parent.getChildren().removeIf(node -> ("randomCapitalServiceChart".equals(node.getId())));
 			parent.getChildren().add(productivitySampleChartService(serviceName, !withShade));

@@ -1,5 +1,6 @@
 package de.cesr.crafty.core.crafty;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -10,12 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.output.ListenerByRegion;
-import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
 import de.cesr.crafty.core.updaters.ServicesUpdater;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.CellsSubSets;
@@ -31,8 +31,7 @@ public class RegionalModelRunner {
 	private ConcurrentHashMap<String, Double> regionalSupply;
 	ConcurrentHashMap<String, Double> marginal = new ConcurrentHashMap<>();
 	ConcurrentHashMap<Aft, Double> distributionMean;
-	ConcurrentHashMap<Aft, Double> maximumUtility;
-
+	double maxUtility, minUtility;
 	public Region R;
 
 	public ListenerByRegion listner;
@@ -79,18 +78,11 @@ public class RegionalModelRunner {
 		LOGGER.info(joiner.toString());
 	}
 
-	private void calculeMaxUtility() {
-		maximumUtility = new ConcurrentHashMap<>();
-		R.getCells().values().parallelStream().forEach(c -> {
-			if (c.getOwner() != null) {
-				maximumUtility.merge(c.getOwner(), Competitiveness.utility(c, c.getOwner(), this), Double::max);
-			}
-		});
-		AFTsLoader.getActivateAFTsHash().values().forEach(a -> maximumUtility.computeIfAbsent(a, key -> 0.));
-		StringJoiner joiner = new StringJoiner(", ", "Region: [" + R.getName() + "]: Distribution Mean: {", "}");
-		for (Aft a : maximumUtility.keySet()) {
-			joiner.add(a.getLabel() + "= " + maximumUtility.get(a));
-		}
+	private void calculeMaxMinUtility() {
+		DoubleSummaryStatistics stats = R.getCells().values().parallelStream().filter(c -> c.getOwner() != null)
+				.mapToDouble(c -> Competitiveness.utility(c, c.getOwner(), this)).summaryStatistics();
+		minUtility = stats.getMin();
+		maxUtility = stats.getMax();
 	}
 
 	private void calculeMarginal(int year) {
@@ -146,7 +138,7 @@ public class RegionalModelRunner {
 							/ (serviceSuplly);
 				}
 			} else {
-				// factor = Double.MAX_VALUE;
+				ServiceSet.NoInitialSupplyServices.get(R.getName()).add(serviceName);
 				LOGGER.warn("Baseline supply for |" + serviceName + "| in |" + R.getName() + "| is 0"
 						+ " - Use Default Calibration_Factor = 1");
 			}
@@ -158,16 +150,13 @@ public class RegionalModelRunner {
 				"Initial Demand Service Equilibrium Factor= " + R.getName() + ": " + R.getServiceCalibration_Factor());
 	}
 
-//	public static AtomicInteger countR = new AtomicInteger();
-//	public static AtomicInteger countNR = new AtomicInteger();
-
 	public void step(int year) {
 		listner.exportFiles(year, getRegionalSupply());
 		calculeMarginal(year);
 		calculeDistributionMean();
-		if (AftCategorised.useCategorisationGivIn && CellBehaviourUpdater.behaviourUsed) {
-			calculeMaxUtility();
-		}
+//		if (AftCategorised.useCategorisationGivIn && CellBehaviourUpdater.behaviourUsed) {
+		calculeMaxMinUtility();
+//		}
 		giveUp();
 //		System.out.println("getUnmanageCellsR.size:  " + R.getUnmanageCellsR().size());
 		takeOverUnmanageCells();

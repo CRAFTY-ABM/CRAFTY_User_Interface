@@ -15,20 +15,22 @@ import java.util.function.Consumer;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
+import de.cesr.crafty.gui.utils.graphical.SmoothMockField;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.controller.fxml.RegionController;
 import de.cesr.crafty.gui.main.FxMain;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.crafty.Cell;
+import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
+import de.cesr.crafty.core.updaters.CellsShocksUpdater;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -38,9 +40,9 @@ import javafx.scene.control.Separator;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 
 /**
  * @author Mohamed Byari
@@ -50,36 +52,30 @@ import javafx.scene.paint.Color;
 public class CellsCanvas {
 	private static final CustomLogger LOGGER = new CustomLogger(CellsCanvas.class);
 	private static Canvas canvas;
-	public static GraphicsContext gc;
-	public static PixelWriter pixelWriter;
-	public static WritableImage writableImage;
+	static GraphicsContext gc;
+	private static PixelWriter pixelWriter;
+	private static WritableImage writableImage;
 
 	private static String colortype = "AFT";
 	// private static CellsLoader cellsSet;
 
-	public static Group root = new Group();
-	public static SubScene subScene = new SubScene(root, FxMain.defaultWidth / 2, FxMain.defaultHeight);
+//	public static Pane root = new Pane();
+	public static SubScene subScene;// = new SubScene(root, FxMain.defaultWidth / 2, FxMain.defaultHeight);
 	public static int maxX, maxY, minX, minY;
+	static SmoothMockField field;
 
 	public static void plotCells() {
 		initialMaxMinXY();
-
-		LOGGER.info("matrix size: " + (maxX - minX) + "," + (maxY - minY));
-		int nbrOfCells = CellsLoader.hashCell.size();
-		if (nbrOfCells < 1000) {// temporal for the visualization of very small maps
-			Cell.setSize(200);
-		}
-		canvas = new Canvas((maxX - minX) * Cell.getSize(), (maxY - minY) * Cell.getSize());
+		canvas = new Canvas();
 		gc = canvas.getGraphicsContext2D();
-		writableImage = new WritableImage(maxX, maxY);
+		writableImage = new WritableImage(maxX - minX, maxY - minY);
 		pixelWriter = writableImage.getPixelWriter();
-		root.getChildren().clear();
-		root.getChildren().add(canvas);
+		gc.setImageSmoothing(false);
+		MapPane canvasPane = new MapPane();
 
-		subScene.setCamera(FxMain.camera);
-		FxMain.camera.defaultcamera(canvas, subScene);
-		LOGGER.info("Number of cells = " + CellsLoader.hashCell.size());
-		MapControlerBymouse();
+		subScene = new SubScene(canvasPane, Screen.getPrimary().getBounds().getWidth() /(2* FxMain.graphicScaleX),
+				(Screen.getPrimary().getBounds().getHeight()/ FxMain.graphicScaleY));
+		MapPane.fitMapInWindow();
 	}
 
 	private static void initialMaxMinXY() {
@@ -94,10 +90,11 @@ public class CellsCanvas {
 		maxY = Collections.max(Y) + 1;
 		minX = Collections.min(X);
 		minY = Collections.min(Y);
+		field = new SmoothMockField((maxX - minX), (maxY - minY), 100, 25, 0.05);
 	}
 
 	public static void ColorP(Cell c, Color color) {
-		pixelWriter.setColor(c.getX(), c.getY(), color);
+		pixelWriter.setColor(c.getX() - minX, c.getY() - minY, color);
 	}
 
 	public static void ColorP(Cell c, String color) {
@@ -118,11 +115,6 @@ public class CellsCanvas {
 		return subset;
 	}
 
-	public static void colorMap(String str) {
-		colortype = str;
-		colorMap();
-	}
-
 	public static void showOnlyOneAFT(Aft a) {
 		CellsLoader.hashCell.values().parallelStream().forEach(cell -> {
 			if (cell.getOwner() == null || !cell.getOwner().getLabel().equals(a.getLabel())) {
@@ -134,6 +126,13 @@ public class CellsCanvas {
 		gc.drawImage(writableImage, 0, 0);
 	}
 
+	public static void colorMap(String str) {
+		colortype = str;
+		colorMap();
+	}
+
+	static AtomicInteger step = new AtomicInteger(1);
+
 	public static void colorMap() {
 		LOGGER.info("Changing the map colors...");
 		Set<Double> values = Collections.synchronizedSet(new HashSet<>());
@@ -142,7 +141,7 @@ public class CellsCanvas {
 				if (c.getOwner() != null) {
 					ColorP(c, c.getOwner().getColor());
 				} else {
-					ColorP(c, Color.GRAY);
+					ColorP(c, AFTsLoader.getAftHash().get("Abandoned").getColor());
 				}
 			});
 		} else if (CapitalUpdater.getCapitalsList().contains(colortype)) {
@@ -181,7 +180,23 @@ public class CellsCanvas {
 						ColorP(c, AftCategorised.categoriesColor.get(c.getOwner().getCategory().getName()));
 				});
 			}
-		} else {
+		} else if (colortype.equalsIgnoreCase("Shocks")) {
+			System.out.println(CellsShocksUpdater.cellsShocks.size());
+			CellsLoader.hashCell.values().forEach(c -> {
+				if (c != null) {
+					ColorP(c, ColorsTools.getColorForValue(CellsShocksUpdater.cellsShocks.get(c).get("ExtConifer")));
+				}
+
+			});
+
+		} else if (colortype.equalsIgnoreCase("Mock")) {
+			// loop
+
+			field.color(step.getAndIncrement());
+
+		}
+
+		else {
 			HashMap<String, Color> colorGis = new HashMap<>();
 
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
@@ -191,69 +206,83 @@ public class CellsCanvas {
 				ColorP(c, colorGis.get(c.getCurrentRegion()/* .getGisNameValue().get(colortype) */));
 			});
 		}
+
 		gc.drawImage(writableImage, 0, 0);
 	}
 
 	public static void MapControlerBymouse() {
-		canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-			if (event.getButton() == MouseButton.SECONDARY) {
-				// Convert mouse coordinates to "pixel" coordinates
-				int pixelX = (int) (event.getX() - (event.getX() % Cell.getSize()));
-				int pixelY = (int) (event.getY() - (event.getY() % Cell.getSize()));
-				// Convert pixel coordinates to cell coordinates
-				int cx = (int) (pixelX / Cell.getSize());
-				int cy = (int) (/* maxY - */ pixelY / Cell.getSize());
-				if (CellsLoader.hashCell.get(cx + "," + cy) != null) {
-					gc.setFill(Color.RED);
-					gc.fillRect(pixelX, pixelY, Cell.getSize(), Cell.getSize());
-					HashMap<String, Consumer<String>> menu = new HashMap<>();
-					menu.put("Print Info into the Console", e -> {
-						System.out.println(CellsLoader.hashCell.get(cx + "," + cy));
-					});
-					menu.put("Save Map as PNG", e -> {
-						SaveAs.png("", canvas);
-					});
-					menu.put("Selecet Region", e -> {
-						selectRegion(CellsLoader.hashCell.get(cx + "," + cy));
-					});
-					menu.put("Clean Regions", e -> {
-						box.getChildren().clear();
-						RegionController.getRegionCells().clear();
-					});
-					menu.put("Open Regions Selected", e -> {
-						openRegions(CellsLoader.hashCell.get(cx + "," + cy));
-					});
-					menu.put("Detach", (x) -> {
-						try {
-							VBox mapBox = (VBox) subScene.getParent();
-							VBox parent = (VBox) subScene.getParent().getParent();
-							List<Integer> findpath = Tools.findIndexPath(mapBox, parent);
-							Tools.reInsertChildAtIndexPath(new Separator(), parent, findpath);
-							NewWindow win = new NewWindow();
-							win.creatwindows("", mapBox);
-							win.setOnCloseRequest(event2 -> {
-								parent.getChildren().add(mapBox);
-							});
-						} catch (ClassCastException d) {
-							LOGGER.warn(d.getMessage());
-						}
-					});
+		CellsCanvas.getCanvas().setOnMouseClicked(event -> {
+			if (event.getButton() != MouseButton.SECONDARY) {
+				return; // ignore other buttons
+			}
 
-					ContextMenu cm = new ContextMenu();
+			double worldX = (event.getX() - MapPane.offsetX) / MapPane.scale + CellsCanvas.minX;
+			double worldY = (event.getY() - MapPane.offsetY) / MapPane.scale + CellsCanvas.minY;
 
-					MenuItem[] item = new MenuItem[menu.size()];
-					AtomicInteger i = new AtomicInteger();
-					menu.forEach((k, v) -> {
-						item[i.get()] = new MenuItem(k);
-						cm.getItems().add(item[i.get()]);
-						item[i.get()].setOnAction(e -> {
-							v.accept(k);
+			int cellX = (int) worldX;
+			int cellY = (int) worldY;
+
+			Cell cell = CellsLoader.getCell(cellX, cellY);
+			if (cell != null) {
+				ColorP(cell, Color.RED);
+				gc.drawImage(writableImage, 0, 0);
+//				gc.fillRect(worldX, worldY, Cell.getSize(), Cell.getSize());
+				HashMap<String, Consumer<String>> menu = new HashMap<>();
+				menu.put("Print Cell Info into the Console", _ -> {
+					System.out.println(cell);
+				});
+				menu.put("Save Map as PNG", _ -> {
+					SaveAs.png("", canvas);
+				});
+//				menu.put("Selecet Region", _ -> {
+//					selectRegion(cell);
+//				});
+//				menu.put("Clean Regions", _ -> {
+//					box.getChildren().clear();
+//					RegionController.getRegionCells().clear();
+//				});
+//				menu.put("Open Regions Selected", _ -> {
+//					openRegions(cell);
+//				});
+				menu.put("Detach", _ -> {
+					try {
+						VBox mapBox = (VBox) subScene.getParent();
+						VBox parent = (VBox) subScene.getParent().getParent();
+						List<Integer> findpath = Tools.findIndexPath(mapBox, parent);
+						Tools.reInsertChildAtIndexPath(new Separator(), parent, findpath);
+						NewWindow win = new NewWindow();
+						double origineW= subScene.getWidth();
+						double originH= subScene.getHeight();
+						
+						subScene.setWidth(Screen.getPrimary().getBounds().getWidth()*.8);
+						subScene.setHeight(Screen.getPrimary().getBounds().getHeight() * 0.8);
+						
+						win.creatwindows("Map", mapBox);
+						MapPane.fitMapInWindow();
+						win.setOnCloseRequest(_ -> {
+							parent.getChildren().add(mapBox);
+							subScene.setWidth(origineW);
+							subScene.setHeight(originH);
 						});
-						i.getAndIncrement();
+					} catch (ClassCastException d) {
+						LOGGER.warn(d.getMessage());
+					}
+				});
+
+				ContextMenu cm = new ContextMenu();
+
+				MenuItem[] item = new MenuItem[menu.size()];
+				AtomicInteger i = new AtomicInteger();
+				menu.forEach((k, v) -> {
+					item[i.get()] = new MenuItem(k);
+					cm.getItems().add(item[i.get()]);
+					item[i.get()].setOnAction(_ -> {
+						v.accept(k);
 					});
-					cm.show(canvas.getScene().getWindow(), event.getScreenX(), event.getScreenY());
-					event.consume();
-				}
+					i.getAndIncrement();
+				});
+				cm.show(canvas.getScene().getWindow(), event.getScreenX(), event.getScreenY());
+				event.consume();
 			}
 		});
 	}

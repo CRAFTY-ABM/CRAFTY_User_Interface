@@ -77,7 +77,7 @@ public class MasksPaneController {
 					circularPlot[i] = CircularPlotBuilder.create().items(items).decimals(0).connectionOpacity(0.9)
 							.minorTickMarksVisible(false).build();
 
-					boxYears.setOnAction(e2 -> {
+					boxYears.setOnAction(_ -> {
 						yearAction(r, boxYears, restrictionsRul, radioListOfAFTs);
 					});
 					boxYears.fireEvent(e);
@@ -91,7 +91,7 @@ public class MasksPaneController {
 					boxMask.getChildren().addAll(Tools.hBox(text, boxYears),
 							Tools.hBox(boxOfAftRadios, circularPlot[i]));
 					radioListOfAFTs.forEach(rad -> {
-						rad.setOnAction(e2 -> {
+						rad.setOnAction(_ -> {
 							circularPlot[i].setItems(
 									circularPlot(itemsList, restrictionsRul, rad.getText(), rad.isSelected()));
 						});

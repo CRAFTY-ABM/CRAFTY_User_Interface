@@ -37,9 +37,8 @@
 							<tabs>
 
 								<Tab text="General View">
-									<!-- <graphic>
-										<FontIcon iconLiteral="fas-home" iconSize="15" />
-									</graphic> -->
+									<!-- <graphic> <FontIcon iconLiteral="fas-home" iconSize="15" /> 
+										</graphic> -->
 									<tooltip>
 										<Tooltip text="Model General View" />
 									</tooltip>
@@ -50,10 +49,8 @@
 								</Tab>	<!---->
 
 								<Tab fx:id="dataPane" text="Spatial Data">
-									<!-- <graphic>
-										<FontIcon iconLiteral="fas-globe-europe"
-											iconSize="15" />
-									</graphic> -->
+									<!-- <graphic> <FontIcon iconLiteral="fas-globe-europe" iconSize="15" 
+										/> </graphic> -->
 									<tooltip>
 										<Tooltip
 											text="Input data: capital, AFT distribution and demand trends" />
@@ -65,9 +62,8 @@
 								</Tab>
 
 								<Tab fx:id="dataPane" text="Services">
-									<!-- <graphic>
-										<FontIcon iconLiteral="fas-chart-line" iconSize="15" />
-									</graphic> -->
+									<!-- <graphic> <FontIcon iconLiteral="fas-chart-line" iconSize="15" 
+										/> </graphic> -->
 									<tooltip>
 										<Tooltip text="Input data: Services" />
 									</tooltip>
@@ -77,9 +73,8 @@
 								</Tab>
 
 								<Tab text="AFTs Configuration">
-									<!-- <graphic>
-										<FontIcon iconLiteral="fas-robot" iconSize="15" />
-									</graphic> -->
+									<!-- <graphic> <FontIcon iconLiteral="fas-robot" iconSize="15" /> 
+										</graphic> -->
 									<tooltip>
 										<Tooltip text="AFTs display and settings" />
 									</tooltip>
@@ -91,23 +86,21 @@
 
 
 								<Tab text="Model runner">
-									<!-- <graphic>
-										<FontIcon iconLiteral="fas-play-circle" iconSize="15" />
-									</graphic> -->
+									<!-- <graphic> <FontIcon iconLiteral="fas-play-circle" iconSize="15" 
+										/> </graphic> -->
 									<tooltip>
 										<Tooltip text="Model configuration and running" />
 									</tooltip>
 									<content>
-										<TabPane fx:id="subTabPane" minHeight="0.0"
-											minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+										<TabPane minHeight="0.0" minWidth="0.0"
+											prefHeight="180.0" prefWidth="200.0">
 											<tabs>
 
 
-												<Tab text="Run configuration"
-													style="-fx-background-color: #bddee9;">
-													<!-- <graphic>
-														<FontIcon iconLiteral="fas-cogs" iconSize="15" />
-													</graphic> -->
+												<Tab text="Run configuration">
+													<!-- style="-fx-background-color: #bddee9;" -->
+													<!-- <graphic> <FontIcon iconLiteral="fas-cogs" iconSize="15" 
+														/> </graphic> -->
 													<tooltip>
 														<Tooltip text="Configuring model running" />
 													</tooltip>
@@ -118,12 +111,10 @@
 												</Tab>
 
 
-												<Tab text="Simulation Run and follow-up"
-													style="-fx-background-color: #bddee9;">
-													<!-- <graphic>
-														<FontIcon iconLiteral="far-chart-bar"
-															iconSize="15" />
-													</graphic> -->
+												<Tab text="Simulation Run and follow-up">
+													<!-- style="-fx-background-color: #bddee9;" -->
+													<!-- <graphic> <FontIcon iconLiteral="far-chart-bar" iconSize="15" 
+														/> </graphic> -->
 													<tooltip>
 														<Tooltip text="Simulation Run and follow-up" />
 													</tooltip>

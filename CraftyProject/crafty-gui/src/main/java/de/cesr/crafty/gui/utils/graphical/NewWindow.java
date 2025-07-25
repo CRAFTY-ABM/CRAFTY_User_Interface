@@ -2,7 +2,7 @@ package de.cesr.crafty.gui.utils.graphical;
 
 import java.util.function.Consumer;
 
-import de.cesr.crafty.gui.utils.camera.Camera;
+//import de.cesr.crafty.gui.utils.camera.Camera;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -35,15 +35,14 @@ public class NewWindow extends Stage {
 		show();
 	}
 
-	public static Stage createWin(String name, double Width, double Height, Node... nodes) {
+	public static Stage createWin(String name,  Node... nodes) {
 		Stage newWin = new Stage();
 		Scene scene;
 		StackPane rootPane = new StackPane();
 
 		rootPane.getChildren().addAll(nodes);
 
-		scene = new Scene(rootPane, Screen.getPrimary().getBounds().getWidth() * Width,
-				Screen.getPrimary().getBounds().getHeight() * Height);
+		scene = new Scene(rootPane);
 
 		newWin.setTitle(name);
 		newWin.setScene(scene);
@@ -73,14 +72,14 @@ public class NewWindow extends Stage {
 
 		Group root = new Group();
 		SubScene subScene;
-		Camera camera = new Camera();
+//		Camera camera = new Camera();
 
 		subScene = new SubScene(root, Screen.getPrimary().getBounds().getWidth() * 0.5,
 				Screen.getPrimary().getBounds().getHeight() * .8);
 		subScene.setFocusTraversable(true);
 		// subScene.widthProperty().bind(rootPane.widthProperty());
 		// subScene.heightProperty().bind(rootPane.heightProperty());
-		subScene.setCamera(camera);
+//		subScene.setCamera(camera);
 		root.getChildren().addAll(nodes);
 		// camera.defaultcamera(root,subScene);
 		// camera.adjustCamera(root,subScene);

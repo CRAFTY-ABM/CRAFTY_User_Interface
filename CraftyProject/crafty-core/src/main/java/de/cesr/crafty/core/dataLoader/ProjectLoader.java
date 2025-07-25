@@ -10,6 +10,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Mohamed Byari
@@ -38,7 +40,7 @@ public final class ProjectLoader {
 
 	static void initialSenarios() {
 		Path path = PathTools.fileFilter(File.separator + "scenarios.csv").iterator().next();
-		HashMap<String, ArrayList<String>> hash = CsvProcessors.ReadAsaHash(path);
+		Map<String, List<String>> hash = CsvProcessors.ReadAsaHash(path);
 		setScenariosList(hash.get("Name"));
 		for (String scenario : scenariosList) {
 			try {
@@ -64,7 +66,7 @@ public final class ProjectLoader {
 		return scenariosList;
 	}
 
-	public static void setScenariosList(ArrayList<String> list) {
+	public static void setScenariosList(List<String> list) {
 		scenariosList = new ArrayList<>(list);
 	}
 

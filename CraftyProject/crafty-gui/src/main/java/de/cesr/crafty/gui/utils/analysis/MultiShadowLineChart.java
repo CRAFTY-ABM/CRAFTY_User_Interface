@@ -73,7 +73,6 @@ public class MultiShadowLineChart extends LineChart<Number, Number> {
 
 		// Rebuild every band so it tracks the data after each layout pass
 		for (Map.Entry<XYChart.Series<Number, Number>, SeriesData> e : dataMap.entrySet()) {
-			XYChart.Series<Number, Number> series = e.getKey();
 			SeriesData sd = e.getValue();
 
 			Path area = sd.area;

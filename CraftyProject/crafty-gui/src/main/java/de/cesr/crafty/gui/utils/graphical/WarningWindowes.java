@@ -75,7 +75,7 @@ public class WarningWindowes {
 		alert.getButtonTypes().setAll(okButtonType, cancelButtonType, customButtonType);
 
 		// Handle button actions
-		alert.setOnCloseRequest(event -> {
+		alert.setOnCloseRequest(_ -> {
 			ButtonType result = alert.getResult();
 			if (result == okButtonType) {
 				okbuttonConsumer.accept("");
@@ -101,7 +101,7 @@ public class WarningWindowes {
 		alert.getButtonTypes().setAll(okButtonType, customButtonType);
 
 		// Handle button actions
-		alert.setOnCloseRequest(event -> {
+		alert.setOnCloseRequest(_ -> {
 			ButtonType result = alert.getResult();
 			if (result == okButtonType) {
 				okButtonConsumer.accept("");
@@ -144,10 +144,9 @@ public class WarningWindowes {
 				waitingDialog.close();
 			}
 		};
-
-		task.setOnSucceeded(wse -> {
+		task.setOnSucceeded(_ -> {
 			action.accept("");
-		});// here
+		});
 
 		Thread thread = new Thread(task);
 		thread.start();

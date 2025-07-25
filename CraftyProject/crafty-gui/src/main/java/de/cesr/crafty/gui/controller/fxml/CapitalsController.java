@@ -98,7 +98,7 @@ public class CapitalsController {
 			GridPane grid = new GridPane();
 			AtomicInteger i = new AtomicInteger(), j = new AtomicInteger();
 			listPaths.forEach(path -> {
-				HashMap<String, ArrayList<Double>> data = CsvProcessors.ReadAsaHashDouble(path);
+				Map<String, List<Double>> data = CsvProcessors.ReadAsaHashDouble(path);
 				// plot
 				LineChart<Number, Number> chart = CapitalsAnalyzer.generateCapitalChart(path.getFileName().toString(),
 						data);
@@ -130,7 +130,7 @@ public class CapitalsController {
 			if (k < CapitalUpdater.getCapitalsList().size()) {
 				radioColor[k] = new RadioButton(CapitalUpdater.getCapitalsList().get(i));
 			}
-			radioColor[k].setOnAction(e -> {
+			radioColor[k].setOnAction(_ -> {
 				updatehistograms(k);
 				CellsCanvas.colorMap(radioColor[k].getText());
 			});
@@ -156,13 +156,16 @@ public class CapitalsController {
 		// loop for Services
 		ServiceSet.getServicesList().forEach(serviceName -> {
 			// loop for AFTs
-			AFTsLoader.getActivateAFTsHash().forEach((aftName, a) -> {
+			AFTsLoader.getActivateAFTsHash().values().forEach(a -> {
 				// aggreagte by service
 				if (a.getSensitivity().get((capitalName + "|" + serviceName)) != null
-						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0)
+						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0) {
 					hash.merge(serviceName, a.getSensitivity().get((capitalName + "|" + serviceName)), Double::sum);
+				}
+
 			});
 		});
+
 		Histogram.histo("Services", hServiceSensitivity, hash);
 		Histogram.mouseHistogrameController(hServiceSensitivity);
 	}
@@ -170,15 +173,31 @@ public class CapitalsController {
 	void updateHistoAft(int year, String capitalName) {
 		// initialise container
 		Map<String, Double> hash = new HashMap<>();
+
 		// loop for AFTs
+		AtomicInteger count = new AtomicInteger();
 		AFTsLoader.getActivateAFTsHash().forEach((aftName, a) -> {
+
+			Map<String, Double> sumServices = new HashMap<>();
 			// loop for Services
 			ServiceSet.getServicesList().forEach(serviceName -> {
 				// aggreagte by service
 				if (a.getSensitivity().get((capitalName + "|" + serviceName)) != null
-						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != null)
-					hash.merge(aftName, a.getSensitivity().get((capitalName + "|" + serviceName)), Double::sum);
+						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != null
+						&& a.getSensitivity().get((capitalName + "|" + serviceName)) != 0) {
+					sumServices.merge(aftName, a.getSensitivity().get((capitalName + "|" + serviceName)), Double::sum);
+				}
 			});
+			if (sumServices.size() > 0) {
+				count.getAndIncrement();
+				sumServices.forEach((key, value) -> {
+					hash.merge(key, value, Double::sum);
+				});
+			}
+		});
+
+		hash.forEach((key, value) -> {
+			hash.put(key, value / count.get());
 		});
 		Histogram.histo("AFTs", hAftSensitivity, hash);
 		Histogram.mouseHistogrameController(hAftSensitivity);

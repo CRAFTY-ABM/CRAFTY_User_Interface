@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -19,8 +21,8 @@ import de.cesr.crafty.core.crafty.Cell;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
-import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
+import de.cesr.crafty.core.updaters.CellsShocksUpdater;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.general.Utils;
 import tech.tablesaw.api.Table;
@@ -30,11 +32,13 @@ import tech.tablesaw.io.csv.CsvReadOptions;
 public class CsvProcessors {
 	private static final CustomLogger LOGGER = new CustomLogger(CsvProcessors.class);
 
-	public static HashMap<String, ArrayList<Double>> ReadAsaHashDouble(Path filePath) {
-		HashMap<String, ArrayList<String>> str = ReadAsaHash(filePath);
-		HashMap<String, ArrayList<Double>> dou = new HashMap<>();
+	private static final Pattern COMMA = Pattern.compile(",", Pattern.LITERAL);
+
+	public static Map<String, List<Double>> ReadAsaHashDouble(Path filePath) {
+		Map<String,List<String>> str = ReadAsaHash(filePath);
+		Map<String, List<Double>> dou = new HashMap<>();
 		str.forEach((k, list) -> {
-			ArrayList<Double> tmp = new ArrayList<>();
+			List<Double> tmp = new ArrayList<>();
 			list.forEach(s -> {
 				tmp.add(Utils.sToD(s));
 			});
@@ -43,13 +47,13 @@ public class CsvProcessors {
 		return dou;
 	}
 
-	public static HashMap<String, ArrayList<String>> ReadAsaHash(Path filePath) {
+	public static Map<String, List<String>> ReadAsaHash(Path filePath) {
 		return ReadAsaHash(filePath, false);
 	}
 
-	public static HashMap<String, ArrayList<String>> ReadAsaHash(Path filePath, boolean ignoreIfFileNotExists) {
+	public static Map<String, List<String>> ReadAsaHash(Path filePath, boolean ignoreIfFileNotExists) {
 		LOGGER.info("Reading : " + filePath);
-		HashMap<String, ArrayList<String>> hash = new HashMap<>();
+		Map<String, List<String>> hash = new HashMap<>();
 		Table T = null;
 		try {
 			CsvReadOptions options = CsvReadOptions.builder(filePath.toFile()).separator(',').build();
@@ -89,57 +93,12 @@ public class CsvProcessors {
 		return hash;
 	}
 
-//	public static void processCSV(CellsLoader cells, Path filePath, String type) {
-//		LOGGER.info("Importing data for " + type + " from : " + filePath + "...");
-//		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-//		ConcurrentHashMap<String, Integer> indexof = new ConcurrentHashMap<>();
-//		try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
-//			String[] line1 = br.readLine().split(",");
-//			for (int i = 0; i < line1.length; i++) {
-//				indexof.put(line1[i].toUpperCase(), i);
-//			}
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				final String data = line;
-//
-//				executor.submit(() -> {
-//
-//					switch (type) {
-//					case "Capitals":
-//						associateCapitalsToCells(indexof, data);
-//						break;
-//					case "Services":
-//						associateOutPutServicesToCells(cells, indexof, data);
-//						break;
-//					case "Baseline":
-//						createCells(cells, indexof, data);
-//						break;
-//					}
-//				});
-//			}
-//		} catch (IOException e) {
-//
-//			LOGGER.error(e.getMessage());
-//		} finally {
-//			executor.shutdown();
-//			try {
-//				// Wait for all tasks to finish
-//				if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-//					executor.shutdownNow();
-//				}
-//			} catch (InterruptedException e) {
-//				executor.shutdownNow();
-//				LOGGER.error(e.getMessage());
-//				Thread.currentThread().interrupt();
-//			}
-//		}
-//	}
-
 	public static void processCSV(Path file, CsvKind kind) {
 		LOGGER.info("Importing data for " + kind + " from : " + file + "...");
 		try (Stream<String> lines = Files.lines(file)) {
 			Iterator<String> it = lines.iterator();
 			Map<String, Integer> index = buildIndex(it.next());
+//			System.out.println(index);
 
 			/* the remaining lines are processed in parallel */
 			StreamSupport.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED), true) // true = parallel
@@ -151,7 +110,7 @@ public class CsvProcessors {
 	}
 
 	private static Map<String, Integer> buildIndex(String headerLine) {
-		String[] cols = headerLine.split(",");
+		String[] cols = COMMA.split(headerLine, -1);
 		Map<String, Integer> idx = new HashMap<>(cols.length);
 
 		for (int i = 0; i < cols.length; i++) {
@@ -165,55 +124,42 @@ public class CsvProcessors {
 		return Collections.unmodifiableMap(idx);
 	}
 
-//	public static void processCSV(CellsLoader cells, Path filePath, String type) {// not multithred
-//	    LOGGER.info("Importing data for " + type + " from : " + filePath + "...");
-//
-//	    ConcurrentHashMap<String, Integer> indexof = new ConcurrentHashMap<>();
-//
-//	    try (BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()))) {
-//	        // Read the first line (column headers)
-//	        String[] line1 = br.readLine().split(",");
-//	        for (int i = 0; i < line1.length; i++) {
-//	            indexof.put(line1[i].toUpperCase(), i);
-//	        }
-//
-//	        // Read each subsequent line and process directly
-//	        String line;
-//	        while ((line = br.readLine()) != null) {
-//	            // No executor; just do the switch logic on the current thread
-//	            switch (type) {
-//	                case "Capitals":
-//	                    associateCapitalsToCells(indexof, line);
-//	                    break;
-//	                case "Services":
-//	                    associateOutPutServicesToCells(cells, indexof, line);
-//	                    break;
-//	                case "Baseline":
-//	                    createCells(cells, indexof, line);
-//	                    break;
-//	            }
-//	        }
-//	    } catch (IOException e) {
-//	        LOGGER.error(e.getMessage());
-//	    }
-//	}
-
 	static void associateCapitalsToCells(Map<String, Integer> indexof, String data) {
-		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
+
+		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(COMMA.split(data, -1)));
 		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
 		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
+		Cell c = CellsLoader.getCell(x, y);
 		CapitalUpdater.getCapitalsList().forEach(capital_name -> {
 			if (indexof.get(capital_name.toUpperCase()) == null) {
-				ModelRunner.cellsSet.getCell(x, y).getCapitals().put(capital_name, 0.);
-			} else {
+				c.getCapitals().put(capital_name, 0.);
+			} else if (indexof.get(capital_name.toUpperCase()) < immutableList.size()) {
 				double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-				ModelRunner.cellsSet.getCell(x, y).getCapitals().put(capital_name, capital_value);
+				c.getCapitals().put(capital_name, capital_value);
 			}
 		});
 	}
 
-	static void createCells( Map<String, Integer> indexof, String data) {
-		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
+	static void associateShockesToCells(Map<String, Integer> indexof, String data) {
+
+		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(COMMA.split(data, -1)));
+		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
+		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
+		Cell c = CellsLoader.getCell(x, y);
+		CellsShocksUpdater.cellsShocks.put(c, new ConcurrentHashMap<>());
+		CapitalUpdater.getCapitalsList().forEach(capital_name -> {
+			if (indexof.get(capital_name.toUpperCase()) != null) {
+				double shock_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
+//				shock_value = shock_value > 0 ? 1. : 0.;
+				CellsShocksUpdater.cellsShocks.get(c).put(capital_name, shock_value);
+				c.getCapitals().put(capital_name,
+						c.getCapitals().get(capital_name) - c.getCapitals().get(capital_name) * shock_value);
+			}
+		});
+	}
+
+	static void createCells(Map<String, Integer> indexof, String data) {
+		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(COMMA.split(data, -1)));
 		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
 		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
 
@@ -233,7 +179,7 @@ public class CsvProcessors {
 	}
 
 	static void associateOutPutServicesToCells(Map<String, Integer> indexof, String data) {
-		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(data.split(",")));
+		List<String> immutableList = Collections.unmodifiableList(Arrays.asList(COMMA.split(data, -1)));
 		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
 		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
 		String aft_name = immutableList.get(indexof.get("AGENT"));
