@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import de.cesr.crafty.core.crafty.ManagerTypes;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
@@ -48,7 +49,7 @@ public class AftsAnaliserController {
 	}
 
 	private void forceResizing() {
-		double scaley = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY * 1.2);
+		double scaley = GuiScaler.lastScreen.getBounds().getHeight() / (FxMain.graphicScaleY * 1.2);
 		scroll.setMaxHeight(scaley);
 		scroll.setMinHeight(scaley);
 	}

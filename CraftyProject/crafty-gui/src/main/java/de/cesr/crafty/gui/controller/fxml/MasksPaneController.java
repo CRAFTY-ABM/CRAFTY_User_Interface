@@ -88,8 +88,8 @@ public class MasksPaneController {
 					Text text = Tools.text(
 							"Select the AFT (landowner) to display the possible transitions from this AFT to other AFTs (competitors):",
 							Color.BLUE);
-					boxMask.getChildren().addAll(Tools.hBox(text, boxYears),
-							Tools.hBox(boxOfAftRadios, circularPlot[i]));
+					boxMask.getChildren().addAll(Tools.hBox(text, boxYears)
+							/*, Tools.hBox(boxOfAftRadios, circularPlot[i] )*/);
 					radioListOfAFTs.forEach(rad -> {
 						rad.setOnAction(_ -> {
 							circularPlot[i].setItems(

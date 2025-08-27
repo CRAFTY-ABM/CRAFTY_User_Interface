@@ -2,6 +2,7 @@ package de.cesr.crafty.gui.utils.graphical;
 
 import java.util.function.Consumer;
 
+import de.cesr.crafty.gui.main.GuiScaler;
 //import de.cesr.crafty.gui.utils.camera.Camera;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -26,8 +27,8 @@ public class NewWindow extends Stage {
 
 		rootPane.getChildren().addAll(nodes);
 
-		scene = new Scene(rootPane, Screen.getPrimary().getBounds().getWidth() * Width,
-				Screen.getPrimary().getBounds().getHeight() * Height);
+		scene = new Scene(rootPane, GuiScaler.lastScreen.getBounds().getWidth() * Width,
+				GuiScaler.lastScreen.getBounds().getHeight() * Height);
 
 		setTitle(name);
 		setScene(scene);
@@ -74,8 +75,8 @@ public class NewWindow extends Stage {
 		SubScene subScene;
 //		Camera camera = new Camera();
 
-		subScene = new SubScene(root, Screen.getPrimary().getBounds().getWidth() * 0.5,
-				Screen.getPrimary().getBounds().getHeight() * .8);
+		subScene = new SubScene(root, GuiScaler.lastScreen.getBounds().getWidth() * 0.5,
+				GuiScaler.lastScreen.getBounds().getHeight() * .8);
 		subScene.setFocusTraversable(true);
 		// subScene.widthProperty().bind(rootPane.widthProperty());
 		// subScene.heightProperty().bind(rootPane.heightProperty());

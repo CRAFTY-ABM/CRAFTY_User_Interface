@@ -2,7 +2,7 @@
 
 project_path: '---' 
 
-scenario: '---'                              # Scenario identifier
+scenario: 'ssp445'                              # Scenario identifier
 regionalization: false						            # Only works if regional data is available (regional demands and GIS cell specificity).
 # CRAFTY Mechanisms
 initial_demand_supply_equilibrium: true       # Ensure balanced eco-service supply and demand during initial tick
@@ -19,10 +19,10 @@ neighbor_priority_probability: 0.95           # Probability of selecting neighbo
 neighbor_radius: 2                            # Radius defining neighborhood if neighbor effect is enabled
 
 # Competitiveness Process
-land_abandonment_percentage: 0.025            # Percentage of land that can be abandoned per tick
-participating_cells_percentage: 0.025         # Percentage of cells participating in competitiveness process
+land_abandonment_percentage: 0.03            # Percentage of land that can be abandoned per tick
+participating_cells_percentage: 0.03         # Percentage of cells participating in competitiveness process
 takeOverUnmanageCells_percentage: 0.8
-marginal_utility_calculations_per_tick: 5     # Number of times the marginal utility calculated per tick
+marginal_utility_calculations_per_tick: 10     # Number of times the marginal utility calculated per tick
 
 # ConsiderLandControle : true/false;
 # List of landcontrole cosiderd  names    # all for all the mask will be considerd 

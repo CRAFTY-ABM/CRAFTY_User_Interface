@@ -38,10 +38,11 @@ import de.cesr.crafty.gui.utils.graphical.ImagesToPDF;
 import de.cesr.crafty.gui.utils.graphical.LineChartTools;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
-import de.cesr.crafty.gui.utils.graphical.SankeyPlotGraph;
+import de.cesr.crafty.gui.utils.graphical.SankeyChart;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.utils.graphical.WarningWindowes;
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.gui.utils.graphical.SaveAs;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -59,10 +60,10 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -105,7 +106,6 @@ public class OutPuterController {
 
 	private HBox boxAverageAndLAndEvent = new HBox();
 
-	ArrayList<CheckBox> radioListOfAFTs = new ArrayList<>();
 	private static final CustomLogger LOGGER = new CustomLogger(OutPuterController.class);
 
 	public static boolean isCurrentResult = false;
@@ -136,14 +136,15 @@ public class OutPuterController {
 	private void treeFiles() {
 		System.out.println(outputpath);
 		tree = FileTreeView.build(outputpath, ".csv", "-Cell-", -1);
-		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
+		double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
 		tree.setMaxHeight(scaleY);
 		tree.setMinHeight(scaleY);
 		treeBox.getChildren().add(tree);
 		mouseTreeFiles(tree);
 	}
-	@FXML 
-	public void reload(){
+
+	@FXML
+	public void reload() {
 		treeBox.getChildren().remove(tree);
 		treeFiles();
 	}
@@ -217,7 +218,7 @@ public class OutPuterController {
 	}
 
 	private void forceResizing() {
-		double scaleY = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY * 1.1);
+		double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (FxMain.graphicScaleY * 1.1);
 		scroll.setMaxHeight(scaleY);
 		scroll.setMinHeight(scaleY);
 		scrollRegions.setMaxHeight(scaleY);
@@ -243,8 +244,6 @@ public class OutPuterController {
 				regionsBox.getValue() + "-AggregateAFTComposition.csv");
 
 	}
-	
-
 
 	HashMap<String, HashMap<String, Integer>> stateToHashSankey(String lastYear) {
 		HashMap<String, String> copyfirstYearHash = new HashMap<>();
@@ -319,7 +318,7 @@ public class OutPuterController {
 			sankeyBox.getItems().addAll(yearList);
 			sankeyBox.setValue(yearList.getLast());
 			yearChoice.setValue(yearList.getLast());
-//			OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].setSelected(true);
+			OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].setSelected(true);
 			CellsCanvas.colorMap(OutPutTabController.radioColor[OutPutTabController.radioColor.length - 1].getText());
 			Graphs(gridChart, "Total-AggregateServiceDemand.csv", "Total-AggregateAFTComposition.csv");
 		}
@@ -443,7 +442,7 @@ public class OutPuterController {
 			Set<String> selectedItemsSet = new HashSet<>();
 			AFTsLoader.getAftHash().keySet().forEach(n -> {
 				CheckBox radio = new CheckBox(n);
-				radioListOfAFTs.add(radio);
+//				radioListOfAFTs.add(radio);
 				radio.setSelected(true);
 				selectedItemsSet.add(radio.getText());
 				radio.setOnAction(_ -> {
@@ -474,18 +473,20 @@ public class OutPuterController {
 		AFTsLoader.getAftHash().forEach((n, a) -> {
 			colors.put(n, Color.web(a.getColor()));
 		});
-		SankeyPlot sankeyAfts = SankeyPlotGraph.AFtsToSankeyPlot(h, colors, setManagers);
+		Region sankeyAfts = SankeyChart.sankey(h, colors);
 		sankeyAfts.setId("AFTs");
 		MousePressed.mouseControle(borderPane, sankeyAfts);
-		VBox boxOfAftRadios = new VBox();
-		radioListOfAFTs.forEach(b -> {
-			boxOfAftRadios.getChildren().add(b);
-		});
-		HBox hbox = new HBox(boxOfAftRadios, sankeyAfts);
+		VBox aftBox = new VBox();
+		aftBox.setAlignment(Pos.CENTER);
+		HBox hbox = new HBox(aftBox);
+		Text aftTX = Tools.text("AFTs", Color.BLUE);
+		aftBox.getChildren().addAll(sankeyAfts, aftTX);
+		aftTX.setScaleX(2);
+		aftTX.setScaleY(2);
 		borderPane.getChildren().addAll(Tools.hBox(txt, txt2, txt3, txt4, saveAllFilAsPNG), hbox);
 
 		if (AftCategorised.aftCategories.size() != 0) {
-			SankeyPlot sankeyCategories = addsankeyCategories(h);
+			Region sankeyCategories = addsankeyCategories(h);
 			sankeyCategories.setId("Categories");
 			Text tx = Tools.text("Categories", Color.BLUE);
 			tx.setScaleX(2);
@@ -498,7 +499,7 @@ public class OutPuterController {
 
 			borderPane.getChildren().add(grid);
 		} else {
-			double scaleY = Screen.getPrimary().getBounds().getHeight() / (FxMain.graphicScaleY * 1.2);
+			double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (FxMain.graphicScaleY * 1.2);
 			sankeyAfts.setMaxHeight(scaleY);
 			sankeyAfts.setMinHeight(scaleY);
 		}
@@ -536,7 +537,7 @@ public class OutPuterController {
 		List<Node> set = new ArrayList<>();
 		R.forEach((n, hash) -> {
 			if (hash.size() > 0) {
-				SankeyPlot p = SankeyPlotGraph.AFtsToSankeyPlot(hash, Rcolor.get(n));
+				Region p = SankeyChart.sankey(hash, Rcolor.get(n));
 
 				p.setId("Category-" + n);
 				Text txt = Tools.text("Category: " + n, Color.BLUE);
@@ -564,12 +565,12 @@ public class OutPuterController {
 		return r;
 	}
 
-	private SankeyPlot addsankeyCategories(HashMap<String, HashMap<String, Integer>> h) {
+	private Region addsankeyCategories(HashMap<String, HashMap<String, Integer>> h) {
 		HashMap<String, HashMap<String, Integer>> m = sankyBycategories(h);
 
 		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors
 				.toMap(Map.Entry::getKey, e -> Color.web(e.getValue()), (_, newValue) -> newValue, HashMap::new));
-		SankeyPlot sankeyCategories = SankeyPlotGraph.AFtsToSankeyPlot(m, colors);
+		Region sankeyCategories = SankeyChart.sankey(m, colors);
 		MousePressed.mouseControle(borderPane, sankeyCategories);
 		return sankeyCategories;
 
@@ -579,6 +580,7 @@ public class OutPuterController {
 		ModelRunner.cellsSet.servicesAndOwneroutPut(year, outputpath.toString());
 		for (int i = 0; i < OutPutTabController.radioColor.length; i++) {
 			if (OutPutTabController.radioColor[i].isSelected()) {
+
 				CellsCanvas.colorMap(OutPutTabController.radioColor[i].getText());
 			}
 		}

@@ -25,7 +25,7 @@ import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 
 public class CraftyDataUpscaler {
-	static double scale = 2;
+	static double scale = 1.5;
 	static String DataFolderPath;
 
 	public static void main(String[] args) {
@@ -44,8 +44,7 @@ public class CraftyDataUpscaler {
 	}
 
 	static void createDataTemplate(String DataFolderPath) {
-		copyFolder(ProjectLoader.getProjectPath() + File.separator + "AFTs",
-				DataFolderPath + File.separator + "AFTs");
+		copyFolder(ProjectLoader.getProjectPath() + File.separator + "AFTs", DataFolderPath + File.separator + "AFTs");
 		copyFolder(ProjectLoader.getProjectPath() + File.separator + "csv", DataFolderPath + File.separator + "csv");
 //		copyFolder(ProjectLoader.getProjectPath() + File.separator + "production",
 //				DataFolderPath + File.separator + "production");
@@ -98,7 +97,7 @@ public class CraftyDataUpscaler {
 		CsvTools.writeCSVfile(csv, pathoutput);
 	}
 
-	static void folderUpscaler(String folderPath) {
+	static void folderUpscaler(String folderPath, String... dirExcluded) {
 		PathTools.makeDirectory(switchPaths(folderPath.toString(), DataFolderPath));
 		List<Path> listSubFolders = PathTools.getAllFolders(folderPath);
 		listSubFolders.forEach(l -> {
@@ -108,19 +107,30 @@ public class CraftyDataUpscaler {
 		ArrayList<Path> foldersinCapitals = PathTools.fileFilter(folderPath);
 		foldersinCapitals.forEach(path -> {
 			if (path.toString().contains(".csv")) {
-				if (!path.toString().contains("Restrictions")) {
-					upscaleCsvMap(path, Paths.get(switchPaths(path.toString(), DataFolderPath)));
-				} else {
-					try {
-						Files.copy(path, Paths.get(switchPaths(path.toString(), DataFolderPath)),
-								StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				if (!excludFilde(path, dirExcluded)) {
+					if (!path.toString().contains("Restrictions")) {
+						upscaleCsvMap(path, Paths.get(switchPaths(path.toString(), DataFolderPath)));
+					} else {
+						try {
+							Files.copy(path, Paths.get(switchPaths(path.toString(), DataFolderPath)),
+									StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 		});
+	}
+
+	private static boolean excludFilde(Path path, String... dirExcluded) {
+		boolean tmp = false;
+		for (int i = 0; i < dirExcluded.length; i++) {
+			if (path.toString().contains(dirExcluded[i])) {
+				return true;
+			}
+		}
+		return tmp;
 	}
 
 	static String switchPaths(String path, String outputFolderPath) {

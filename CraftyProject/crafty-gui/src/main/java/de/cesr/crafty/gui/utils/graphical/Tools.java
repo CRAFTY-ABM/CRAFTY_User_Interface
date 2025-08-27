@@ -28,6 +28,7 @@ import javafx.scene.text.Text;
 import java.util.stream.Collectors;
 
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Screen;
@@ -158,7 +159,7 @@ public class Tools {
 	}
 
 	public static ImageView logo(InputStream stream, double fractionOfScreen) {
-		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		Rectangle2D bounds = GuiScaler.lastScreen.getVisualBounds();
 		Image image = new Image(stream, bounds.getWidth() * fractionOfScreen, 0, true, true);
 
 		ImageView iv = new ImageView(image);
@@ -191,7 +192,7 @@ public class Tools {
 	}
 
 	public static void forceResisingWidth(double scale, Pane... nodes) {
-		double width = Screen.getPrimary().getBounds().getWidth() * scale;
+		double width = GuiScaler.lastScreen.getBounds().getWidth() * scale;
 
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i].setMaxWidth(width / (2 * FxMain.graphicScaleX));
@@ -204,7 +205,7 @@ public class Tools {
 	}
 
 	public static void forceResisingHeight(double scale, Pane... nodes) {
-		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
+		double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i].setMaxHeight(scaleY);
 			nodes[i].setMinHeight(scaleY);
@@ -212,7 +213,7 @@ public class Tools {
 	}
 
 	public static void forceResisingHeight(double scale, ScrollPane... nodes) {
-		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
+		double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (1.2 * FxMain.graphicScaleY * scale);
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i].setMaxHeight(scaleY);
 			nodes[i].setMinHeight(scaleY);

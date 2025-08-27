@@ -3,6 +3,8 @@ package de.cesr.crafty.core.dataLoader.land;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
@@ -12,6 +14,7 @@ import tech.tablesaw.io.csv.CsvReadOptions;
 
 public class GisLoader {
 	private static final CustomLogger LOGGER = new CustomLogger(GisLoader.class);
+	public static ConcurrentHashMap<String, Integer> regionIDs = new ConcurrentHashMap<>();
 
 	public void loadGisData() {
 		try {
@@ -20,6 +23,7 @@ public class GisLoader {
 			LOGGER.info("WorldName = " + ProjectLoader.WorldName);
 			CsvReadOptions options = CsvReadOptions.builder(path.toFile()).separator(',').build();
 			Table T = Table.read().usingOptions(options);
+			AtomicInteger count = new AtomicInteger();
 
 			for (int i = 0; i < T.columns().iterator().next().size(); i++) {
 				String coor = T.column("X").get(i) + "," + T.column("Y").get(i);
@@ -29,6 +33,10 @@ public class GisLoader {
 						if (T.column(name).get(ii) != null && name.contains("Region_Code")) {
 							CellsLoader.hashCell.get(coor).setCurrentRegion(T.column(name).get(ii).toString());
 							CellsLoader.regionsNamesSet.add(T.column(name).get(ii).toString());
+							if (!regionIDs.keySet().contains(T.column(name).get(ii).toString())) {
+								count.getAndIncrement();
+							}
+							regionIDs.putIfAbsent(T.column(name).get(ii).toString(), count.get());
 						}
 					});
 				}

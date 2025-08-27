@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
+import de.cesr.crafty.gui.utils.analysis.CsvToHtml;
 import de.cesr.crafty.gui.utils.graphical.CSVTableView;
 import de.cesr.crafty.gui.utils.graphical.ColorsTools;
 import de.cesr.crafty.gui.utils.graphical.Histogram;
@@ -122,15 +123,20 @@ public class AFTsConfigurationController {
 		AFTsProductionController.getInstance().getBox2().getChildren().clear();
 		AFTsProductionController.getInstance().getHBox1().getChildren().clear();
 		AFTsProductionController.getInstance().getHBox1().getChildren()
-				.add(AFTsProductionController.productivitySampleChart(a.getLabel(),false));
+				.add(AFTsProductionController.productivitySampleChart(a.getLabel(), false));
 		Histogram.histo((Pane) histogramePlevel.getParent(), "Productivity levels", histogramePlevel,
 				a.getProductivityLevel());
-//		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),// to be change
-//				a.getLabel(), ".csv");
-//		AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
+		ArrayList<Path> paths = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(),
+				a.getLabel(), ".csv"); // to be change
+		if (paths == null) {
+			paths = PathTools.fileFilter(PathTools.asFolder("production"), "default_production", a.getLabel(), ".csv");
+		}
+		if (paths != null) {
+			AFTsProductionController.getInstance().getBox2().getChildren().add(CsvToHtml.tabeWeb(paths.get(0)));
+		}
 		GridPane grid = new GridPane();
 		ubdateRadarchart(AFTsLoader.getAftHash().get(AFTChoisButton.getValue()), grid);
-		grid.setMinWidth(TopBox.getMinWidth()); 
+		grid.setMinWidth(TopBox.getMinWidth());
 		AFTsProductionController.getInstance().getBox2().getChildren().forEach(child -> {
 			if (child instanceof GridPane) {
 				AFTsProductionController.getInstance().getBox2().getChildren().remove(child);
@@ -258,7 +264,8 @@ public class AFTsConfigurationController {
 	}
 
 	static void creatCsvFiles(Aft a, String descreption) {
-		String[][] tab = new String[ServiceSet.getServicesList().size() + 1][CapitalUpdater.getCapitalsList().size() + 2];
+		String[][] tab = new String[ServiceSet.getServicesList().size() + 1][CapitalUpdater.getCapitalsList().size()
+				+ 2];
 		tab[0][0] = "";
 		tab[0][CapitalUpdater.getCapitalsList().size() + 1] = "Production";
 		for (int i = 0; i < CapitalUpdater.getCapitalsList().size(); i++) {

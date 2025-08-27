@@ -98,6 +98,7 @@ public class LandMaskUpdater extends AbstractUpdater {
 		ArrayList<Path> restrictionsFile = PathTools.fileFilter(currentyear, ProjectLoader.getScenario(),
 				"LandUseControl", "Restrictions", maskType, ".csv");
 		if (restrictionsFile == null || restrictionsFile.isEmpty()) {
+			LOGGER.info(maskType + " Restrections updated ");
 			return;
 		}
 		restriction.clear();

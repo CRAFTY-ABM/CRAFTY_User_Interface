@@ -1,6 +1,7 @@
 package de.cesr.crafty.gui.controller.fxml;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 
 import de.cesr.crafty.core.cli.Config;
 import de.cesr.crafty.core.cli.ConfigLoader;
+import de.cesr.crafty.core.dataLoader.CsvKind;
+import de.cesr.crafty.core.dataLoader.CsvProcessors;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
@@ -285,6 +288,9 @@ public class ModelRunnerController {
 		
 		Platform.runLater(() -> {
 			Timestep.setCurrentYear(Timestep.getStartYear());
+			//reloadBaseline
+			Path baselinePath = PathTools.fileFilter(PathTools.asFolder("worlds"), "Baseline_map").iterator().next();
+			CsvProcessors.processCSV(baselinePath, CsvKind.BASELINE);
 			run.setDisable(false);
 			gridPaneLinnChart.getChildren().clear();
 			lineChart.clear();

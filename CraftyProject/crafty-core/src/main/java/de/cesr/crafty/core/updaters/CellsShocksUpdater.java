@@ -57,7 +57,6 @@ public class CellsShocksUpdater extends AbstractUpdater {
 		} else {
 			LOGGER.warn("No shocksMap folder found or no files found in the 'shocksMap' folder.");
 		}
-
 	}
 
 }

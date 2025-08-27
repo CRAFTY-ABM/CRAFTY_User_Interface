@@ -50,7 +50,7 @@
 			</content>
 		</TitledPane>
 		<TitledPane animated="true"
-			text="Demands and Utility Weights">
+			text="Demands">
 			<content>
 				<HBox fx:id="hboxDemandWeight">
 					<LineChart fx:id="demandsChart" title="Demands for all services">
@@ -61,14 +61,14 @@
 							<NumberAxis side="LEFT" />
 						</yAxis>
 					</LineChart>
-					<LineChart fx:id="weightsChart" title="Utility weights for all services">
+					<!-- <LineChart fx:id="weightsChart" title="Utility weights for all services">
 						<xAxis>
 							<NumberAxis side="BOTTOM" />
 						</xAxis>
 						<yAxis>
 							<NumberAxis side="LEFT" />
 						</yAxis>
-					</LineChart>
+					</LineChart> -->
 				</HBox>
 			</content>
 		</TitledPane>

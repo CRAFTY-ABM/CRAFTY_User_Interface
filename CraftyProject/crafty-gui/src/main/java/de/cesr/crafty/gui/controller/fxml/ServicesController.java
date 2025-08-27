@@ -46,8 +46,8 @@ public class ServicesController {
 
 	@FXML
 	private LineChart<Number, Number> demandsChart;
-	@FXML
-	private LineChart<Number, Number> weightsChart;
+//	@FXML
+//	private LineChart<Number, Number> weightsChart;
 
 	public static List<RadioButton> radioService = new ArrayList<>();
 
@@ -77,15 +77,15 @@ public class ServicesController {
 		HashMap<String, Consumer<String>> othersMenuItems = new HashMap<>();
 		othersMenuItems.put(ItemName, action);
 		MousePressed.mouseControle((Pane) demandsChart.getParent(), demandsChart, othersMenuItems);
-		MousePressed.mouseControle((Pane) weightsChart.getParent(), weightsChart, othersMenuItems);
-		// =====
-		new LineChartTools().lineChart((Pane) weightsChart.getParent(), weightsChart,
-				ServiceWeightLoader.serialisationWorldWeight());
+//		MousePressed.mouseControle((Pane) weightsChart.getParent(), weightsChart, othersMenuItems);
+//		// =====
+//		new LineChartTools().lineChart((Pane) weightsChart.getParent(), weightsChart,
+//				ServiceWeightLoader.serialisationWorldWeight());
 
 		Tools.forceResisingWidth(TopBox, hboxDemandWeight);
 
-		demandsChart.setMinWidth(TopBox.getMinWidth() / 2);
-		weightsChart.setMinWidth(TopBox.getMinWidth() / 2);
+		demandsChart.setMinWidth(TopBox.getMinWidth() );
+//		weightsChart.setMinWidth(TopBox.getMinWidth() / 2);
 
 		Tools.forceResisingWidth(0.1, vboxForSliders);
 //		updatehistograms(0);

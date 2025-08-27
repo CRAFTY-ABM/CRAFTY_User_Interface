@@ -61,7 +61,8 @@ public class ServiceDemandLoader {
 			});
 			CellsLoader.regions.values().forEach(r -> {
 				r.getServicesHash().forEach((ns, s) -> {
-					ServiceSet.worldService.get(ns).getDemands().merge(year, s.getDemands().get(year), Double::sum);
+					double nbr = s.getDemands().get(year) != null ? s.getDemands().get(year) : 0;
+					ServiceSet.worldService.get(ns).getDemands().merge(year, nbr, Double::sum);
 					ServiceSet.worldService.get(ns).getWeights().merge(year,
 							s.getWeights().get(year) / CellsLoader.regions.size(), Double::sum);
 				});

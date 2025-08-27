@@ -30,6 +30,7 @@ import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.utils.graphical.WarningWindowes;
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.core.utils.file.PathTools;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -55,7 +56,7 @@ public class MenuBarController {
 	}
 
 	public void initialize() {
-		 updateRecentFilesMenu();
+		updateRecentFilesMenu();
 		dataAnalysis.setDisable(true);
 	}
 
@@ -63,7 +64,7 @@ public class MenuBarController {
 	@FXML
 	public void open(ActionEvent event) {
 		openProject();
-		
+
 	}
 
 	@FXML
@@ -106,30 +107,29 @@ public class MenuBarController {
 		ColorsTools.windowzpalette(winColor);
 	}
 
-	
 	private void restartApplication() {
-	    String javaHome = System.getProperty("java.home");
-	    String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
-	    String classPath = ManagementFactory.getRuntimeMXBean().getClassPath();
-	    String mainClass = FxMain.class.getName();
+		String javaHome = System.getProperty("java.home");
+		String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+		String classPath = ManagementFactory.getRuntimeMXBean().getClassPath();
+		String mainClass = FxMain.class.getName();
 
-	    // Build the command
-	    List<String> command = new ArrayList<>();
-	    command.add(javaBin);
-	    command.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
-	    command.add("-cp");
-	    command.add(classPath);
-	    command.add(mainClass);
+		// Build the command
+		List<String> command = new ArrayList<>();
+		command.add(javaBin);
+		command.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
+		command.add("-cp");
+		command.add(classPath);
+		command.add(mainClass);
 
-	    try {
-	        // Use ProcessBuilder to execute the command
-	        ProcessBuilder processBuilder = new ProcessBuilder(command);
-	        processBuilder.start();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
+		try {
+			// Use ProcessBuilder to execute the command
+			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-	    System.exit(0);
+		System.exit(0);
 	}
 
 	private void openProject() {
@@ -151,21 +151,29 @@ public class MenuBarController {
 			ConfigLoader.init();
 			ConfigLoader.config.project_path = selectedDirectory.getAbsolutePath();
 			ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
-			ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(1);
+			ConfigLoader.config.scenario = ProjectLoader.getScenariosList().get(0);
 			runnerStartAndPaneInitialze();
 			RecentProjects.add(Paths.get(ConfigLoader.config.project_path));
-	        updateRecentFilesMenu();
+			updateRecentFilesMenu();
 		}
 	}
+
+	public static boolean onlyOneTime = true;
 
 	private void runnerStartAndPaneInitialze() {
 		MainHeadless.runner = new ModelRunner();
 		MainHeadless.runner.start();
 		if (ProjectLoader.getProjectPath() != null) {
 			initialsePanes();
-			
-			Platform.runLater(()->{FxMain.scaler();});
-			
+			if (onlyOneTime) {
+				Platform.runLater(() -> {
+					FxMain.anchor.getChildren().remove(FxMain.logo);
+					GuiScaler.reScale(FxMain.primaryStage);
+				});
+				onlyOneTime = false;
+//				GuiScaler.igorInitialScaled = false;
+			}
+
 		}
 	}
 
@@ -173,7 +181,6 @@ public class MenuBarController {
 		WarningWindowes.showWaitingDialog(_ -> {
 			try {
 				FxMain.anchor.setCenter(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
-				// FxMain.anchor.getChildren().add(FXMLLoader.load(getClass().getResource("/fxmlControllers/TabPaneFXML.fxml")));
 			} catch (IOException en) {
 				// TODO Auto-generated catch block
 				en.printStackTrace();
@@ -193,38 +200,34 @@ public class MenuBarController {
 
 		}
 	}
-	
+
 	private void updateRecentFilesMenu() {
-	    recent.getItems().clear();
+		recent.getItems().clear();
 
-	    List<Path> paths = RecentProjects.load();
-	    Collections.reverse(paths);               
+		List<Path> paths = RecentProjects.load();
+		Collections.reverse(paths);
 
-	    for (Path p : paths) {
-	        MenuItem item = new MenuItem(p.toString());
-	        item.setOnAction(_ -> {
-	        	ConfigLoader.init();
-	        	ConfigLoader.config.project_path = p.toString();
+		for (Path p : paths) {
+			MenuItem item = new MenuItem(p.toString());
+			item.setOnAction(_ -> {
+				ConfigLoader.init();
+				ConfigLoader.config.project_path = p.toString();
 				ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
 				ConfigLoader.config.scenario = ProjectLoader.getScenariosList().iterator().next();
 				runnerStartAndPaneInitialze();
-	        });
-	        recent.getItems().add(item);
-	    }
+			});
+			recent.getItems().add(item);
+		}
 
-	    // “Clear history” entry
-	    MenuItem clear = new MenuItem("Clear History");
-	    clear.setOnAction(_ -> {
-	        RecentProjects.clear();
-	        updateRecentFilesMenu();
-	    });
+		// “Clear history” entry
+		MenuItem clear = new MenuItem("Clear History");
+		clear.setOnAction(_ -> {
+			RecentProjects.clear();
+			updateRecentFilesMenu();
+		});
 
-	    recent.getItems().add(new SeparatorMenuItem());
-	    recent.getItems().add(clear);
+		recent.getItems().add(new SeparatorMenuItem());
+		recent.getItems().add(clear);
 	}
-	
-
-
-
 
 }

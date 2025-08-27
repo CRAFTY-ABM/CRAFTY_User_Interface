@@ -83,11 +83,12 @@ public class TabPaneController {
 		// regionalBox.setDisable(ServiceSet.isRegionalServicesExisted());
 		MenuBarController.getInstance().getDataAnalysis().setDisable(false);
 		
-		regionalBox.setDisable(true);
+//		regionalBox.setDisable(true);
 	}
 
 	@FXML
 	public void regionalization() {
+		System.out.println("Regionalisation");
 		CellsLoader.regionalization = regionalBox.isSelected();
 		ConfigLoader.config.regionalization = regionalBox.isSelected();
 		MainHeadless.runner.start();
@@ -124,7 +125,7 @@ public class TabPaneController {
 				Timestep.setCurrentYear((int) Utils.sToD(yearchoice.getValue()));
 				ModelRunner.capitalUpdater.step();
 				ModelRunner.aftsUpdater.step();
-//				if (dataPane.isSelected()) {
+				if (dataPane.isSelected()) {
 				for (int i = 0; i < CapitalUpdater.getCapitalsList().size(); i++) {
 					if (CapitalsController.radioColor[i].isSelected()) {
 						if (i < CapitalUpdater.getCapitalsList().size()) {
@@ -135,7 +136,7 @@ public class TabPaneController {
 					}
 				}
 //				CellsCanvas.colorMap("Mock");
-//				}
+				}
 				
 			}
 		}

@@ -35,7 +35,7 @@ public class CsvProcessors {
 	private static final Pattern COMMA = Pattern.compile(",", Pattern.LITERAL);
 
 	public static Map<String, List<Double>> ReadAsaHashDouble(Path filePath) {
-		Map<String,List<String>> str = ReadAsaHash(filePath);
+		Map<String, List<String>> str = ReadAsaHash(filePath);
 		Map<String, List<Double>> dou = new HashMap<>();
 		str.forEach((k, list) -> {
 			List<Double> tmp = new ArrayList<>();
@@ -89,7 +89,6 @@ public class CsvProcessors {
 			}
 			hash.put(name, tmp);
 		}
-
 		return hash;
 	}
 
@@ -130,14 +129,16 @@ public class CsvProcessors {
 		int x = (int) Utils.sToD(immutableList.get(indexof.get("X")));
 		int y = (int) Utils.sToD(immutableList.get(indexof.get("Y")));
 		Cell c = CellsLoader.getCell(x, y);
-		CapitalUpdater.getCapitalsList().forEach(capital_name -> {
-			if (indexof.get(capital_name.toUpperCase()) == null) {
-				c.getCapitals().put(capital_name, 0.);
-			} else if (indexof.get(capital_name.toUpperCase()) < immutableList.size()) {
-				double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
-				c.getCapitals().put(capital_name, capital_value);
-			}
-		});
+		if (c != null) {
+			CapitalUpdater.getCapitalsList().forEach(capital_name -> {
+				if (indexof.get(capital_name.toUpperCase()) == null) {
+					c.getCapitals().put(capital_name, 0.);
+				} else if (indexof.get(capital_name.toUpperCase()) < immutableList.size()) {
+					double capital_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
+					c.getCapitals().put(capital_name, capital_value);
+				}
+			});
+		}
 	}
 
 	static void associateShockesToCells(Map<String, Integer> indexof, String data) {

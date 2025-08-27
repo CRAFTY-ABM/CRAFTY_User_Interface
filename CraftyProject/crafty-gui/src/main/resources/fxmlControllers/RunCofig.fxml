@@ -154,16 +154,16 @@
 					<children>
 						<CheckBox fx:id="creatCSV" mnemonicParsing="false"
 							onAction="#creatCSV" text="Create .csv output files" />
-						<HBox spacing="20">
+						<!-- <HBox spacing="20">
 							<Label />
 							<CheckBox fx:id="png" mnemonicParsing="false"
 								onAction="#png" text="generate Charts Plots .PNG" />
-						</HBox>
-						<HBox spacing="20">
+						</HBox> -->
+						<!-- <HBox spacing="20">
 							<Label />
 							<CheckBox fx:id="pdf" mnemonicParsing="false"
 								onAction="#pdf" text="generate Charts Plots .PDF" />
-						</HBox>
+						</HBox> -->
 						<HBox spacing="10">
 							<Label />
 							<Label />
@@ -173,11 +173,11 @@
 							<TextField fx:id="CSV_GapT" onAction="#CSVAction"
 								prefHeight="25.0" prefWidth="58.0" />
 						</HBox>
-						<HBox spacing="20">
+						<!-- <HBox spacing="20">
 							<Label />
 							<CheckBox fx:id="tif" mnemonicParsing="false"
 								onAction="#tif" text="Generate Map plots .tif" />
-						</HBox>
+						</HBox> -->
 						<HBox spacing="20">
 							<Label />
 							<CheckBox fx:id="traker" mnemonicParsing="false"

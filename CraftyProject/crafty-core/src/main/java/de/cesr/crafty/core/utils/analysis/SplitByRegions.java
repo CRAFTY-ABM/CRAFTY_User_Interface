@@ -34,7 +34,7 @@ public class SplitByRegions {
 
 	static HashMap<String, String> countryToG = new HashMap<>();
 
-	static String[] G = { "med", "north", "est" };
+	static String[] G = {  "Northern","Western","Southern", "Estern" };
 	static String[] DataFolderPath = new String[G.length];
 
 	public static void main(String[] args) {
@@ -56,12 +56,14 @@ public class SplitByRegions {
 
 	private static void groups() {
 
-		String[] g0 = { "PT", "ES", "FR","MT", "CH", "HR", "SI"};
+		String[] g0 = {"NO", "SE", "FI","DK","UK", "IE", "EE", "LV", "LT"};
 		initialGroup(G[0], g0);
-		String[] g1 = {  "NO", "SE", "FI","DK","DE","UK", "IE", "BE", "NL" };
+		String[] g1 = {"FR",  "DE", "BE", "NL","CH","AT", "LU"};
 		initialGroup(G[1], g1);
-		String[] g2 = {   "EE", "LV", "LT", "PL" ,  "AT", "EL", "BG", "RO", "HU", "SK", "CZ" };// "CY",
+		String[] g2 = { "ES","PT",  "MT",  "HR", "SI", "CY"};
 		initialGroup(G[2], g2);
+		String[] g3 = {"PL","CZ", "SK", "HU", "RO", "BG"};//, "EL"
+		initialGroup(G[3], g3);
 	}
 
 	static void MapsSpliter(String folderPath) {

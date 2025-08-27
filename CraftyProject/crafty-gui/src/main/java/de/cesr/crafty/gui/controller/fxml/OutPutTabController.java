@@ -11,7 +11,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +22,7 @@ import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.utils.general.Utils;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.gui.utils.graphical.FileTreeView;
 import de.cesr.crafty.gui.utils.graphical.NewWindow;
 import de.cesr.crafty.gui.utils.graphical.WarningWindowes;
@@ -88,7 +88,7 @@ public class OutPutTabController {
 		Path output = Paths.get(ProjectLoader.getProjectPath() + File.separator + "output");
 		tree = FileTreeView.build(output, null, 1);
 		fileTreeView.getChildren().add(tree);
-		double scaleY = Screen.getPrimary().getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
+		double scaleY = GuiScaler.lastScreen.getBounds().getHeight() / (1.2 * FxMain.graphicScaleY);
 		tree.setMaxHeight(scaleY);
 		tree.setMinHeight(scaleY);
 		mouseTreeFiles(tree);

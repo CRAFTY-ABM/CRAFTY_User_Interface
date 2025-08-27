@@ -19,12 +19,14 @@ import de.cesr.crafty.gui.utils.graphical.SmoothMockField;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.gui.controller.fxml.RegionController;
 import de.cesr.crafty.gui.main.FxMain;
+import de.cesr.crafty.gui.main.GuiScaler;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.crafty.Cell;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.dataLoader.land.GisLoader;
 import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
@@ -73,8 +75,8 @@ public class CellsCanvas {
 		gc.setImageSmoothing(false);
 		MapPane canvasPane = new MapPane();
 
-		subScene = new SubScene(canvasPane, Screen.getPrimary().getBounds().getWidth() /(2* FxMain.graphicScaleX),
-				(Screen.getPrimary().getBounds().getHeight()/ FxMain.graphicScaleY));
+		subScene = new SubScene(canvasPane, GuiScaler.lastScreen.getBounds().getWidth() / (2 * FxMain.graphicScaleX),
+				(GuiScaler.lastScreen.getBounds().getHeight() / FxMain.graphicScaleY));
 		MapPane.fitMapInWindow();
 	}
 
@@ -146,7 +148,8 @@ public class CellsCanvas {
 			});
 		} else if (CapitalUpdater.getCapitalsList().contains(colortype)) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
-				ColorP(c, ColorsTools.getColorForValue(c.getCapitals().get(colortype)));
+				if (c != null && c.getCapitals().get(colortype)!=null)
+					ColorP(c, ColorsTools.getColorForValue(c.getCapitals().get(colortype)));
 			});
 
 		} else if (ServiceSet.getServicesList().contains(colortype)) {
@@ -200,13 +203,15 @@ public class CellsCanvas {
 			HashMap<String, Color> colorGis = new HashMap<>();
 
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
-				colorGis.put(c.getCurrentRegion()/* .get(colortype) */ , ColorsTools.RandomColor());
+				if (c.getCurrentRegion() != null) {
+					colorGis.put(c.getCurrentRegion(),
+							ColorsTools.colorlist(GisLoader.regionIDs.get(c.getCurrentRegion())));
+				}
 			});
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
-				ColorP(c, colorGis.get(c.getCurrentRegion()/* .getGisNameValue().get(colortype) */));
+				ColorP(c, colorGis.getOrDefault(c.getCurrentRegion(), Color.WHITE));
 			});
 		}
-
 		gc.drawImage(writableImage, 0, 0);
 	}
 
@@ -251,12 +256,12 @@ public class CellsCanvas {
 						List<Integer> findpath = Tools.findIndexPath(mapBox, parent);
 						Tools.reInsertChildAtIndexPath(new Separator(), parent, findpath);
 						NewWindow win = new NewWindow();
-						double origineW= subScene.getWidth();
-						double originH= subScene.getHeight();
-						
-						subScene.setWidth(Screen.getPrimary().getBounds().getWidth()*.8);
-						subScene.setHeight(Screen.getPrimary().getBounds().getHeight() * 0.8);
-						
+						double origineW = subScene.getWidth();
+						double originH = subScene.getHeight();
+
+						subScene.setWidth(GuiScaler.lastScreen.getBounds().getWidth() * .8);
+						subScene.setHeight(GuiScaler.lastScreen.getBounds().getHeight() * 0.8);
+
 						win.creatwindows("Map", mapBox);
 						MapPane.fitMapInWindow();
 						win.setOnCloseRequest(_ -> {

@@ -31,14 +31,13 @@
 				<VBox>
 					<Button fx:id="CategoriesColor" mnemonicParsing="false"
 						onAction="#CategoriesColorsAction"
-						text="Display of AFT distribution">
+						text="Display of AFT by Categories">
 					</Button>
 					<PieChart fx:id="pieAFTsCategories" />
 				</VBox>
 			</content>
 		</TitledPane>
-		<TitledPane animated="true" text="AFTs 
-			Intensities">
+		<TitledPane animated="true" text="AFTs Intensities">
 			<content>
 				<!-- <ScrollPane></ScrollPane> -->
 				<GridPane fx:id="grid" />

@@ -26,6 +26,8 @@ public class CellsLoader {
 	public static Set<String> regionsNamesSet = new HashSet<>();
 	public static ConcurrentHashMap<String, Cell> hashCell = new ConcurrentHashMap<>();
 	public static ConcurrentHashMap<String, Region> regions;
+	
+	
 	public static boolean regionalization = ConfigLoader.config.regionalization;
 
 	private static int nbrOfCells = 0;
@@ -65,6 +67,7 @@ public class CellsLoader {
 	public static void regionsInitialize() {
 		regions = new ConcurrentHashMap<>();
 		if (regionalization) {
+//			System.out.println("CellsLoader.regionsNamesSet= "+CellsLoader.regionsNamesSet);
 			CellsLoader.regionsNamesSet.forEach(regionName -> {
 				regions.put(regionName, new Region(regionName));
 			});

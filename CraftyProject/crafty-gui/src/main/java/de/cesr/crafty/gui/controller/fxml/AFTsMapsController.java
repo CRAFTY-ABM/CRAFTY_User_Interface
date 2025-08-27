@@ -64,9 +64,13 @@ public class AFTsMapsController {
 				ConcurrentHashMap<String, Double> convertedMap = new ConcurrentHashMap<>(map.entrySet().stream()
 						.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().doubleValue())));
 				HashMap<String, Color> color = new HashMap<>();
-				map.keySet().forEach(n -> {
-					color.put(n,
-							Color.web(AftCategorised.categoriesColor.get(ca)).interpolate(Color.WHITE, Math.random()));
+				Map<String, Double> tmp = new HashMap<>();
+				tmp.put("Vext", 0.5);
+				tmp.put("ext", 0.25);
+				tmp.put("int", 0.);
+				map.keySet().forEach(name -> {
+					color.put(name,
+							Color.web(AftCategorised.categoriesColor.get(ca)).interpolate(Color.WHITE, tmp.get(name) != null ? tmp.get(name):1));
 				});
 				if (map.size() > 1) {
 					PieChart p = new PieChart();
@@ -76,7 +80,6 @@ public class AFTsMapsController {
 					p.setLegendVisible(false);
 //					p.setMaxHeight(0);
 //					p.setMaxWidth(0);
-
 				}
 
 			});
@@ -154,8 +157,8 @@ public class AFTsMapsController {
 	private void updateCategoryPie(PieChart chart) {
 		ConcurrentHashMap<String, Double> convertedMap = new ConcurrentHashMap<>(hashCategoryNbr().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().doubleValue())));
-		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey, e -> Color.web(e.getValue()), (_, newValue) -> newValue, HashMap::new));
+		HashMap<String, Color> colors = AftCategorised.categoriesColor.entrySet().stream().collect(Collectors
+				.toMap(Map.Entry::getKey, e -> Color.web(e.getValue()), (_, newValue) -> newValue, HashMap::new));
 		new PieChartTools().updateChart(convertedMap, colors, chart, false);
 		chart.setLegendSide(Side.LEFT);
 		MousePressed.mouseControle((Pane) chart.getParent(), chart);

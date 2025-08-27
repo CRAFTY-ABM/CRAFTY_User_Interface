@@ -58,7 +58,7 @@
 			</tooltip>
 		</Button> -->
 		<Button fx:id="earth" onAction="#handleearthAction"
-			text="Default camera">
+			text="AFTs distribution map">
 			<!-- <graphic> <FontIcon iconLiteral="fas-globe-africa" iconSize="15" 
 				styleClass="button-icon" /> </graphic> -->
 			<tooltip>

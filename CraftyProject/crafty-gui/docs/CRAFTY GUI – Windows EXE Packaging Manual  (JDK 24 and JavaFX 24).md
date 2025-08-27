@@ -24,7 +24,7 @@ C:\Users\<you>\Documents\JavafxSDK\javafx-sdk-24.0.1\
 ────────────────────────────────────────────────────────────────────────────────
 
 cd CraftyProject\crafty-gui
-mvn clean javafx:run         # the GUI must appear
+mvn clean javafx:run         # the GUI must appear (be sure that core jar is created)
 ────────────────────────────────────────────────────────────────────────────────
 2 . Maven package phase – create the runnable JAR and copy JavaFX runtime
 ────────────────────────────────────────────────────────────────────────────────
@@ -80,7 +80,11 @@ jpackage ^
   --win-console ^
   --win-shortcut ^
   --icon "C:\Users\byari-m\Desktop\TheFolder\Inkscap-Projects\icon.ico" ^
+  --resource-dir src\installer\resources ^
   --verbose
+  
+ // Remark to be add in scr/...:
+  --temp target\jpackage-temp ^
   
 ▸ This produces installer\CraftyGUI-1.0.exe
 
