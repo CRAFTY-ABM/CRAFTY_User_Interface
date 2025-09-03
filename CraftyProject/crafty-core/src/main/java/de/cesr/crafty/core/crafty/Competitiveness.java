@@ -3,6 +3,7 @@ package de.cesr.crafty.core.crafty;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
@@ -86,8 +87,9 @@ public class Competitiveness {
 	private static void landUsechange(Cell c, Aft competitor, RegionalModelRunner r) {
 		double uC = utility(c, competitor, r);
 		if (c.owner == null || c.owner.isAbandoned()) {
-			if (uC >= r.distributionMean.get(competitor))
+			if (uC >= r.distributionMean.get(competitor)) {
 				takeOverAcell(c, competitor);
+			}
 			return;
 		}
 		double uO = utility(c, c.owner, r);
@@ -142,10 +144,10 @@ public class Competitiveness {
 			// Only use the BehaviorLoader-based mean & sd if BOTH are present AND the
 			// categories differ.
 			if (mean != null && sd != null) {
-				return mean + sd * new Random().nextGaussian();
+				return mean + sd * ThreadLocalRandom.current().nextGaussian();
 			}
 		}
-		// else Fallback to the owner's giveInMean
+		// else Fallback to the default owner's giveInMean
 		return owner.getGiveInMean() + owner.getGiveInSD() * new Random().nextGaussian();
 	}
 

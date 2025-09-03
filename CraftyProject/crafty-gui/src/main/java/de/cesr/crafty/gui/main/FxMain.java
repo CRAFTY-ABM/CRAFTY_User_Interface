@@ -46,8 +46,6 @@ public class FxMain extends Application {
 		primaryStage.setMaximized(true);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(_ -> Platform.exit());
-
-		
 	}
 
 	private void addLogo() {

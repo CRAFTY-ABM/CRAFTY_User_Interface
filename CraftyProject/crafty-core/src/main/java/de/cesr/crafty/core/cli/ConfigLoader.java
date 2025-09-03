@@ -7,7 +7,6 @@ import org.yaml.snakeyaml.LoaderOptions;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 

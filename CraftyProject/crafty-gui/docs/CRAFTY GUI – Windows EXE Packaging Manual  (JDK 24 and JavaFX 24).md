@@ -65,7 +65,7 @@ Duplicate package “javafx.fxml”	Both shaded & original jar present; delete o
 ────────────────────────────────────────────────────────────────────────────────
 4 . Create the installer with jpackage
 ────────────────────────────────────────────────────────────────────────────────
-Run inside the target folder:
+Run inside the target folder: (be sure you are in ..\CraftyProject\crafty-gui NOT in ..\CraftyProject\crafty-gui\target)
 
 jpackage ^
   --type exe ^
@@ -80,7 +80,7 @@ jpackage ^
   --win-console ^
   --win-shortcut ^
   --icon "C:\Users\byari-m\Desktop\TheFolder\Inkscap-Projects\icon.ico" ^
-  --resource-dir src\installer\resources ^
+  --resource-dir ..\src\installer\resources ^
   --verbose
   
  // Remark to be add in scr/...:

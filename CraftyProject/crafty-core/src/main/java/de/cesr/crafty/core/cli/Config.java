@@ -46,8 +46,8 @@ public class Config {
 	@Override
 	public String toString() {
 		return "# Configuration for CRAFTY Model \n\n" +
-				"project_path: "+project_path +"\n"+
-				"scenario: " + scenario + "\n"
+				"project_path: \""+project_path +"\"\n"+
+				"scenario: \"" + scenario + "\"\n"
 				+"regionalization: "+ regionalization + "\n"
 				+"\n"
 				+"# CRAFTY Mechanisms \n"
@@ -74,7 +74,7 @@ public class Config {
 				+ "map_output_years: " + map_output_years+"\n"
 //				+ "Output_path: "+Output_path 
 				+"\n\n"+
-				"comments: "+comments+"\n\n\n";
+				"comments: \""+comments+"\"\n\n\n";
 	}
 
 	
