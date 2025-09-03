@@ -1,0 +1,18 @@
+/* Style for icon-only button */
+.button-icon {
+    -fx-background-color: transparent; /* Transparent background */
+    -fx-padding: 0; /* No padding */
+    -fx-border-width: 0; /* No border */
+    -fx-cursor: hand; /* Change cursor to hand to indicate it's clickable */
+}
+
+/* Style for icon-only button when pressed */
+.button-icon:pressed {
+    -fx-background-color: #d3d3d3; /* Light grey background to indicate pressing */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 5, 0, 0, 1); /* Shadow effect for depth */
+}
+
+/* Optional: Style for icon-only button when hovered to add more interactivity */
+.button-icon:hover {
+    -fx-background-color: #bad9fa; /* Slightly darker than the default to indicate hover */
+}

@@ -4,9 +4,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
-import ac.ed.lurg.ModelConfig;
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
@@ -87,18 +85,24 @@ public class PlumConnecter {
 
 		ArrayList<String> list = new ArrayList<>();
 		list.add("Country,Crop,Production,MonogastricFeed,RuminantFeed,NetImportsExpected");
+		System.out.println("==> "+getCalibration_Factor);
 		countryMapProduction.forEach((country, servicesHash) -> {
+//			servicesHash.forEach((servceName, value) -> {
+//				if (getCalibration_Factor.get(servceName) != null) {
+//					list.add(country + "," + servceName + "," + (value * getCalibration_Factor.get(servceName))
+//							+ ",1,1,1");
+//				}
+//			});
 			servicesHash.forEach((servceName, value) -> {
-				if (getCalibration_Factor.get(servceName) != null)
-					list.add(country + "," + servceName + "," + (value * getCalibration_Factor.get(servceName))
-							+ ",1,1,1");
+				list.add(country + "," + servceName + "," + (value) + ",1,1,1");
 			});
 		});
 		String[][] csv = new String[list.size()][1];
 		for (int i = 0; i < list.size(); i++) {
 			csv[i][0] = list.get(i);
+
 		}
-		String path = PathTools.makeDirectory(ModelConfig.CRAFTY_PRODUCTION_DIR + File.separator + year);
+		String path = PathTools.makeDirectory(ConfigLoader.config.plumOutPutPath+File.separator+"crafty" + File.separator + year);
 		PathTools.writeFile(path + File.separator + "done", "", false);
 		CsvTools.writeCSVfile(csv, Paths.get(path + File.separator + "production.csv"));
 	}

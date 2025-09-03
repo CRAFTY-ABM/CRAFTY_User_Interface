@@ -1,0 +1,246 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.cesr</groupId>
+	<artifactId>Crafty_UserInterface</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Update JavaFX version to match the SDK version you are using -->
+		<javafx.version>22.0.2</javafx.version>
+		<javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+		<!-- Specify platform classifier (win, mac, linux) -->
+		<javafx.platform>win</javafx.platform>
+	</properties>
+	<build>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>${javafx.maven.plugin.version}</version>
+				<configuration>
+					<mainClass>main.FxMain</mainClass>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>main.FxMain</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+		</plugins>
+	</build>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>22.0.2</version>
+			<classifier>win</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>22.0.2</version>
+			<classifier>win</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>22.0.2</version>
+			<classifier>win</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>22.0.2</version>
+			<classifier>win</classifier>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/net.mahdilamb/colormap -->
+		<dependency>
+			<groupId>net.mahdilamb</groupId>
+			<artifactId>colormap</artifactId>
+			<version>0.9.511</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>eu.hansolo.fx</groupId>
+			<artifactId>charts</artifactId>
+			<version>17.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-swing</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<!--
+		<dependency>
+			<groupId>
+				de.cesr</groupId>
+		<artifactId>CRAFTY_CoBRA</artifactId>
+			<version>0.2.34</version>
+		</dependency>
+-->
+		<!-- - -->
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.41.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.7.1</version>
+		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/commons-collections/commons-collections -->
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sf.py4j/py4j -->
+		<dependency>
+			<groupId>net.sf.py4j</groupId>
+			<artifactId>py4j</artifactId>
+			<version>0.10.9.7</version>
+		</dependency>
+		<!-- - -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
+		</dependency>
+
+		<!-- Ikonli Core -->
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-javafx</artifactId>
+			<version>12.2.0</version> <!-- Check for the latest version -->
+		</dependency>
+
+		<!-- FontAwesome Icon Pack -->
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-fontawesome5-pack</artifactId>
+			<version>12.3.1</version>
+		</dependency>
+		<!-- JuniTest -->
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.10.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.9.0</version> <!-- You can adjust this version as needed -->
+			<scope>test</scope>
+		</dependency>
+
+		<!-- JUnit Jupiter Engine for running tests -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.9.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!--
+		https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.20.0</version>
+		</dependency>
+		<!-- PDF-->
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.24</version>
+		</dependency>
+		<!-- PLUM data-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.8</version>
+		</dependency>
+
+	</dependencies>
+
+
+</project>

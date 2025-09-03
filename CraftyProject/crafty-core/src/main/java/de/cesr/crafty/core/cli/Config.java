@@ -43,5 +43,6 @@ public class Config {
 	public static int mapSynchronisationGap = 5;
 	// ----
 	public Object map_output_years = null;
-
+	// ---
+	public String plumOutPutPath;
 }

@@ -30,10 +30,10 @@
                   </excludes>
                 </filter>
               </filters>
-              <finalName>crafty-core-headless</finalName>
+              <finalName>crafty-core-headless-Plum-Copling</finalName>
               <transformers>
                 <transformer>
-                  <mainClass>de.cesr.crafty.core.main.MainHeadless</mainClass>
+                  <mainClass>de.cesr.crafty.core.plumLinking.mains.MainUseFlags</mainClass>
                 </transformer>
               </transformers>
             </configuration>

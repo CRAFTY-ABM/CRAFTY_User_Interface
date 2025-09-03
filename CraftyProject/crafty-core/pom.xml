@@ -138,12 +138,13 @@
 								</filter>
 							</filters>
 
-							<finalName>crafty-core-headless</finalName>
+							<finalName>crafty-core-headless-Plum-Copling</finalName>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>
-										de.cesr.crafty.core.main.MainHeadless</mainClass>
+										de.cesr.crafty.core.plumLinking.mains.MainUseFlags
+										</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

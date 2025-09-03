@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ac.ed.lurg.ModelConfig;
+import de.cesr.crafty.core.cli.ConfigLoader;
+//import ac.ed.lurg.ModelConfig;
 import de.cesr.crafty.core.plumLinking.couplingUtils.CsvUtilsP;
 import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -40,12 +41,11 @@ public class PlumCommodityMapping {
 		for (int i = 0; i < EuCountries.length; i++) {
 			countryLongToShortName.put(EuCountries[i], shortNames[i]);
 			countryShortToLongName.put(shortNames[i], EuCountries[i]);
-
 		}
 	}
 
 	public void initialize() {
-		allpaths = PathTools.findAllFilePaths(Paths.get(ModelConfig.OUTPUT_DIR));
+		allpaths = PathTools.findAllFilePaths(Paths.get(ConfigLoader.config.plumOutPutPath));
 		Eu_countries();
 		FilterHash.put("Country", new HashSet<>(countryLongToShortName.keySet()));
 		staticFilesinitialisation();

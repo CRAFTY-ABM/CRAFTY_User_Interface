@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceDemandLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
-import de.cesr.crafty.core.modelRunner.ModelRunner;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.updaters.RegionsModelRunnerUpdater;
 import de.cesr.crafty.core.utils.file.CsvTools;
@@ -102,6 +101,7 @@ public class Coupler {
 	}
 
 	public void AssocietePricesAndDemand(int year) {
+		
 		if (ConfigLoader.config.regionalization) {
 			yearlyPricesAndDemandsByRegion(year);
 		} else {
@@ -143,7 +143,7 @@ public class Coupler {
 		ServiceDemandLoader.aggregateRegionalToWorldServiceDemand();
 	}
 
-	void writeDandP() {
+	public void writeDandP() {
 		if (ConfigLoader.config.regionalization) {
 			writeRegion();
 		} else {

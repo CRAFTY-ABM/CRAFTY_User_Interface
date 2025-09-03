@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="fxmlControllers.OutPuterController">
+	<children>
+		<VBox spacing="5.0">
+			<children>
+				<ChoiceBox fx:id="yearChoice" onAction="#yearChoice" />
+				<TabPane minHeight="0.0" minWidth="0.0">
+					<tabs>
+						<Tab text="Supply and Demand Evolution "
+							style="-fx-background-color: #bddee9;">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-pie" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Supply and Demand Evolution" />
+							</tooltip>
+							<content>
+								<ScrollPane fx:id="scroll" prefHeight="700.0"
+									prefWidth="700.0">
+									<GridPane fx:id="gridChart" />
+								</ScrollPane>
+							</content>
+						</Tab>
+						<Tab text="Results analysis"
+							style="-fx-background-color: #bddee9;">
+							<graphic>
+								<FontIcon iconLiteral="fas-chart-line" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Results analysis" />
+							</tooltip>
+							<content>
+								<VBox spacing="5.0">
+									<HBox spacing="15.0">
+										<Label text="generate a Sankey graph"
+											style="-fx-text-fill: blue;" />
+										<ChoiceBox fx:id="sankeyBox" onAction="#sankeyPlot">
+											<tooltip>
+												<Tooltip
+													text="Create a sankyPlot corresponding to the current year file  and the selected file" />
+											</tooltip>
+										</ChoiceBox>
+										<Button fx:id="saveAllFilAsPNG"
+											onAction="#saveAllFilAsPNGAction" mnemonicParsing="false"
+											text="Snapshots maps and charts as a PNG"
+											styleClass="button-icon">
+											<graphic>
+												<FontIcon iconLiteral="far-save" iconSize="15" />
+											</graphic>
+											<tooltip>
+												<Tooltip text="Select Existing Model Result" />
+											</tooltip>
+										</Button>
+									</HBox>
+									<VBox fx:id="borderPane" />
+								</VBox>
+							</content>
+						</Tab>
+						<Tab fx:id="regionTab" text="Regions Output"
+							style="-fx-background-color: #bddee9;">
+							<graphic>
+								<FontIcon iconLiteral="fas-map-marked-alt"
+									iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Regional Results " />
+							</tooltip>
+							<content>
+								<VBox spacing="2.0">
+									<ChoiceBox fx:id="regionsBox"
+										onAction="#regionsBoxAction" />
+									<ScrollPane fx:id="scrollRegions" prefHeight="700.0"
+										prefWidth="700.0">
+										<GridPane fx:id="regionalGridChart"
+											style="-fx-background-color: #edf5f7;" />
+									</ScrollPane>
+								</VBox>
+
+							</content>
+						</Tab>
+					</tabs>
+				</TabPane>
+			</children>
+		</VBox>
+	</children>
+</VBox>

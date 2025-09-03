@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.ScrollPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Tooltip?>
+<VBox xmlns="http://javafx.com/javafx/21"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="fxmlControllers.AFTsConfigurationController">
+	<children>
+		<VBox >
+			<children>
+				<HBox spacing="10.0">
+					<children>
+						<Label text="Agent Functional Type  (AFT)"
+							style="-fx-text-fill: blue;" />
+						<ChoiceBox fx:id="AFTChoisButton"
+							onAction="#choiceAgnetSetOnAction">
+							<tooltip>
+								<Tooltip text="List of AFTs considered in this project" />
+							</tooltip>
+						</ChoiceBox>
+						<Label fx:id="AFTNameLabel" text="Label"
+							style="-fx-text-fill: blue;" />
+						<Rectangle fx:id="rectangleColor" arcHeight="5.0"
+							arcWidth="5.0" height="26.0" stroke="BLACK" strokeType="INSIDE"
+							width="39.0" />
+					</children>
+				</HBox>
+				<HBox spacing="10.0">
+					<children>
+					<!-- 
+						<Button fx:id="removeBtn" onAction="#removeBtnSetOnAction"
+							text="Remove" styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-trash-alt" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Remove Current AFT from the list" />
+							</tooltip>
+						</Button>
+						 
+						<Button fx:id="saveModeficationBtn"
+							onAction="#saveModefication" text="Save modifications"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-save" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Save modifications for the Current AFT" />
+							</tooltip>
+						</Button>
+						<Button fx:id="ResetBtn" mnemonicParsing="false"
+							text="Reset" styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="fas-redo-alt" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Reset Current AFT Configuration" />
+							</tooltip>
+						</Button>
+						<Button fx:id="addNewAftBtn" mnemonicParsing="false"
+							onAction="#addAFTSetOnAction" text="Add new AFT"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-plus-square" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Add new AFT to the list" />
+							</tooltip>
+						</Button>
+						<Button fx:id="AFTAnalisisBtn" mnemonicParsing="false"
+							onAction="#AftAnalyseSetOnAction" text="AFT analysis"
+							styleClass="button-icon">
+							<graphic>
+								<FontIcon iconLiteral="far-chart-bar" iconSize="15" />
+							</graphic>
+							<tooltip>
+								<Tooltip text="Current AFT analysis" />
+							</tooltip>
+						</Button>-->
+					</children>
+				</HBox>
+			</children>
+		</VBox>
+		<TitledPane animated="true"
+			text="Optimal Production Levels and Behevoir Parametrs">
+			<content>
+				<ScrollPane fx:id="scrollProduction" prefWidth="700.0">
+
+					<VBox spacing="10.0">
+						<children>
+							<TableView fx:id="productivityTable" prefHeight="72" />
+							<HBox>
+								<children>
+									<TitledPane animated="true"
+										text="Behevoir Parametrs">
+										<content>
+											<GridPane fx:id="gridBehevoirButtons" hgap="5.0"
+												vgap="5.0">
+												<children>
+													<Label text="GiveIn Mean" />
+													<Label text="GiveIn Standard Deviation"
+														GridPane.rowIndex="1" />
+													<Label text="GiveUp Mean" GridPane.rowIndex="2" />
+													<Label text="GiveUp Standard Deviation"
+														GridPane.rowIndex="3" />
+													<Label text="Service Level Noise Min"
+														GridPane.rowIndex="4" />
+													<Label fx:id="SNoiseMaxS"
+														text="Service Level Noise Max" GridPane.rowIndex="5" />
+													<Label text="GiveUp Probabilty" GridPane.rowIndex="6" />
+													<Slider fx:id="GiveInSDS" GridPane.columnIndex="1"
+														GridPane.rowIndex="1" />
+													<Slider fx:id="GiveUpMeanS" GridPane.columnIndex="1"
+														GridPane.rowIndex="2" />
+													<Slider fx:id="GiveUpSDS" GridPane.columnIndex="1"
+														GridPane.rowIndex="3" />
+													<Slider fx:id="SNoiseMinS" GridPane.columnIndex="1"
+														GridPane.rowIndex="4" />
+													<Slider fx:id="ServiceLevelNoiseMaxS"
+														GridPane.columnIndex="1" GridPane.rowIndex="5" />
+													<Slider fx:id="GiveUpProbabiltyS"
+														GridPane.columnIndex="1" GridPane.rowIndex="6" />
+													<TextField fx:id="GiveInMeanT"
+														GridPane.columnIndex="2" />
+													<TextField fx:id="GiveInSDT"
+														GridPane.columnIndex="2" GridPane.rowIndex="1" />
+													<TextField fx:id="GiveUpMeanT"
+														GridPane.columnIndex="2" GridPane.rowIndex="2" />
+													<TextField fx:id="GiveUpSDT"
+														GridPane.columnIndex="2" GridPane.rowIndex="3" />
+													<TextField fx:id="SNoiseMinT"
+														GridPane.columnIndex="2" GridPane.rowIndex="4" />
+													<TextField fx:id="ServiceLevelNoiseMaxT"
+														GridPane.columnIndex="2" GridPane.rowIndex="5" />
+													<TextField fx:id="GiveUpProbabiltyT"
+														GridPane.columnIndex="2" GridPane.rowIndex="6" />
+													<Slider fx:id="GiveInMeanS" GridPane.columnIndex="1" />
+												</children>
+											</GridPane>
+
+										</content>
+									</TitledPane>
+									<BarChart fx:id="histogramePlevel">
+										<xAxis>
+											<CategoryAxis side="BOTTOM" />
+										</xAxis>
+										<yAxis>
+											<NumberAxis side="LEFT" />
+										</yAxis>
+									</BarChart>
+								</children>
+							</HBox>
+						</children>
+					</VBox>
+
+
+				</ScrollPane>
+
+			</content>
+		</TitledPane>
+		<TitledPane animated="true"
+			text="Weighting Factor Specific to Capital (Sensitivity Factors)">
+			<content>
+				<AnchorPane>
+					<children>
+						<TableView fx:id="sensitivtyTable" prefHeight="200.0"
+							AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+							AnchorPane.topAnchor="0.0" />
+					</children>
+				</AnchorPane>
+			</content>
+		</TitledPane>
+		<TitledPane animated="true"
+			text="Radar Chart of Sensitivity Factors">
+			<content>
+				<ScrollPane fx:id="scrollgrid" prefHeight="500.0"
+					prefWidth="700.0">
+					<GridPane fx:id="radarChartsGridPane"
+						AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-100.0">
+					</GridPane>
+				</ScrollPane>
+			</content>
+		</TitledPane>
+	</children>
+</VBox>
