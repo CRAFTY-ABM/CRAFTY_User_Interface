@@ -117,7 +117,7 @@
 									source="/fxmlControllers/AFTsProduction.fxml" />
 							</content>
 						</Tab>
-						<!-- <Tab text="AFTs Behaviour">
+						 <Tab text="AFTs Behaviour">
 							<graphic>
 								<FontIcon iconLiteral="fas-head-side-virus" iconSize="15" />
 							</graphic>
@@ -128,7 +128,7 @@
 								<fx:include
 									source="/fxmlControllers/AFTsBehaviour.fxml" />
 							</content>
-						</Tab> -->
+						</Tab> 
 						<Tab text="AFT productivity tracker">
 							<!-- <graphic>
 								<FontIcon iconLiteral="fas-chart-area" iconSize="15" />
