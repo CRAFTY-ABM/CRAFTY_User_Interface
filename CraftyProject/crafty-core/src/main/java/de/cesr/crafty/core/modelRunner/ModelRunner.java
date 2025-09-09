@@ -17,6 +17,7 @@ import de.cesr.crafty.core.output.Tracker;
 import de.cesr.crafty.core.updaters.AftsUpdater;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
+import de.cesr.crafty.core.updaters.FlagUpdater;
 import de.cesr.crafty.core.updaters.LandMaskUpdater;
 import de.cesr.crafty.core.updaters.RegionsModelRunnerUpdater;
 import de.cesr.crafty.core.updaters.ServicesUpdater;
@@ -45,6 +46,7 @@ public class ModelRunner extends AbstractModelRunner {
 		cellsSet = new CellsLoader();
 		capitalUpdater.step();
 		getScheduled().clear();
+		getScheduled().add(new FlagUpdater());
 		getScheduled().add(new ServicesUpdater());
 		getScheduled().add(capitalUpdater);
 		getScheduled().add(aftsUpdater);
