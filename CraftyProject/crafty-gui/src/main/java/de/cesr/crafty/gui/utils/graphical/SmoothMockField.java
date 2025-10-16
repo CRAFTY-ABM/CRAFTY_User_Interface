@@ -112,16 +112,27 @@ public final class SmoothMockField {
 
 	public void color(int step) {
 		List<Double> set = new ArrayList<>();
-		csv = new String[CellsLoader.hashCell.size() + 1][2];
+		csv = new String[CellsLoader.hashCell.size() + 1][6];
 		AtomicInteger i = new AtomicInteger(1);
 		csv[0][0] = "ID,X,Y";
-		csv[0][1] = "ExtConifer";
+		csv[0][1] = "IntConifer";
+		csv[0][2] = "ExtConifer";
+		csv[0][3] = "IntBroadleaf";
+		csv[0][4] = "ExtBroadleaf";
+		csv[0][5] = "CW";
+		
+		
 		CellsLoader.hashCell.values().forEach(c -> {
 			double v = value(c.getX(), c.getY(), step);
 			set.add(v);
 			CellsCanvas.ColorP(c, ColorsTools.getColorForValue(v));
 			csv[i.get()][0] = c.getID() + "," + c.getX() + "," + c.getY();
-			csv[i.getAndIncrement()][1] = String.valueOf(v);
+			csv[i.get()][1] = String.valueOf(Math.min(2*v, 1));
+			csv[i.get()][2] = String.valueOf(v);
+			csv[i.get()][3] = String.valueOf(Math.min(2*v, 1));
+			csv[i.get()][4] = String.valueOf(v);
+			csv[i.get()][5] = String.valueOf(v/4);
+			i.getAndIncrement();
 		});
 
 	}

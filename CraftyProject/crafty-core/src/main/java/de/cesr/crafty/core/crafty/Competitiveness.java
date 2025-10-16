@@ -23,7 +23,7 @@ public class Competitiveness {
 			return 0;
 		}
 		c.setUtilityValue(ServiceSet.getServicesList().stream()
-				.mapToDouble(sname -> r.marginal.get(sname) * c.productivity(a, sname)).sum());
+				.mapToDouble(sname ->  r.marginal.get(sname) * c.productivity(a, sname)).sum());
 		return c.getUtilityValue();
 	}
 

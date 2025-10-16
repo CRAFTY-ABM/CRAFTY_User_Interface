@@ -22,7 +22,7 @@ public class MainHeadless {
 		ProjectLoader.pathInitialisation(Paths.get(ConfigLoader.config.project_path));
 		runner = new ModelRunner();
 		runner.start();
-//		runner.run();
+		runner.run();
 	}
 
 	public static void initializeConfig(String[] args) {

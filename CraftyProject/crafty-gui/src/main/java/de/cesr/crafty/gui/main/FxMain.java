@@ -26,8 +26,8 @@ public class FxMain extends Application {
 	public static VBox topLevelBox = new VBox();
 	public static BorderPane anchor = new BorderPane();
 	public static ImageView logo;
-	public static double graphicScaleX ;
-	public static double graphicScaleY ;
+	public static double graphicScaleX;
+	public static double graphicScaleY;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {

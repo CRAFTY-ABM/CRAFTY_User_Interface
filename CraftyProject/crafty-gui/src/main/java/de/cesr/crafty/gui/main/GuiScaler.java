@@ -35,7 +35,7 @@ public class GuiScaler {
 	}
 
 	public static void scaler(Screen current) {
-		FxMain.graphicScaleX = current.getBounds().getWidth() / 2560;
+		FxMain.graphicScaleX = current.getBounds().getWidth() / 2750;
 		FxMain.graphicScaleY = current.getBounds().getHeight() / 1550;
 		double scale = Math.min(FxMain.graphicScaleX, FxMain.graphicScaleY);
 		Scale scaleTransform = new Scale(scale, scale, 0, 0);

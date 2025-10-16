@@ -57,25 +57,21 @@ public class RegionalModelRunner {
 
 	private void calculeDistributionMean() {
 		distributionMean = new ConcurrentHashMap<>();
+		// Calculate the mean distribution
 		R.getCells().values()/**/.parallelStream().forEach(c -> {
 			if (c.getOwner() != null) {
-				distributionMean.merge(c.getOwner(), Competitiveness.utility(c, c.getOwner(), this), Double::sum);
+				distributionMean.merge(c.getOwner(), Competitiveness.utility(c, c.getOwner(), this)
+						/ AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(c.getOwner().label), Double::sum);
 			}
 		});
 		AFTsLoader.getActivateAFTsHash().values().forEach(a -> distributionMean.computeIfAbsent(a, key -> 0.));
-
-		// Calculate the mean distribution
-		distributionMean.forEach((a, total) -> {
-			if (AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(a.label) != 0) {
-				distributionMean.put(a, total / AFTsLoader.hashAgentNbrRegions.get(R.getName()).get(a.label));
-			}
-		});
 
 		StringJoiner joiner = new StringJoiner(", ", "Region: [" + R.getName() + "]: Distribution Mean: {", "}");
 		for (Aft a : distributionMean.keySet()) {
 			joiner.add(a.getLabel() + "= " + distributionMean.get(a));
 		}
 		LOGGER.info(joiner.toString());
+//		System.out.println(joiner.toString());
 	}
 
 	private void calculeMaxMinUtility() {
@@ -90,9 +86,14 @@ public class RegionalModelRunner {
 //			Service s = R.getServicesHash().get(serviceName);
 			double serviceDemand = ServicesUpdater.getDemandByRegions().get(R.getName()).get(serviceName); // s.getDemands().get(year);
 			double serviceWeight = ServicesUpdater.getWeightByRegions().get(R.getName()).get(serviceName);// s.getWeights().get(year)
-			double marg = ConfigLoader.config.remove_negative_marginal_utility
-					? Math.max(serviceDemand - serviceSupply, 0)
-					: serviceDemand - serviceSupply;
+			double marg  = ServiceSet.getPenalise_Oversupply().get(serviceName) ? serviceDemand - serviceSupply
+					: Math.max(serviceDemand - serviceSupply, 0);
+//			  marg= ConfigLoader.config.remove_negative_marginal_utility ?
+//			  Math.max(serviceDemand - serviceSupply, 0) : serviceDemand - serviceSupply;
+			  
+			  
+			
+
 			if (ConfigLoader.config.averaged_residual_demand_per_cell) {
 				marg = marg / R.getCells().size();
 			}

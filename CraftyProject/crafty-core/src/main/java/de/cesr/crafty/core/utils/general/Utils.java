@@ -36,7 +36,7 @@ public class Utils {
 	}
 
 	public static double sToD(String s) {
-		return (s == null || s.isEmpty()) || !NumberUtils.isParsable(s) ? 0d : JavaDoubleParser.parseDouble(s);
+		return (s == null || s.isEmpty()) || !NumberUtils.isCreatable(s) ? 0d : JavaDoubleParser.parseDouble(s);
 	}
 
 	public static int sToI(String s) {

@@ -18,6 +18,8 @@ import de.cesr.crafty.core.utils.file.PathTools;
 public class ServiceSet {
 	private static final CustomLogger LOGGER = new CustomLogger(ServiceSet.class);
 	private static List<String> servicesList;
+	private static ConcurrentHashMap<String, Boolean> Penalise_Oversupply = new ConcurrentHashMap<>();
+
 	public static ConcurrentHashMap<String, Service> worldService = new ConcurrentHashMap<>();
 	public static ConcurrentHashMap<String, List<String>> NoInitialSupplyServices = new ConcurrentHashMap<>();
 
@@ -35,11 +37,22 @@ public class ServiceSet {
 
 	public static void loadServiceList() {
 		servicesList = Collections.synchronizedList(new ArrayList<>());
-		Map<String, List<String>> servicesFile = CsvProcessors
+		Map<String, List<String>> csv = CsvProcessors
 				.ReadAsaHash(PathTools.fileFilter(File.separator + "Services.csv").get(0));
-		String label = servicesFile.keySet().contains("Label") ? "Label" : "Name";
-		servicesList = servicesFile.get(label);
+		String label = csv.keySet().contains("Label") ? "Label" : "Name";
+		servicesList = csv.get(label);
+
+		if (csv.keySet().contains("Penalise_Oversupply")) {
+			for (int i = 0; i < csv.get(label).size(); i++) {
+				Penalise_Oversupply.put(csv.get(label).get(i),
+						!csv.get("Penalise_Oversupply").get(i).equalsIgnoreCase("No"));
+			}
+		} else {
+			servicesList.forEach(serviceName -> Penalise_Oversupply.put(serviceName, true));
+		}
+
 		LOGGER.info("Services size=  " + servicesList.size() + " =>" + servicesList);
+		LOGGER.info("Services Penalise_Oversupply =>  " + Penalise_Oversupply);
 	}
 
 	public static boolean isRegionalServicesExisting() {
@@ -64,6 +77,10 @@ public class ServiceSet {
 		ServiceDemandLoader.updateRegionsDemand();
 		ServiceWeightLoader.updateRegionsWeight();
 		ServiceDemandLoader.aggregateRegionalToWorldServiceDemand();
+	}
+
+	public static ConcurrentHashMap<String, Boolean> getPenalise_Oversupply() {
+		return Penalise_Oversupply;
 	}
 
 }

@@ -13,6 +13,7 @@ import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.PieChartTools;
+import de.cesr.crafty.gui.utils.graphical.SmoothMockField;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
@@ -110,9 +111,9 @@ public class AFTsMapsController {
 
 	@FXML
 	public void aftColorsAction() {
-		CellsCanvas.colorMap("AFT");
+//		CellsCanvas.colorMap("AFT");
 //		SmoothMockField.writeMockData();
-//		CellsCanvas.colorMap("Shocks");
+		CellsCanvas.colorMap("Shocks");
 	}
 
 	@FXML

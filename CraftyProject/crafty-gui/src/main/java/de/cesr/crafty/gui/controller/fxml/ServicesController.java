@@ -11,7 +11,6 @@ import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceDemandLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
-import de.cesr.crafty.core.dataLoader.serivces.ServiceWeightLoader;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.gui.utils.analysis.AftAnalyzer;
 import de.cesr.crafty.gui.utils.graphical.Histogram;

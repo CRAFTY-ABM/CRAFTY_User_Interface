@@ -44,15 +44,10 @@ public class CapitalUpdater extends AbstractUpdater {
 	public void step() {
 		LOGGER.info("Cells.updateCapitals");
 		if (!ProjectLoader.getScenario().equalsIgnoreCase("Baseline")) {
+			/// should  be go to the list and read  the corespondant path and fines
 			Path path = PathTools.fileFilter(String.valueOf(Timestep.getCurrentYear()),
-					PathTools.asFolder(ProjectLoader.getScenario()), PathTools.asFolder("capitals")).get(0);/// should
-																											/// be go to
-																											/// the list
-																											/// and read
-																											/// the
-																											/// corespondant
-																											/// path
-																											/// and fine
+					PathTools.asFolder(ProjectLoader.getScenario()), PathTools.asFolder("capitals")).get(0);
+			
 			CsvProcessors.processCSV(path, CsvKind.CAPITALS);
 		}
 	}

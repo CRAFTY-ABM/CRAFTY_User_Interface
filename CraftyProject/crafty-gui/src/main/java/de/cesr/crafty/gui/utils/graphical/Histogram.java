@@ -50,8 +50,9 @@ public class Histogram {
 		});
 
 		Platform.runLater(() -> {
-			Color color = ColorsTools.colorlist((int) (Math.random() * 100));
+			
 			for (XYChart.Data<String, Number> d : dataSeries.getData()) {
+				Color color = ColorsTools.colorlist((int) (Math.random() * 100));
 				d.getNode().setStyle("-fx-bar-fill: " + ColorsTools.toHex(color) + ";");
 			}
 		});
