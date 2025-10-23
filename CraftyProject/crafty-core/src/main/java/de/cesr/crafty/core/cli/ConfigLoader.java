@@ -3,6 +3,7 @@ package de.cesr.crafty.core.cli;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+
 import org.yaml.snakeyaml.LoaderOptions;
 
 import java.io.FileInputStream;
@@ -26,11 +27,12 @@ public class ConfigLoader {
 				// Load from absolute file path
 				inputStream = new FileInputStream(configPath);
 			} else {
-				
+
 				// Load from classpath
 				configPath = "/config.yaml";
 				inputStream = ConfigLoader.class.getResourceAsStream(configPath);
-				System.out.println("Config file not found as Arguments \'--config-file \"C:\\path\\to\\config.yaml\"  Crafty will use default config.yam in \'src\\main\\config\'");
+				System.out.println(
+						"Config file not found as Arguments \'--config-file \"C:\\path\\to\\config.yaml\"  Crafty will use default config.yam in \'src\\main\\config\'");
 			}
 			if (inputStream == null) {
 				System.out.println("Config file not found. Using default config values.");

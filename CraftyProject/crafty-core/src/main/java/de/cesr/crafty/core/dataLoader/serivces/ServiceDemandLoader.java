@@ -1,12 +1,14 @@
 package de.cesr.crafty.core.dataLoader.serivces;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.crafty.Region;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
@@ -19,6 +21,8 @@ import de.cesr.crafty.core.utils.general.Utils;
 public class ServiceDemandLoader {
 	private static final CustomLogger LOGGER = new CustomLogger(ServiceDemandLoader.class);
 
+//	private static Map<Integer, Path> service_utility_weight_directory;
+
 	public static void updateRegionsDemand() {
 		CellsLoader.regions.values().forEach(r -> {
 			updateDemand(r);
@@ -27,14 +31,27 @@ public class ServiceDemandLoader {
 
 	private static void updateDemand(Region R) {
 		Path path;
-		try {
-			path = PathTools.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"), "_" + R.getName())
-					.get(0);
-		} catch (NullPointerException e) {
-			LOGGER.warn("No demand file fund for region: |" + R.getName() + "|");
-			return;
+		String dm = ConfigLoader.config.service_demands_path;
+		if (dm != null && !dm.isEmpty()) {
+			if (Paths.get(dm).toFile().isFile()) {
+				path = Paths.get(dm);
+			} else {
+				ArrayList<Path> directory = PathTools.findAllFilePaths(Paths.get(dm));
+				path = PathTools.fileFilter(directory, "_" + R.getName()).get(0);
+			}
+		} else {
+			try {
+				path = PathTools
+						.fileFilter(ProjectLoader.getScenario(), PathTools.asFolder("demand"), "_" + R.getName())
+						.get(0);
+			} catch (NullPointerException e) {
+				LOGGER.warn("No demand file fund for region: |" + R.getName() + "|");
+				return;
+			}
 		}
-		LOGGER.info("Update Demand for [" + R.getName() + "]: ");
+		System.out.println("Update Demand for [" + R.getName() + "]: " + path);
+		LOGGER.info("Update Demand for [" + R.getName() + "]: " + path);
+
 		Map<String, List<String>> hashDemand = CsvProcessors.ReadAsaHash(path);
 
 		hashDemand.forEach((serviceName, vect) -> {

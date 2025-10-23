@@ -87,7 +87,6 @@ public class AftCategorised {
 				}
 			}
 			useCategorisationGivIn = mean != null && SD != null;
-			System.out.println("!!! useCategorisationGivIn= "+useCategorisationGivIn);
 		}
 	}
 

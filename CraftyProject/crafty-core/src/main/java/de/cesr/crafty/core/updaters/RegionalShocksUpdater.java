@@ -61,7 +61,6 @@ public class RegionalShocksUpdater extends AbstractUpdater {
 		System.out.println();
 		if (shocks.size() > 0) {
 			LOGGER.info("Associet Shocks to capital");
-			System.out.println("Associet Shocks to capital!!!!!!!!!!!!!!!!" + Timestep.getCurrentYear());
 			CellsLoader.regions.values().forEach(r -> {
 				r.getCells().values().forEach(c -> {
 //					System.out.println(r + " || " + shocks.get(r.getName()) != null);

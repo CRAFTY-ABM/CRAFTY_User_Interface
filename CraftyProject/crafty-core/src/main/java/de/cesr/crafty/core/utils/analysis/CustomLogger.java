@@ -51,7 +51,7 @@ public class CustomLogger {
 
 	public void fatal(String message) {
 		logger.fatal(message);
-//		System.exit(1);
+		System.exit(1);
 	}
 
 	public static void configureLogger(Path logFilePath) {

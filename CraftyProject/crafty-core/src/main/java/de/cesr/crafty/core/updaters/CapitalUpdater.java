@@ -2,14 +2,16 @@ package de.cesr.crafty.core.updaters;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.modelRunner.Timestep;
+import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.CsvKind;
 import de.cesr.crafty.core.dataLoader.CsvProcessors;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
@@ -25,6 +27,7 @@ public class CapitalUpdater extends AbstractUpdater {
 	// define the list of path will be use dusring the simulation HashMap<year,path>
 
 	private static List<String> capitalsList;
+	private static Map<Integer, Path> CAPITALS_directory = new TreeMap<>();
 
 	public CapitalUpdater() {
 		capitalsList = Collections.synchronizedList(new ArrayList<>());
@@ -33,6 +36,30 @@ public class CapitalUpdater extends AbstractUpdater {
 		String label = capitalsFile.keySet().contains("Label") ? "Label" : "Name";
 		setCapitalsList(capitalsFile.get(label));
 		LOGGER.info("Capitals size=" + getCapitalsList().size() + " =>" + getCapitalsList());
+		// fill the path any way
+		// <year,csv file>
+		if (!ConfigLoader.config.CAPITALS_directory.isEmpty()) {
+			ArrayList<Path> ps = PathTools.findAllFilePaths(Paths.get(ConfigLoader.config.CAPITALS_directory));
+			for (int i = Timestep.getStartYear(); i <= Timestep.getEndtYear(); i++) {
+				try {
+					CAPITALS_directory.put(i, PathTools.fileFilter(ps, "_" + i, "capitals", ".csv").get(0));
+				} catch (NullPointerException e) {
+					LOGGER.fatal(
+							"Capitals for " + i + " Not Fund in Directory: " + ConfigLoader.config.CAPITALS_directory);
+				}
+			}
+		} else {
+			ArrayList<Path> ps = PathTools.fileFilter(PathTools.asFolder(ProjectLoader.getScenario()),
+					PathTools.asFolder("worlds"), PathTools.asFolder("capitals"));
+			for (int i = Timestep.getStartYear(); i <= Timestep.getEndtYear(); i++) {
+				try {
+					CAPITALS_directory.put(i, PathTools.fileFilter(ps, "_" + i, "capitals", ".csv").get(0));
+				} catch (NullPointerException e) {
+					LOGGER.fatal(
+							"Capitals for " + i + " Not Fund in Directory: " + ConfigLoader.config.CAPITALS_directory);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -42,14 +69,11 @@ public class CapitalUpdater extends AbstractUpdater {
 
 	@Override
 	public void step() {
-		LOGGER.info("Cells.updateCapitals");
-		if (!ProjectLoader.getScenario().equalsIgnoreCase("Baseline")) {
-			/// should  be go to the list and read  the corespondant path and fines
-			Path path = PathTools.fileFilter(String.valueOf(Timestep.getCurrentYear()),
-					PathTools.asFolder(ProjectLoader.getScenario()), PathTools.asFolder("capitals")).get(0);
-			
-			CsvProcessors.processCSV(path, CsvKind.CAPITALS);
-		}
+
+		Path path = CAPITALS_directory.get(Timestep.getCurrentYear());
+		LOGGER.info("Cells.updateCapitals" + path);
+		CsvProcessors.processCSV(path, CsvKind.CAPITALS);
+
 	}
 
 	public static List<String> getCapitalsList() {

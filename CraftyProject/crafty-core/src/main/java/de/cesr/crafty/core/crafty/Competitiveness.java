@@ -8,10 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
-import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
+import de.cesr.crafty.core.updaters.LandMaskUpdater;
 import de.cesr.crafty.core.utils.general.CellsSubSets;
 
 public class Competitiveness {
@@ -70,7 +70,7 @@ public class Competitiveness {
 	private static boolean makeCompetition(Cell c, Aft competitor) {
 		boolean makeCompetition = true;
 		if (c.getMaskType() != null) {
-			HashMap<String, Boolean> mask = MaskRestrictionDataLoader.restrictions.get(c.getMaskType());
+			HashMap<String, Boolean> mask = LandMaskUpdater.restrictions.get(c.getMaskType());
 			if (mask != null) {
 				if (c.owner == null) {
 					if (mask.get(competitor.getLabel() + "_" + competitor.getLabel()) != null)

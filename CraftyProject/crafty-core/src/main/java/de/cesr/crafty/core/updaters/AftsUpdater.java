@@ -3,8 +3,6 @@ package de.cesr.crafty.core.updaters;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +14,6 @@ import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.CsvTools;
-import de.cesr.crafty.core.utils.file.PathTools;
 import de.cesr.crafty.core.utils.general.Utils;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
@@ -40,51 +37,30 @@ public class AftsUpdater extends AbstractUpdater {
 
 	@Override
 	public void step() {
-		updateProduction();
-		updateBehaviour();
+		updateProduction("production");
+		updateProduction("agents");
 	}
 
-	private void updateProduction() {
-		Path pFolderToUpdate = ProjectLoader.getProjectPath().resolve("production").resolve(ProjectLoader.getScenario())
-				.resolve("update_production_" + Timestep.getCurrentYear());
-		if (!pFolderToUpdate.toFile().exists()) {
-			pFolderToUpdate = ProjectLoader.getProjectPath().resolve("agents").resolve("default_production")
-					.resolve("update_behaviour_" + Timestep.getCurrentYear());
-		}
-		if (pFolderToUpdate.toFile().exists()) {
-			List<Path> pFiles = PathTools.fileFilter(pFolderToUpdate.toString());
-			pFiles.forEach(f -> {
-				File file = f.toFile();
-				updateAFTProduction(AFTsLoader.getAftHash().get(file.getName().replace(".csv", "")), file);
-			});
-		} else {
-			LOGGER.info("AFT production parameters not updated (no folder found)");
-		}
-	}
-
-	private void updateBehaviour() {
-		Path bFolderToUpdate = ProjectLoader.getProjectPath().resolve("agents").resolve(ProjectLoader.getScenario())
-				.resolve("update_behaviour_" + Timestep.getCurrentYear());
-
-		if (!bFolderToUpdate.toFile().exists()) {
-			bFolderToUpdate = ProjectLoader.getProjectPath().resolve("agents").resolve("default_behaviour")
-					.resolve("update_behaviour_" + Timestep.getCurrentYear());
-		}
-		if (bFolderToUpdate.toFile().exists()) {
-			List<Path> bFiles = PathTools.fileFilter(bFolderToUpdate.toString());
-			bFiles.forEach(f -> {
-				File file = f.toFile();
-				try {
-					updateAFTBehevoir(
-							AFTsLoader.getAftHash().get(file.getName().replace(".csv", "").replace("AftParams_", "")),
-							file);
-				} catch (NullPointerException e) {
-					LOGGER.error("AFT Not in the List: " + file);
+	private void updateProduction(String pORb) {
+		Map<String, Map<String, Path>> paths = pORb.equals("production") ? AFTsLoader.aft_production_paths
+				: AFTsLoader.aft_behevoir_paths;
+		AFTsLoader.getActivateAFTsHash().forEach((aftName, hash) -> {
+			if (paths.get(aftName) != null) {
+				Path ps = paths.get(aftName).get(ProjectLoader.getScenario() + "|" + Timestep.getCurrentYear());
+				if (ps == null) {
+					ps = paths.get(aftName).get("default_" + pORb + "|" + Timestep.getCurrentYear());
 				}
-			});
-		} else {
-			LOGGER.info("AFT behaviour parameters not updated (no folder found)");
-		}
+				if (ps != null) {
+					if (pORb.equals("production")) {
+						updateAFTProduction(AFTsLoader.getAftHash().get(aftName), ps.toFile());
+					} else {
+						updateAFTBehevoir(AFTsLoader.getAftHash().get(aftName), ps.toFile());
+					}
+				} else {
+					LOGGER.trace("AFT " + pORb + " parameters not updated (no folder found) for: " + aftName);
+				}
+			}
+		});
 	}
 
 	public static void updateAFTProduction(Aft a, File file) {

@@ -12,7 +12,7 @@ public class RegionsModelRunnerUpdater extends AbstractUpdater {
 	public static ConcurrentHashMap<String, RegionalModelRunner> regionsModelRunner;
 
 	public RegionsModelRunnerUpdater() {
-		regionsModelRunner= new ConcurrentHashMap<>();
+		regionsModelRunner = new ConcurrentHashMap<>();
 		CellsLoader.regions.keySet().forEach(regionName -> {
 			regionsModelRunner.put(regionName, new RegionalModelRunner(regionName));
 		});

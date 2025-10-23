@@ -27,7 +27,7 @@ import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.afts.AftCategorised;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.core.dataLoader.land.GisLoader;
-import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.dataLoader.land.MaskLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.updaters.CellsShocksUpdater;
@@ -44,7 +44,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 
 /**
  * @author Mohamed Byari
@@ -148,7 +147,7 @@ public class CellsCanvas {
 			});
 		} else if (CapitalUpdater.getCapitalsList().contains(colortype)) {
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
-				if (c != null && c.getCapitals().get(colortype)!=null)
+				if (c != null && c.getCapitals().get(colortype) != null)
 					ColorP(c, ColorsTools.getColorForValue(c.getCapitals().get(colortype)));
 			});
 
@@ -168,7 +167,7 @@ public class CellsCanvas {
 				}
 			});
 		} else if (colortype.equalsIgnoreCase("Mask")) {
-			ArrayList<String> listOfMasks = new ArrayList<>(MaskRestrictionDataLoader.hashMasksPaths.keySet());
+			ArrayList<String> listOfMasks = new ArrayList<>(MaskLoader.mask_paths.keySet());
 			CellsLoader.hashCell.values().parallelStream().forEach(c -> {
 				if (c.getMaskType() != null) {
 					ColorP(c, ColorsTools.colorlist(listOfMasks.indexOf(c.getMaskType())));
@@ -214,6 +213,8 @@ public class CellsCanvas {
 		}
 		gc.drawImage(writableImage, 0, 0);
 	}
+
+	static AtomicInteger nbr = new AtomicInteger(52);
 
 	public static void MapControlerBymouse() {
 		CellsCanvas.getCanvas().setOnMouseClicked(event -> {

@@ -153,8 +153,12 @@ public class CsvProcessors {
 				double shock_value = Utils.sToD(immutableList.get(indexof.get(capital_name.toUpperCase())));
 //				shock_value = shock_value > 0 ? 1. : 0.;
 				CellsShocksUpdater.cellsShocks.get(c).put(capital_name, shock_value);
-				c.getCapitals().put(capital_name,
-						c.getCapitals().get(capital_name) - c.getCapitals().get(capital_name) * shock_value);
+				try {
+					c.getCapitals().put(capital_name,
+							c.getCapitals().get(capital_name) - c.getCapitals().get(capital_name) * shock_value);
+				} catch (NullPointerException e) {
+					LOGGER.warn("Problem in Capitals for cell ("+c.getX()+" , "+c.getY()+"): capitals values = "+c.getCapitals());
+				}
 			}
 		});
 	}

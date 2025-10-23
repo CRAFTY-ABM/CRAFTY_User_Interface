@@ -141,7 +141,6 @@ public class Listener extends AbstractUpdater {
 	}
 
 	public static void DSEquilibriumListener() {
-		System.out.println("!!" + RegionsModelRunnerUpdater.regionsModelRunner.keySet());
 		for (RegionalModelRunner rr : RegionsModelRunnerUpdater.regionsModelRunner.values()) {
 			for (int j = 0; j < ServiceSet.getServicesList().size(); j++) {
 				DSEquilibriumListener[j + 1][Utils.indexof(rr.R.getName(),
@@ -182,6 +181,7 @@ public class Listener extends AbstractUpdater {
 	public void writOutPutMap(int year) {
 		if (yearsMapExporting.contains(year)) {
 			writeMap(year);
+
 		}
 	}
 
@@ -217,6 +217,9 @@ public class Listener extends AbstractUpdater {
 	private void writeMap(int year) {
 		CsvTools.exportToCSV(ConfigLoader.config.output_folder_name + File.separator + ProjectLoader.getScenario()
 				+ "-Cell-" + year + ".csv");
+//		if (year != Timestep.getStartYear())
+//			CsvTools.writeCSVfile(Selector.seedMap,
+//					Paths.get(ConfigLoader.config.output_folder_name + File.separator + "-SEED-" + year + ".csv"));
 	}
 
 	public static void outputfolderPath(String outputpath, String outputName) {
@@ -238,29 +241,6 @@ public class Listener extends AbstractUpdater {
 	}
 
 	public static String exportConfigurationFile() {
-//		String configuration = "";
-//
-//		Path path = Paths.get(ConfigLoader.configPath);
-//		boolean isAbsoluteFile = path.isAbsolute() && Files.exists(path);
-//
-//		if (isAbsoluteFile) {
-//			try {
-//				configuration = Files.readString(path, StandardCharsets.UTF_8);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		} else {
-//			try (InputStream inputStream = ResourceReader.class.getResourceAsStream(ConfigLoader.configPath)) {
-//				if (inputStream == null) {
-//					System.err.println("Resource not found: " + ConfigLoader.configPath);
-//				} else {
-//					configuration = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		return configuration;
 		return ConfigLoader.config.toString();
 	}
 }

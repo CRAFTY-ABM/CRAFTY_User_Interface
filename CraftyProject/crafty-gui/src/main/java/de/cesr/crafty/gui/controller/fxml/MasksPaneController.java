@@ -10,7 +10,7 @@ import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
-import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
+import de.cesr.crafty.core.dataLoader.land.MaskLoader;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.updaters.LandMaskUpdater;
 import de.cesr.crafty.core.utils.general.Utils;
@@ -60,7 +60,7 @@ public class MasksPaneController {
 		AtomicInteger y = new AtomicInteger();
 		radioListOfMasks.forEach(r -> {
 			r.setOnAction(e -> {
-				MaskRestrictionDataLoader.maskAndRistrictionLaoder(r.getText());
+				MaskLoader.maskByScenario(r.getText());
 				int i = radioListOfMasks.indexOf(r);
 				if (r.isSelected()) {
 					// initial nodes
@@ -69,8 +69,8 @@ public class MasksPaneController {
 					VBox boxOfAftRadios = initilazeAFTboxs(radioListOfAFTs);
 					ArrayList<PlotItem> itemsList = initPlotItem();
 
-					MaskRestrictionDataLoader.restrictionsInitialize(r.getText());
-					HashMap<String, Boolean> restrictionsRul = MaskRestrictionDataLoader.restrictions.get(r.getText());
+					MaskLoader.restrictionsByScenario(r.getText());
+					HashMap<String, Boolean> restrictionsRul = LandMaskUpdater.restrictions.get(r.getText());
 					// default circular plot
 					List<PlotItem> items = circularPlot(itemsList, restrictionsRul, radioListOfAFTs.get(0).getText(),
 							true);
@@ -88,8 +88,8 @@ public class MasksPaneController {
 					Text text = Tools.text(
 							"Select the AFT (landowner) to display the possible transitions from this AFT to other AFTs (competitors):",
 							Color.BLUE);
-					boxMask.getChildren().addAll(Tools.hBox(text, boxYears)
-							, Tools.hBox(boxOfAftRadios, circularPlot[i] ));
+					boxMask.getChildren().addAll(Tools.hBox(text, boxYears),
+							Tools.hBox(boxOfAftRadios, circularPlot[i]));
 					radioListOfAFTs.forEach(rad -> {
 						rad.setOnAction(_ -> {
 							circularPlot[i].setItems(
@@ -123,14 +123,14 @@ public class MasksPaneController {
 	}
 
 	private void removeMask(CheckBox r, TitledPane T) {
-		MaskRestrictionDataLoader.cleanMaskType(r.getText());
-		MaskRestrictionDataLoader.restrictions.remove(r.getText());
+		LandMaskUpdater.cleanMaskType(r.getText());
+		LandMaskUpdater.restrictions.remove(r.getText());
 		grid.getChildren().removeAll(T);
-		MaskRestrictionDataLoader.hashMasksPaths.remove(r.getText());
+		MaskLoader.mask_paths.remove(r.getText());
 	}
 
 	private void initializeBoxs() {
-		MaskRestrictionDataLoader.hashMasksPaths.keySet().forEach(maskName -> {
+		MaskLoader.mask_paths.keySet().forEach(maskName -> {
 			CheckBox r = new CheckBox(maskName);
 			radioListOfMasks.add(r);
 			TopBox.getChildren().add(r);
@@ -158,7 +158,7 @@ public class MasksPaneController {
 
 	private List<String> filePathToYear(String maskType) {
 		List<String> years = new ArrayList<>();
-		MaskRestrictionDataLoader.hashMasksPaths.get(maskType).forEach(path -> {
+		MaskLoader.mask_paths.get(maskType).values().forEach(path -> {
 			for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
 				if (path.toString().contains(i + "")) {
 					years.add(i + "");

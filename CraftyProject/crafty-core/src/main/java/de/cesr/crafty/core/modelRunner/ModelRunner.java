@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
@@ -16,8 +17,6 @@ import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.output.Tracker;
 import de.cesr.crafty.core.updaters.AftsUpdater;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
-import de.cesr.crafty.core.updaters.CellBehaviourUpdater;
-import de.cesr.crafty.core.updaters.CellsShocksUpdater;
 import de.cesr.crafty.core.updaters.FlagUpdater;
 import de.cesr.crafty.core.updaters.LandMaskUpdater;
 import de.cesr.crafty.core.updaters.RegionsModelRunnerUpdater;
@@ -51,10 +50,10 @@ public class ModelRunner extends AbstractModelRunner {
 		getScheduled().add(new ServicesUpdater());
 		getScheduled().add(capitalUpdater);
 		getScheduled().add(aftsUpdater);
-		getScheduled().add(new CellBehaviourUpdater());
+//		getScheduled().add(new CellBehaviourUpdater());
 		getScheduled().add(new LandMaskUpdater());
 //		getScheduled().add(new RegionalShocksUpdater());
-		getScheduled().add(new CellsShocksUpdater());
+//		getScheduled().add(new CellsShocksUpdater());
 		getScheduled().add(new SupplyUpdater());
 		getScheduled().add(new Listener());
 		getScheduled().add(new Tracker());
@@ -68,9 +67,9 @@ public class ModelRunner extends AbstractModelRunner {
 		if (ConfigLoader.config.export_LOGGER) {
 			CustomLogger
 					.configureLogger(Paths.get(ConfigLoader.config.output_folder_name + File.separator + "LOGGER.txt"));
-			PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
-					Listener.exportConfigurationFile(), false);
 		}
+		PathTools.writeFile(ConfigLoader.config.output_folder_name + File.separator + "config.txt",
+				Listener.exportConfigurationFile(), false);
 		demandEquilibrium();
 		for (int i = 0; i <= Timestep.getEndtYear() - Timestep.getStartYear(); i++) {
 			Timestep.setCurrentYear(tick.get());
@@ -79,6 +78,8 @@ public class ModelRunner extends AbstractModelRunner {
 			step();
 //			GeoTiffExample.geoTiffWriter();// -----
 			tick.getAndIncrement();
+			System.out.println("==> " + ConfigLoader.config.seedID);
+			ConfigLoader.config.seedID++;
 		}
 //		exportChartsPlots();
 	}

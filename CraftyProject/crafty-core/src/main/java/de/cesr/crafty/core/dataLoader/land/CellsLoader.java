@@ -1,6 +1,7 @@
 package de.cesr.crafty.core.dataLoader.land;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,22 +27,21 @@ public class CellsLoader {
 	public static Set<String> regionsNamesSet = new HashSet<>();
 	public static ConcurrentHashMap<String, Cell> hashCell = new ConcurrentHashMap<>();
 	public static ConcurrentHashMap<String, Region> regions;
-	
-	
+
 	public static boolean regionalization = ConfigLoader.config.regionalization;
 
 	private static int nbrOfCells = 0;
 
 	public CellsLoader() {
-		initialize();
-
-	}
-
-	public void initialize() {
 		hashCell.clear();
-		Path baselinePath = PathTools.fileFilter(PathTools.asFolder("worlds"), "Baseline_map").iterator().next();
-		CsvProcessors.processCSV(baselinePath, CsvKind.BASELINE);
+		if (ConfigLoader.config.BASELINE_path == null || ConfigLoader.config.BASELINE_path.isEmpty()) {
+			ConfigLoader.config.BASELINE_path = PathTools.fileFilter(PathTools.asFolder("worlds"), "Baseline_map")
+					.iterator().next().toString();
+		}
+		LOGGER.info("BASELINE_path  = " + ConfigLoader.config.BASELINE_path);
+		CsvProcessors.processCSV(Paths.get(ConfigLoader.config.BASELINE_path), CsvKind.BASELINE);
 		AFTsLoader.hashAgentNbr();
+		
 		new GisLoader().loadGisData();
 		regionsInitialize();
 		AFTsLoader.hashAgentNbrRegions();

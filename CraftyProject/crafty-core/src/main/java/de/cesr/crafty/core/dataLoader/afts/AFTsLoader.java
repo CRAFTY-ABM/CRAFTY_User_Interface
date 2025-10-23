@@ -2,20 +2,25 @@ package de.cesr.crafty.core.dataLoader.afts;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.crafty.Aft;
 import de.cesr.crafty.core.crafty.AftCategory;
 import de.cesr.crafty.core.crafty.ManagerTypes;
 import de.cesr.crafty.core.dataLoader.ProjectLoader;
 import de.cesr.crafty.core.dataLoader.CsvProcessors;
 import de.cesr.crafty.core.dataLoader.land.CellsLoader;
+import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.updaters.AftsUpdater;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
@@ -35,6 +40,69 @@ public class AFTsLoader extends HashSet<Aft> {
 	public static ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> hashAgentNbrRegions = new ConcurrentHashMap<>();
 	public static String unmanagedManagerLabel = "Abandoned";
 
+	public static Map<String, Map<String, Path>> aft_production_paths = new HashMap<>();// <aftName,default/year,path>
+	public static Map<String, Map<String, Path>> aft_behevoir_paths = new HashMap<>();;
+
+	Map<String, Map<String, Path>> productionPaths(String pORb) {
+		Map<String, Map<String, Path>> data = new HashMap<>();
+		String aftparams = pORb.equals("agents") ? "AftParams_" : "";
+		String cofigpORb = pORb.equals("agents") ? ConfigLoader.config.aft_behevoir_directory
+				: ConfigLoader.config.aft_production_directory;
+
+		if (cofigpORb.isEmpty()) {
+			hashAFTs.keySet().forEach(label -> {
+				ArrayList<Path> pfiles = PathTools.fileFilter(PathTools.asFolder(pORb),
+						File.separator + aftparams + label + ".csv");
+				if (pfiles != null) {
+					Map<String, Path> temp = new HashMap<>();
+					pfiles.forEach(p -> {
+						if (p.toString()
+								.contains(ProjectLoader.getScenario() + File.separator + aftparams + label + ".csv")) {
+							temp.put(ProjectLoader.getScenario(), p);
+						} else if (p.toString().contains(ProjectLoader.getScenario())) {
+							for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
+								if (p.toString().contains(PathTools.asFolder(String.valueOf(i)))) {
+									temp.put(ProjectLoader.getScenario() + "|" + i, p);
+								}
+							}
+						} else if (p.toString()
+								.contains("default_" + pORb + File.separator + aftparams + label + ".csv")) {
+							temp.put("default_" + pORb, p);
+						} else if (p.toString().contains("default_" + pORb)) {
+							for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
+								if (p.toString().contains(PathTools.asFolder(String.valueOf(i)))
+										&& p.toString().contains("default_" + pORb)) {
+									temp.put("default_" + pORb + "|" + i, p);
+								}
+							}
+						}
+					});
+					data.put(label, temp);
+				}
+			});
+		} else {
+			ArrayList<Path> directory = PathTools.findAllFilePaths(Paths.get(cofigpORb));
+
+			hashAFTs.keySet().forEach(label -> {
+				Map<String, Path> yPath = new HashMap<>();
+				directory.forEach(p -> {
+					if (p.toString().contains(File.separator + aftparams + label + ".csv")) {
+						if (p.toString().contains(cofigpORb + File.separator + aftparams + label + ".csv")) {
+							yPath.put("default_" + pORb, p);
+						}
+						for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
+							if (p.toString().contains(String.valueOf(i))) {
+								yPath.put(ProjectLoader.getScenario() + "|" + i, p);
+							}
+						}
+					}
+				});
+				data.put(label, yPath);
+			});
+		}
+		return data;
+	}
+
 	public AFTsLoader() {
 		initializeAFTs();
 		addAll(hashAFTs.values());
@@ -50,75 +118,51 @@ public class AFTsLoader extends HashSet<Aft> {
 		initializeAftTypes();
 		AftCategorised.CategoriesLoader();
 		AftCategorised.initializeBehevoirByCategories();
+		aft_production_paths = productionPaths("production");
+		aft_behevoir_paths = productionPaths("agents");
 		hashAFTs.forEach((Label, a) -> {
 			LOGGER.trace("Import Production and behaviour for AFT: " + Label);
 			if (a.isInteract()) {
-				Path pFile = null;
-				ArrayList<Path> pfiles = PathTools.fileFilter(PathTools.asFolder("default_production"),
-						PathTools.asFolder("production"), File.separator + Label + ".csv");
-				if (pfiles != null && pfiles.size() > 0) {
-					pFile = pfiles.get(0);
-				} else {
-					ArrayList<Path> pFileList = PathTools.fileFilter(PathTools.asFolder("production"),
-							ProjectLoader.getScenario(), File.separator + Label + ".csv");
-					pFile = pFileList.get(0);
-					// LOGGER.warn("Default productivity folder not fund, will use: " + pFile);
-				}
-				LOGGER.trace("Production file Path: " + pFile);
-				initializeAFTProduction(pFile);
+				Path pFile = Optional.ofNullable(aft_production_paths.get(Label)).map(paths -> {
+					String scenarioKey = ProjectLoader.getScenario() + "|" + Timestep.getStartYear();
+					if (paths.containsKey(scenarioKey))
+						return paths.get(scenarioKey);
+					if (paths.containsKey(ProjectLoader.getScenario()))
+						return paths.get(ProjectLoader.getScenario());
+					return paths.get("default_production");
+				}).orElse(null);
 
-				Path bFile = null;
-				ArrayList<Path> bfiles = PathTools.fileFilter(PathTools.asFolder("default_behaviour"),
-						PathTools.asFolder("agents"), "AftParams_" + Label + ".csv");
-				if (bfiles != null && bfiles.size() > 0) {
-					bFile = bfiles.get(0);
+				if (pFile != null) {
+					initializeAFTProduction(pFile);
+					LOGGER.trace("production file for (" + Label + "): " + pFile);
 				} else {
-					bFile = PathTools.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(),
-							"AftParams_" + Label + ".csv").get(0);
-					// LOGGER.info("Default behaviour folder not fund, will use: " + bFile);
+					LOGGER.fatal("Could NOT found AFT Production file for initialisation: " + Label);
 				}
 
-				LOGGER.trace("Behaviour file Path: " + bFile);
-				initializeAFTBehevoir(bFile);
+				Path bFile = Optional.ofNullable(aft_behevoir_paths.get(Label)).map(paths -> {
+					String scenarioKey = ProjectLoader.getScenario() + "|" + Timestep.getStartYear();
+					if (paths.containsKey(scenarioKey))
+						return paths.get(scenarioKey);
+					if (paths.containsKey(ProjectLoader.getScenario()))
+						return paths.get(ProjectLoader.getScenario());
+					return paths.get("default_agents");
+				}).orElse(null);
+
+				if (pFile != null) {
+					initializeAFTBehevoir(bFile);
+					LOGGER.trace("giveIn-giveUp file for (" + Label + "): " + bFile);
+				} else {
+					LOGGER.fatal("Could NOT found AFT Production file for initialisation: " + Label);
+				}
+
 			}
 		});
 	}
 
-	public static void updateAFTsForsenario() {
-		List<Path> pFiles = PathTools.fileFilter(PathTools.asFolder("production"), ProjectLoader.getScenario(), ".csv");
-		pFiles.forEach(f -> {
-			File file = f.toFile();
-			AftsUpdater.updateAFTProduction(hashAFTs.get(file.getName().replace(".csv", "")), file);
-		});
-		List<Path> bFiles = PathTools.fileFilter(PathTools.asFolder("agents"), ProjectLoader.getScenario(), ".csv");
-		bFiles.forEach(f -> {
-			File file = f.toFile();
-			try {
-				AftsUpdater.updateAFTBehevoir(
-						hashAFTs.get(file.getName().replace(".csv", "").replace("AftParams_", "")), file);
-			} catch (NullPointerException e) {
-				LOGGER.error("AFT Not in the List: " + file);
-			}
-		});
-		checkAFTsBehevoireParametres(bFiles);
-	}
-
-	public void initializeAFTBehevoir(Path aftPath) {
+	private void initializeAFTBehevoir(Path aftPath) {
 		File file = aftPath.toFile();
 		Aft a = hashAFTs.get(file.getName().replace(".csv", "").replace("AftParams_", ""));
 		AftsUpdater.updateAFTBehevoir(a, file);
-	}
-
-	private static void checkAFTsBehevoireParametres(List<Path> bFiles) {
-		List<String> bf = new ArrayList<>();
-		bFiles.forEach(f -> {
-			bf.add(f.toFile().getName().replace(".csv", "").replace("AftParams_", ""));
-		});
-		hashAFTs.keySet().forEach(label -> {
-			if (!bf.contains(label)) {
-				LOGGER.warn("no behevoir parametrs for the AFT:  " + label);
-			}
-		});
 	}
 
 	private void initializeAFTProduction(Path aftPath) {
@@ -156,7 +200,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		}
 	}
 
-	void addAbandonedAftIfNotExiste() {
+	private void addAbandonedAftIfNotExiste() {
 		Aft a = new Aft("Abandoned");
 		a.setType(ManagerTypes.Abandoned);
 		unmanagedManagerLabel = a.getLabel();
@@ -177,7 +221,7 @@ public class AFTsLoader extends HashSet<Aft> {
 		if (!hashAgentNbr.containsKey("Abandoned") || !hashAgentNbr.containsKey(unmanagedManagerLabel)) {
 			hashAgentNbr.put(unmanagedManagerLabel, 0);
 		}
-		LOGGER.info("Number of cells for each AFT: "+hashAgentNbr);
+		LOGGER.info("Number of cells for each AFT: " + hashAgentNbr);
 	}
 
 	public static void hashAgentNbrRegions() {

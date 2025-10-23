@@ -1,6 +1,5 @@
 package de.cesr.crafty.core.main;
 
-
 import java.nio.file.Paths;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
@@ -23,6 +22,14 @@ public class MainHeadless {
 		runner = new ModelRunner();
 		runner.start();
 		runner.run();
+
+	}
+
+	// Fast 64-bit mixer (SplitMix64). Good distribution, deterministic.
+	static long mix64(long z) {
+		z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+		z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+		return z ^ (z >>> 31);
 	}
 
 	public static void initializeConfig(String[] args) {

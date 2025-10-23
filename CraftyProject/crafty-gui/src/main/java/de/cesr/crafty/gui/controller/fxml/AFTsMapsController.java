@@ -13,7 +13,6 @@ import de.cesr.crafty.core.dataLoader.land.CellsLoader;
 import de.cesr.crafty.gui.canvasFx.CellsCanvas;
 import de.cesr.crafty.gui.utils.graphical.MousePressed;
 import de.cesr.crafty.gui.utils.graphical.PieChartTools;
-import de.cesr.crafty.gui.utils.graphical.SmoothMockField;
 import de.cesr.crafty.gui.utils.graphical.Tools;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
@@ -70,8 +69,8 @@ public class AFTsMapsController {
 				tmp.put("ext", 0.25);
 				tmp.put("int", 0.);
 				map.keySet().forEach(name -> {
-					color.put(name,
-							Color.web(AftCategorised.categoriesColor.get(ca)).interpolate(Color.WHITE, tmp.get(name) != null ? tmp.get(name):1));
+					color.put(name, Color.web(AftCategorised.categoriesColor.get(ca)).interpolate(Color.WHITE,
+							tmp.get(name) != null ? tmp.get(name) : 1));
 				});
 				if (map.size() > 1) {
 					PieChart p = new PieChart();
@@ -111,9 +110,9 @@ public class AFTsMapsController {
 
 	@FXML
 	public void aftColorsAction() {
-//		CellsCanvas.colorMap("AFT");
+		CellsCanvas.colorMap("AFT");
 //		SmoothMockField.writeMockData();
-		CellsCanvas.colorMap("Shocks");
+//		CellsCanvas.colorMap("Shocks");
 	}
 
 	@FXML

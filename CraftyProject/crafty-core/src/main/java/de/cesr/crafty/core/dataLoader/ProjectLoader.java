@@ -1,6 +1,5 @@
 package de.cesr.crafty.core.dataLoader;
 
-import de.cesr.crafty.core.dataLoader.land.MaskRestrictionDataLoader;
 import de.cesr.crafty.core.modelRunner.Timestep;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
 import de.cesr.crafty.core.utils.file.PathTools;
@@ -28,15 +27,16 @@ public final class ProjectLoader {
 	private static String scenario;
 	public static String WorldName = "";
 
-	
-	public static MaskRestrictionDataLoader Maskloader = new MaskRestrictionDataLoader();
+//	private static Path BASELINE_path;
+
+//	private static Map<Integer, Path> Behevoir_Cells_directory;
+//	private static Map<Integer, Path> SHOCKS_Maps_directory;
 
 	public static void pathInitialisation(Path p) {
 		projectPath = p;
 		allfilePathsInDataDirectory = PathTools.findAllFilePaths(projectPath);
 		initialSenarios();
 	}
-
 
 	static void initialSenarios() {
 		Path path = PathTools.fileFilter(File.separator + "scenarios.csv").iterator().next();
@@ -88,3 +88,4 @@ public final class ProjectLoader {
 	}
 
 }
+

@@ -18,7 +18,7 @@ import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.output.ListenerByRegion;
 import de.cesr.crafty.core.updaters.ServicesUpdater;
 import de.cesr.crafty.core.utils.analysis.CustomLogger;
-import de.cesr.crafty.core.utils.general.CellsSubSets;
+import de.cesr.crafty.core.utils.general.Selector;
 import de.cesr.crafty.core.utils.general.Utils;
 
 /**
@@ -86,13 +86,10 @@ public class RegionalModelRunner {
 //			Service s = R.getServicesHash().get(serviceName);
 			double serviceDemand = ServicesUpdater.getDemandByRegions().get(R.getName()).get(serviceName); // s.getDemands().get(year);
 			double serviceWeight = ServicesUpdater.getWeightByRegions().get(R.getName()).get(serviceName);// s.getWeights().get(year)
-			double marg  = ServiceSet.getPenalise_Oversupply().get(serviceName) ? serviceDemand - serviceSupply
+			double marg = ServiceSet.getPenalise_Oversupply().get(serviceName) ? serviceDemand - serviceSupply
 					: Math.max(serviceDemand - serviceSupply, 0);
 //			  marg= ConfigLoader.config.remove_negative_marginal_utility ?
 //			  Math.max(serviceDemand - serviceSupply, 0) : serviceDemand - serviceSupply;
-			  
-			  
-			
 
 			if (ConfigLoader.config.averaged_residual_demand_per_cell) {
 				marg = marg / R.getCells().size();
@@ -170,8 +167,8 @@ public class RegionalModelRunner {
 
 	private void giveUp() {
 		if (ConfigLoader.config.use_abandonment_threshold) {
-			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = CellsSubSets.randomSeed(R.getCells(),
-					ConfigLoader.config.land_abandonment_percentage);
+			ConcurrentHashMap<String, Cell> randomCellsubSetForGiveUp = Selector.randomSeed(R.getCells(),
+					ConfigLoader.config.land_abandonment_percentage, ConfigLoader.config.seedID+200);
 			if (randomCellsubSetForGiveUp != null) {
 				randomCellsubSetForGiveUp.values()/**/.parallelStream().forEach(c -> {
 					c.giveUp(this, distributionMean);
@@ -183,8 +180,8 @@ public class RegionalModelRunner {
 
 	private void competition(int year) {
 		// Randomly select % of the land available for competition
-		ConcurrentHashMap<String, Cell> randomCellsubSet = CellsSubSets.randomSeed(R.getCells(),
-				ConfigLoader.config.participating_cells_percentage);
+		ConcurrentHashMap<String, Cell> randomCellsubSet = Selector.randomSeed(R.getCells(),
+				ConfigLoader.config.participating_cells_percentage, ConfigLoader.config.seedID);
 		if (randomCellsubSet != null) {
 			List<ConcurrentHashMap<String, Cell>> subsubsets = Utils.splitIntoSubsets(randomCellsubSet,
 					ConfigLoader.config.marginal_utility_calculations_per_tick);
