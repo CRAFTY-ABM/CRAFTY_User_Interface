@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
 import de.cesr.crafty.core.cli.CustomLogger;
@@ -163,140 +165,107 @@ public class AFTsLoader extends HashSet<Aft> {
 	}
 
 	Map<String, Map<String, Path>> production_paths() {
-		Map<String, Map<String, Path>> data = new HashMap<>(); // <aftName,default_/Year/scenario,path>
-
-		Path configPath = Paths.get(ConfigLoader.config.aft_production_parameters_directory);
-		if (configPath.toFile().isDirectory()) {
-			ArrayList<Path> folder = PathTools.findAllFilePaths(configPath);
-			hashAFTs.keySet().forEach(aftName -> {
-				data.put(aftName, new HashMap<>());
-				for (int i = Timestep.getStartYear(); i <= Timestep.getEndtYear(); i++) {
-					ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i),
-							File.separator + aftName + ".csv");
-					if (p != null && !p.isEmpty()) {
-						data.get(aftName).put(String.valueOf(i), p.get(0));
-					}
-				}
-				ArrayList<Path> list2 = new ArrayList<>(data.get(aftName).values());
-				ArrayList<Path> tmp = PathTools.fileFilter(folder, File.separator + aftName + ".csv");
-				if (tmp != null) {
-					ArrayList<Path> list3 = new ArrayList<>(tmp);
-					list3.removeAll(new HashSet<>(list2));
-					list3.forEach(p -> {
-						data.get(aftName).put("default_", p);
-					});
-				}
-			});
-
-		} else {
-			ArrayList<Path> folder = PathTools.fileFilter(PathTools.asFolder("production"));
-			hashAFTs.keySet().forEach(aftName -> {
-				data.put(aftName, new HashMap<>());
-				// if Name contain year and scenarios
-				ProjectLoader.getScenariosList().forEach(scenarioName -> {
-					for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
-						ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i),
-								File.separator + aftName + ".csv", scenarioName);
-						if (p != null && !p.isEmpty()) {
-							data.get(aftName).put(scenarioName + "|" + i, p.get(0));
-						}
-					}
-				});
-				// if Name contain only scenarios -> go to rest and find scenarios
-				ArrayList<Path> exist1 = new ArrayList<>(data.get(aftName).values());
-
-				ProjectLoader.getScenariosList().forEach(scenarioName -> {
-					ArrayList<Path> tmp = PathTools.fileFilter(folder, File.separator + aftName + ".csv", scenarioName);
-					if (tmp != null) {
-						ArrayList<Path> rest1 = new ArrayList<>(tmp);
-						rest1.removeAll(new HashSet<>(exist1));
-						rest1.forEach(p -> {
-							data.get(aftName).put(scenarioName, p);
-						});
-					}
-				});
-				// if Name contain only default_-> go to rest and define file as default_
-				ArrayList<Path> exist2 = new ArrayList<>(data.get(aftName).values());
-				ArrayList<Path> tmp = PathTools.fileFilter(folder, File.separator + aftName + ".csv", "default_");
-				if (tmp != null) {
-					ArrayList<Path> rest2 = new ArrayList<>(tmp);
-					rest2.removeAll(new HashSet<>(exist2));
-					rest2.forEach(p -> {
-						data.get(aftName).put("default_", p);
-					});
-				}
-			});
-		}
-//		data.forEach((a, v) -> {
-//			System.out.println("@@   " + a + ": " + v);
-//		});
-		return data;
+		return resolveParameterPaths(ConfigLoader.config.aft_production_parameters_directory, "production",
+				aftName -> File.separator + aftName + ".csv");
 	}
 
 	Map<String, Map<String, Path>> behaviourPaths() {
+		return resolveParameterPaths(ConfigLoader.config.aft_behaviour_parameters_directory, "agents",
+				aftName -> "AftParams_" + aftName + ".csv");
+	}
+
+	/**
+	 * Builds, for every AFT, a map of "which file to use when" -> path.
+	 *
+	 * The keys of the inner map are unchanged by this refactor: "<year>" when an
+	 * explicit directory is configured; "<scenario>|<year>", "<scenario>" or
+	 * "default_" when falling back to the project folders.
+	 *
+	 * @param configuredDirectory directory from config.yaml, may be null or blank
+	 * @param fallbackFolder      project sub-folder used when no directory is set
+	 * @param fileNameForAft      how a file belonging to one AFT is recognised
+	 */
+	private Map<String, Map<String, Path>> resolveParameterPaths(String configuredDirectory, String fallbackFolder,
+			Function<String, String> fileNameForAft) {
 		Map<String, Map<String, Path>> data = new HashMap<>(); // <aftName,default_/Year/scenario,path>
-		String configuredDirectory = ConfigLoader.config.aft_behaviour_parameters_directory;
+
+		// This blank/null check used to exist only in behaviourPaths().
+		// production_paths() called Paths.get(...) straight away and threw a
+		// NullPointerException when the key was missing from config.yaml.
 		Path configPath = configuredDirectory == null || configuredDirectory.isBlank() ? null
 				: Paths.get(configuredDirectory);
+
 		if (configPath != null && configPath.toFile().isDirectory()) {
 			ArrayList<Path> folder = PathTools.findAllFilePaths(configPath);
 			hashAFTs.keySet().forEach(aftName -> {
-				data.put(aftName, new HashMap<>());
-				for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
-					ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i),
-							"AftParams_" + aftName + ".csv");
+				String fileName = fileNameForAft.apply(aftName);
+				Map<String, Path> byKey = new HashMap<>();
+				data.put(aftName, byKey);
+
+				// Most specific first: a file whose name carries a simulation year.
+				for (int i = Timestep.getStartYear(); i <= Timestep.getEndtYear(); i++) {
+					ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i), fileName);
 					if (p != null && !p.isEmpty()) {
-						data.get(aftName).put(String.valueOf(i), p.get(0));
+						byKey.put(String.valueOf(i), p.get(0));
 					}
 				}
-				ArrayList<Path> list2 = new ArrayList<>(data.get(aftName).values());
-				ArrayList<Path> list3 = new ArrayList<>(PathTools.fileFilter(folder, "AftParams_" + aftName + ".csv"));
-				list3.removeAll(new HashSet<>(list2));
-				list3.forEach(p -> {
-					data.get(aftName).put("default_", p);
-				});
+				// Whatever is left over becomes this AFT's default file.
+				putUnclaimedUnder("default_", byKey, PathTools.fileFilter(folder, fileName), snapshot(byKey));
 			});
 
 		} else {
-			ArrayList<Path> folder = PathTools.fileFilter(PathTools.asFolder("agents"));
+			ArrayList<Path> folder = PathTools.fileFilter(PathTools.asFolder(fallbackFolder));
 			hashAFTs.keySet().forEach(aftName -> {
-				data.put(aftName, new HashMap<>());
-				// if Name contain year and scenarios
+				String fileName = fileNameForAft.apply(aftName);
+				Map<String, Path> byKey = new HashMap<>();
+				data.put(aftName, byKey);
+
+				// Most specific first: file name carries both scenario and year.
 				ProjectLoader.getScenariosList().forEach(scenarioName -> {
-					for (int i = Timestep.getStartYear(); i < Timestep.getEndtYear(); i++) {
-						ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i),
-								"AftParams_" + aftName + ".csv", scenarioName);
+					for (int i = Timestep.getStartYear(); i <= Timestep.getEndtYear(); i++) {
+						ArrayList<Path> p = PathTools.fileFilter(folder, String.valueOf(i), fileName, scenarioName);
 						if (p != null && !p.isEmpty()) {
-							data.get(aftName).put(scenarioName + "|" + i, p.get(0));
+							byKey.put(scenarioName + "|" + i, p.get(0));
 						}
 					}
 				});
-				// if Name contain only scenarios -> go to rest and find scenarios
-				ArrayList<Path> exist1 = new ArrayList<>(data.get(aftName).values());
 
-				ProjectLoader.getScenariosList().forEach(scenarioName -> {
-					ArrayList<Path> tmp = PathTools.fileFilter(folder, "AftParams_" + aftName + ".csv", scenarioName);
-					if (tmp != null) {
-						ArrayList<Path> rest1 = new ArrayList<>(tmp);
-						rest1.removeAll(new HashSet<>(exist1));
-						rest1.forEach(p -> {
-							data.get(aftName).put(scenarioName, p);
-						});
-					}
-				});
-				// if Name contain only default_-> go to rest and define file as default_
-				ArrayList<Path> exist2 = new ArrayList<>(data.get(aftName).values());
-				ArrayList<Path> tmp = PathTools.fileFilter(folder, "AftParams_" + aftName + ".csv", "default_");
-				if (tmp != null) {
-					ArrayList<Path> rest2 = new ArrayList<>(tmp);
-					rest2.removeAll(new HashSet<>(exist2));
-					rest2.forEach(p -> {
-						data.get(aftName).put("default_", p);
-					});
-				}
+				// Then: file name carries a scenario but no year. Note that all
+				// scenarios are compared against ONE snapshot taken after the year
+				// pass, never against each other's results - that is what the
+				// original code did, and it is preserved deliberately.
+				Set<Path> afterYearPass = snapshot(byKey);
+				ProjectLoader.getScenariosList().forEach(scenarioName -> putUnclaimedUnder(scenarioName, byKey,
+						PathTools.fileFilter(folder, fileName, scenarioName), afterYearPass));
+
+				// Least specific: a file explicitly marked as the default.
+				putUnclaimedUnder("default_", byKey, PathTools.fileFilter(folder, fileName, "default_"),
+						snapshot(byKey));
 			});
 		}
 		return data;
+	}
+
+	/** The paths already registered for one AFT, used to skip files a more specific key claimed. */
+	private static Set<Path> snapshot(Map<String, Path> byKey) {
+		return new HashSet<>(byKey.values());
+	}
+
+	/**
+	 * Registers, under {@code key}, every candidate file not already claimed.
+	 *
+	 * A null candidate list is ignored. production_paths() already guarded
+	 * against that; behaviourPaths() did not, so a missing folder could throw a
+	 * NullPointerException on the behaviour side only.
+	 */
+	private static void putUnclaimedUnder(String key, Map<String, Path> byKey, ArrayList<Path> candidates,
+			Set<Path> alreadyClaimed) {
+		if (candidates == null) {
+			return;
+		}
+		ArrayList<Path> unclaimed = new ArrayList<>(candidates);
+		unclaimed.removeAll(alreadyClaimed);
+		unclaimed.forEach(p -> byKey.put(key, p));
 	}
 
 	private void initializeAFTBehaviour(Path aftPath) {
@@ -341,6 +310,96 @@ public class AFTsLoader extends HashSet<Aft> {
 					int max = Utils.sToI(csv.get("max_life_cycle").get(i));
 					a.setMax_life_cycle(max > 0 ? max : Integer.MAX_VALUE);
 				}
+				if (csv.containsKey("Nfert_rate")) {
+					a.setNfertRate(Utils.sToD(csv.get("Nfert_rate").get(i)));
+				}
+				if (csv.containsKey("Other_intensity")) {
+					String val = csv.get("Other_intensity").get(i).trim();
+					/*
+					 * Other_intensity is a multiplier on the intensity cost, not a cost, so a
+					 * blank cell means "do not scale" rather than "no cost" and the 1.0 default
+					 * is left in place. Tablesaw renders a missing numeric cell as "" or "NaN"
+					 * depending on the column type it infers; both count as blank here. An
+					 * explicit 0 is honoured and does zero the AFT's intensity cost.
+					 */
+					if (!val.isEmpty() && !val.equalsIgnoreCase("NaN")) {
+						try {
+							a.setOtherIntensity(Double.parseDouble(val));
+						} catch (NumberFormatException e) {
+							LOGGER.warn("Unrecognised Other_intensity value '" + val
+									+ "' for AFT " + label + ", defaulting to 1.0 (no scaling)");
+						}
+					}
+				}
+				if (csv.containsKey("Irrigated")) {
+					String val = csv.get("Irrigated").get(i).trim();
+					try {
+						a.setIrrigated(Integer.parseInt(val) == 1);
+					} catch (NumberFormatException e) {
+						LOGGER.warn("Unrecognised Irrigated value '" + val
+								+ "' for AFT " + label + ", defaulting to false (rainfed)");
+						a.setIrrigated(false);
+					}
+				}
+			if (csv.containsKey("Twin")) {
+				String twin = csv.get("Twin").get(i).trim();
+				a.setTwinLabel(twin.isEmpty() ? null : twin);
+			}
+			if (csv.containsKey("Twin_cost")) {
+				a.setTwinCost(Utils.sToD(csv.get("Twin_cost").get(i)));
+			}
+			if (csv.containsKey("Receives_subsidy")) {
+				String val = csv.get("Receives_subsidy").get(i).trim();
+				try {
+					double parsed = Double.parseDouble(val);
+					if (parsed >= 0.0 && parsed <= 1.0) {
+						a.setReceivesSubsidy(parsed);
+					} else {
+						LOGGER.warn("Receives_subsidy value '" + val + "' for AFT " + label
+								+ " is outside [0,1], defaulting to 0.0");
+						a.setReceivesSubsidy(0.0);
+					}
+				} catch (NumberFormatException e) {
+					LOGGER.warn("Unrecognised Receives_subsidy value '" + val
+							+ "' for AFT " + label + ", defaulting to 0.0");
+					a.setReceivesSubsidy(0.0);
+				}
+			}
+
+			}
+		}
+
+		if (ConfigLoader.config.use_twinned_afts && !csv.containsKey("Twin")) {
+			LOGGER.fatal("use_twinned_afts is true but 'Twin' column is missing from AFTsMetaData");
+		}
+		if (ConfigLoader.config.use_twinned_cost && !csv.containsKey("Twin_cost")) {
+			LOGGER.fatal("use_twinned_cost is true but 'Twin_cost' column is missing from AFTsMetaData");
+		}
+		if (ConfigLoader.config.use_price_explicit_giving_up && !csv.containsKey("Receives_subsidy")) {
+			LOGGER.warn("use_price_explicit_giving_up is true but 'Receives_subsidy' column is missing "
+					+ "from AFTsMetaData — all AFTs will default to not receiving subsidies; "
+					+ "institutional model may still set them");
+		}
+
+		for (Aft a : hashAFTs.values()) {
+			if (!a.hasTwin()) continue;
+			String label = a.getLabel();
+			String twin = a.getTwinLabel();
+
+			if (twin.equals(label)) {
+				LOGGER.warn("AFT '" + label + "' names itself as its own twin — clearing twin");
+				a.setTwinLabel(null);
+				continue;
+			}
+
+			Aft resolved = hashAFTs.get(twin);
+			if (resolved == null) {
+				LOGGER.warn("AFT '" + label + "' names twin '" + twin + "' which does not exist — clearing twin");
+				a.setTwinLabel(null);
+			} else if (!resolved.isInteract()) {
+				LOGGER.warn("AFT '" + label + "' names twin '" + twin
+						+ "' which is not an interacting AFT (type=" + resolved.getType() + ") — clearing twin");
+				a.setTwinLabel(null);
 			}
 		}
 	}

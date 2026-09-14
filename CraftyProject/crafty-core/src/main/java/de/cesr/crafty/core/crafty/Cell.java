@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.cesr.crafty.core.cli.ConfigLoader;
+import de.cesr.crafty.core.cli.CustomLogger;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
+import de.cesr.crafty.core.updaters.CapitalUpdater;
 import de.cesr.crafty.core.output.Listener;
 import de.cesr.crafty.core.output.Tracker;
 import de.cesr.crafty.core.updaters.Timestep;
@@ -41,6 +43,8 @@ import de.cesr.crafty.core.utils.general.DeterministicRandom;
 
 public class Cell extends AbstractCell {
 
+	private static final CustomLogger LOGGER = new CustomLogger(Cell.class);
+
 	public Cell(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -48,7 +52,27 @@ public class Cell extends AbstractCell {
 		setCurrentProd(new double[ServiceSet.getServicesList().size()]);
 	}
 
+	private static final java.util.Set<String> warnedMissingSensitivities = ConcurrentHashMap.newKeySet();
+
 	public double productivity(Aft a, String serviceName) {
+		if (a == null || !a.isInteract())
+			return 0.0;
+		if (ConfigLoader.config.separate_production_competitiveness) {
+			final Map<String, Double> exps = a.getSensByService().get(serviceName);
+			if (exps == null || exps.isEmpty()) {
+				if (warnedMissingSensitivities.add(a.getLabel() + "|" + serviceName)) {
+					LOGGER.warn("AFT '" + a.getLabel() + "' has no capital sensitivities for service '"
+							+ serviceName + "' - production for this service is treated as 0");
+				}
+				return 0.0;
+			}
+			// Production counts suitability capitals only.
+			return capitalProduct(exps, true) * a.getProductivityLevel().get(serviceName);
+		}
+		return competitiveness(a, serviceName);
+	}
+
+	public double competitiveness(Aft a, String serviceName) {
 		if (a == null || !a.isInteract())
 			return 0.0;
 
@@ -56,21 +80,49 @@ public class Cell extends AbstractCell {
 		if (exps == null || exps.isEmpty())
 			return 0.0;
 
+		// Competitiveness counts every capital the AFT is sensitive to.
+		return capitalProduct(exps, false) * a.getProductivityLevel().get(serviceName);
+	}
+
+	private double capitalProduct(Map<String, Double> exps, boolean suitabilityOnly) {
 		double product = 1.0;
 
 		for (var e : exps.entrySet()) {
+			if (suitabilityOnly && !CapitalUpdater.isSuitability(e.getKey()))
+				continue;
 			final double p = e.getValue();
 			if (p == 0.0)
 				continue;
 			final double capVal = (getCapitals().getOrDefault(e.getKey(), 0.)
-					* (1 + getCapitalsAdjusment().getOrDefault(e.getKey(), 0.))); // assumes present
+					* (1 + getCapitalsAdjusment().getOrDefault(e.getKey(), 0.)));
+			// Exponent 1 is the common case and skips the cost of Math.pow.
 			if (p == 1.0)
 				product *= capVal;
 			else
 				product *= Math.pow(capVal, p);
 		}
 
-		return product * a.getProductivityLevel().get(serviceName);
+		return product;
+	}
+
+	public double productionCost(Aft a) {
+		if (a == null || !a.isInteract() || !ConfigLoader.isUseProductionCosts()) {
+			return 0.0;
+		}
+		/*
+		 * The cost components are independent and additive. An AFT that only crops has
+		 * no stocking cost and one that only grazes has no fertiliser cost, but nothing
+		 * here assumes that: a mixed crop/livestock AFT carries both.
+		 */
+		double cost = getIrrigationCosts().getOrDefault(a.getLabel(), 0.0);
+		if (ConfigLoader.isSpatialProductionCosts()) {
+			cost += getNfertCosts().getOrDefault(a.getLabel(), 0.0)
+					+ getIntensityCosts().getOrDefault(a.getLabel(), 0.0)
+					+ getStockingCosts().getOrDefault(a.getLabel(), 0.0);
+		} else {
+			cost += a.getNfertCostPerHa() + a.getIntensityCostPerHa() + a.getStockingCostPerHa();
+		}
+		return cost;
 	}
 
 	public void calculateCurrentProductivity() {
@@ -127,6 +179,26 @@ public class Cell extends AbstractCell {
 			Listener.newAftsInLandNbr.merge("null", 1, Integer::sum);
 			Tracker.sankeydata.get("Abandoned").get(Timestep.getCurrentYear()).merge(oldOwner, 1, Integer::sum);
 //			RegionalModelRunner.tmp.getAndIncrement();
+		}
+	}
+
+	void priceExplicitGiveUp(RegionalModelRunner r) {
+		Aft owner = getOwner();
+		if (owner == null || !owner.isInteract()) {
+			return;
+		}
+
+		double utility = getCurrentUtility();
+		double subsidy = owner.getReceivesSubsidy() * getGiveUpSubsidy();
+
+		if (utility + subsidy < 0) {
+			String oldOwner = owner.getLabel();
+			setOwner(null);
+			r.R.getUnmanageCellsR().add(this);
+			setOwnerLifeCounter(0);
+			Listener.landUseChangeCounter.getAndIncrement();
+			Listener.newAftsInLandNbr.merge("null", 1, Integer::sum);
+			Tracker.sankeydata.get("Abandoned").get(Timestep.getCurrentYear()).merge(oldOwner, 1, Integer::sum);
 		}
 	}
 

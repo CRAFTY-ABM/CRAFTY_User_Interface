@@ -166,10 +166,10 @@ public class Listener extends AbstractUpdater {
 			servicedemandHash.put(ServiceSet.getServicesList().get(i), h);
 		}
 
-		landEventCounter = new String[Timestep.getSize()][2];
+		landEventCounter = new String[Timestep.getSize() + 1][2];
 		landEventCounter[0][0] = "year";
 		landEventCounter[0][1] = "LU changed";
-		for (int i = 0; i < Timestep.getSize() - 1; i++) {
+		for (int i = 0; i < Timestep.getSize(); i++) {
 			landEventCounter[i + 1][0] = String.valueOf(i + Timestep.getStartYear());
 		}
 	}
@@ -282,13 +282,25 @@ public class Listener extends AbstractUpdater {
 	}
 
 	private void updateLandUseEventCounter() {
+
 		if (Timestep.getTick() != 0) {
-			landEventCounter[Timestep.getTick()][1] = landUseChangeCounter.toString();
-			Path landChengePath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
-					+ ProjectLoader.getScenario() + "-landEventCounter.csv");
-			CsvTools.writeCSVfile(landEventCounter, landChengePath);
-			landUseChangeCounter.set(0);
+			writeLandUseEventCounterRow(Timestep.getTick());
 		}
+	}
+
+	public static void flushFinalYearLandUseCounter() {
+		if (landEventCounter == null || !ConfigLoader.config.generate_output_files) {
+			return;
+		}
+		writeLandUseEventCounterRow(Timestep.getSize());
+	}
+
+	private static void writeLandUseEventCounterRow(int row) {
+		landEventCounter[row][1] = landUseChangeCounter.toString();
+		Path landChengePath = Paths.get(ConfigLoader.config.output_folder_name + File.separator
+				+ ProjectLoader.getScenario() + "-landEventCounter.csv");
+		CsvTools.writeCSVfile(landEventCounter, landChengePath);
+		landUseChangeCounter.set(0);
 	}
 
 	public void writOutPutMap() {

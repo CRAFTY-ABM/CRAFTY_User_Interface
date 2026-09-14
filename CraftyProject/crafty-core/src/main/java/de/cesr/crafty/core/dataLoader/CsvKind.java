@@ -27,6 +27,36 @@ import java.util.Map;
 
 public enum CsvKind {
 
+	NFERT_COST {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateNfertCostsToCells(index, line);
+		}
+	},
+	IRRIGATION_COST {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateIrrigationCostToCells(index, line);
+		}
+	},
+	INTENSITY_COST {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateIntensityCostsToCells(index, line);
+		}
+	},
+	STOCKING_COST {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateStockingCostsToCells(index, line);
+		}
+	},
+	SUBSIDY {
+		@Override
+		void apply(String line, Map<String, Integer> index) {
+			CsvProcessors.associateSubsidiesToCells(index, line);
+		}
+	},
 	CAPITALS {
 		@Override
 		void apply(String line, Map<String, Integer> index) {

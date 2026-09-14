@@ -18,6 +18,7 @@ import de.cesr.crafty.core.crafty.Cell;
 import de.cesr.crafty.core.dataLoader.afts.AFTsLoader;
 import de.cesr.crafty.core.dataLoader.serivces.ServiceSet;
 import de.cesr.crafty.core.updaters.CapitalUpdater;
+import de.cesr.crafty.core.utils.general.DeterministicAggregation;
 import de.cesr.crafty.core.utils.graphics.CellCsvOutputOptions;
 
 public class CellsToCSV {
@@ -108,7 +109,24 @@ public class CellsToCSV {
 						buildHeader(columns, servicesToWrite, capitalsToWrite, serviceTaxesToWrite, aftTaxesToWrite));
 				writer.newLine();
 
-				for (Cell c : cells.values()) {
+				// Rows are written in a stable (x, then y) order rather than in
+				// the map's own iteration order.
+				//
+				// Why this matters: CellsLoader.hashCell is a ConcurrentHashMap
+				// filled by CsvProcessors.processCSV, which parses the baseline
+				// map on a PARALLEL stream. Keys that hash to the same bucket are
+				// chained in whatever order the threads happened to insert them,
+				// so two runs of the identical model could iterate that map in
+				// slightly different orders - typically showing up as neighbouring
+				// rows swapping places in the output file. The cell DATA was never
+				// affected, only the order the rows were written in, but that was
+				// enough to make output files impossible to compare byte for byte
+				// between runs.
+				//
+				// DeterministicAggregation.cellsInStableOrder is the same helper
+				// already used for reproducible aggregation in RegionalModelRunner
+				// and Tracker; the CSV writer simply never used it.
+				for (Cell c : DeterministicAggregation.cellsInStableOrder(cells.values())) {
 					writer.write(buildCsvLine(c, columns, serviceIndexes, capitalsToWrite, serviceTaxesToWrite,
 							aftTaxesToWrite));
 					writer.newLine();

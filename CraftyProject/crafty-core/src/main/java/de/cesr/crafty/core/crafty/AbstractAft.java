@@ -45,8 +45,28 @@ public abstract class AbstractAft {
 	protected Map<String, Map<String, Double>> sensitivity = new ConcurrentHashMap<>(); // <service,capital,exponent>
 	private int min_life_cycle = 0, max_life_cycle = Integer.MAX_VALUE;
 
-	
-	
+	// Production cost fields
+	private double nfertRate = 0.0;
+	private boolean irrigated = false;
+	private double nfertCostPerHa = 0.0;
+	private double intensityCostPerHa = 0.0;
+	/*
+	 * Scaling factor applied to the intensity cost, from the Other_intensity column
+	 * of AFTsMetaData. It is a multiplier, not a cost, so a blank cell (or a missing
+	 * column) means "do not scale" rather than "no cost" - hence the default of 1.0,
+	 * which leaves projects that do not use the column behaving exactly as before.
+	 * An explicit 0 in the metadata does zero the cost; only blank defaults to 1.0.
+	 */
+	private double otherIntensity = 1.0;
+	private double stockingCostPerHa = 0.0;
+
+	// Twinned AFT fields
+	private String twinLabel = null;
+	private double twinCost = 0.0;
+
+	// Subsidy eligibility (0.0 = none, 1.0 = full, fractional = partial)
+	private double receivesSubsidy = 0.0;
+
 	public long getId() {
 		return id;
 	}
@@ -197,6 +217,82 @@ public abstract class AbstractAft {
 
 	public ConcurrentHashMap<String, Double> getCapital_adjustments() {
 		return capital_adjustments;
+	}
+
+	public double getNfertRate() {
+		return nfertRate;
+	}
+
+	public void setNfertRate(double nfertRate) {
+		this.nfertRate = nfertRate;
+	}
+
+	public boolean isIrrigated() {
+		return irrigated;
+	}
+
+	public void setIrrigated(boolean irrigated) {
+		this.irrigated = irrigated;
+	}
+
+	public double getNfertCostPerHa() {
+		return nfertCostPerHa;
+	}
+
+	public void setNfertCostPerHa(double nfertCostPerHa) {
+		this.nfertCostPerHa = nfertCostPerHa;
+	}
+
+	public double getIntensityCostPerHa() {
+		return intensityCostPerHa;
+	}
+
+	public void setIntensityCostPerHa(double intensityCostPerHa) {
+		this.intensityCostPerHa = intensityCostPerHa;
+	}
+
+	public double getOtherIntensity() {
+		return otherIntensity;
+	}
+
+	public void setOtherIntensity(double otherIntensity) {
+		this.otherIntensity = otherIntensity;
+	}
+
+	public double getStockingCostPerHa() {
+		return stockingCostPerHa;
+	}
+
+	public void setStockingCostPerHa(double stockingCostPerHa) {
+		this.stockingCostPerHa = stockingCostPerHa;
+	}
+
+	public String getTwinLabel() {
+		return twinLabel;
+	}
+
+	public void setTwinLabel(String twinLabel) {
+		this.twinLabel = twinLabel;
+	}
+
+	public double getTwinCost() {
+		return twinCost;
+	}
+
+	public void setTwinCost(double twinCost) {
+		this.twinCost = twinCost;
+	}
+
+	public boolean hasTwin() {
+		return twinLabel != null && !twinLabel.isBlank();
+	}
+
+	public double getReceivesSubsidy() {
+		return receivesSubsidy;
+	}
+
+	public void setReceivesSubsidy(double receivesSubsidy) {
+		this.receivesSubsidy = receivesSubsidy;
 	}
 
 }

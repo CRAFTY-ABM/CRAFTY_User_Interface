@@ -302,4 +302,205 @@ class ConfigLoaderTest {
         assertNotNull(ConfigLoader.config,
                 "ConfigLoader.init() should always set a non-null global Config instance");
     }
+
+    // =====================================================================
+    // Cleanup plan step 0.2 - config loading failure modes.
+    //
+    // These pin down bug B1, which was the worst bug found in the review: a
+    // single unrecognised key in config.yaml made the loader throw away the
+    // WHOLE configuration and continue on defaults. A run could silently use
+    // the wrong random seed, the wrong input paths and the wrong model
+    // switches, and the only clue was one line on stdout.
+    //
+    // The trap was not just typos. The four chart/map synchronisation
+    // settings are static fields on Config, and SnakeYAML cannot bind static
+    // fields, so even these documented, canonical keys triggered the reset.
+    // =====================================================================
+
+    /**
+     * The four synchronisation fields are static, so a value written by one
+     * test would leak into the next one. Save and restore them.
+     */
+    private Boolean chartSyncBackup;
+    private Integer chartSyncGapBackup;
+    private Boolean mapSyncBackup;
+    private Integer mapSyncGapBackup;
+
+    private void backupSynchronisationFields() {
+        chartSyncBackup = Config.chart_synchronisation;
+        chartSyncGapBackup = Config.chart_synchronisation_gap;
+        mapSyncBackup = Config.map_synchronisation;
+        mapSyncGapBackup = Config.map_synchronisation_gap;
+    }
+
+    @AfterEach
+    void restoreSynchronisationFields() {
+        if (chartSyncBackup != null) {
+            Config.chart_synchronisation = chartSyncBackup;
+            Config.chart_synchronisation_gap = chartSyncGapBackup;
+            Config.map_synchronisation = mapSyncBackup;
+            Config.map_synchronisation_gap = mapSyncGapBackup;
+            chartSyncBackup = null;
+        }
+    }
+
+    /** Unwraps the reflective call so we can assert on the real failure. */
+    private Throwable loadConfigExpectingFailure(Path configFile) {
+        ConfigLoader.configPath = configFile.toString();
+        InvocationTargetException wrapper = assertThrows(InvocationTargetException.class,
+                this::invokeLoadConfig,
+                "Expected loading this configuration to fail");
+        return wrapper.getCause();
+    }
+
+    @Test
+    void unknownKeyShouldStopTheRunAndNameTheOffendingKey() throws Exception {
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        // "random_sed" is a plausible typo for "random_seed".
+        Path configFile = tempDir.resolve("typo-config.yaml");
+        Files.writeString(configFile, "random_seed: 42\nrandom_sed: 99\n");
+
+        Throwable failure = loadConfigExpectingFailure(configFile);
+
+        assertInstanceOf(IllegalArgumentException.class, failure,
+                "An unrecognised key should be reported as a configuration error");
+        assertTrue(failure.getMessage().contains("random_sed"),
+                "The error must name the offending key so it can be found and fixed. Got: "
+                        + failure.getMessage());
+    }
+
+    @Test
+    void unknownKeyMustNotSilentlyFallBackToADefaultConfiguration() throws Exception {
+        // This is the exact shape of bug B1. Before the fix this call returned
+        // a brand new Config, so random_seed came back as 1 rather than 42 and
+        // every other setting in the file was quietly discarded. Failing loudly
+        // is the correct behaviour: continuing with the wrong seed and the
+        // wrong paths produces results that look plausible but are not the run
+        // that was asked for.
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        Path configFile = tempDir.resolve("b1-regression-config.yaml");
+        Files.writeString(configFile, """
+                random_seed: 42
+                neighbour_radius: 5
+                participating_cell_fraction: 0.5
+                not_a_real_crafty_option: true
+                """);
+
+        Throwable failure = loadConfigExpectingFailure(configFile);
+
+        assertInstanceOf(IllegalArgumentException.class, failure);
+        assertTrue(failure.getMessage().contains("not_a_real_crafty_option"),
+                "The error must name the unknown key. Got: " + failure.getMessage());
+    }
+
+    @Test
+    void synchronisationKeysShouldLoadWithoutDiscardingTheRestOfTheFile() throws Exception {
+        // The regression test for the worst form of B1: these four keys are
+        // documented and canonical, but because they are static fields the
+        // whole file used to be thrown away when any of them appeared.
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        Path configFile = tempDir.resolve("sync-config.yaml");
+        Files.writeString(configFile, """
+                random_seed: 42
+                neighbour_radius: 5
+                chart_synchronisation: false
+                chart_synchronisation_gap: 3
+                map_synchronisation: false
+                map_synchronisation_gap: 7
+                """);
+        ConfigLoader.configPath = configFile.toString();
+
+        Config cfg = invokeLoadConfig();
+
+        // The static keys are applied...
+        assertFalse(Config.chart_synchronisation);
+        assertEquals(3, Config.chart_synchronisation_gap);
+        assertFalse(Config.map_synchronisation);
+        assertEquals(7, Config.map_synchronisation_gap);
+
+        // ...and, crucially, the ordinary settings around them survived.
+        assertEquals(42L, cfg.random_seed,
+                "Settings alongside a synchronisation key must not be discarded (bug B1)");
+        assertEquals(5, cfg.neighbour_radius,
+                "Settings alongside a synchronisation key must not be discarded (bug B1)");
+    }
+
+    @Test
+    void legacySynchronisationSpellingShouldStillBeAccepted() throws Exception {
+        // The American spellings are in the legacy alias table, so they must
+        // survive both the alias rewrite and the static-field binding.
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        Path configFile = tempDir.resolve("legacy-sync-config.yaml");
+        Files.writeString(configFile, """
+                random_seed: 7
+                chart_synchronization: false
+                map_synchronization_gap: 4
+                """);
+        ConfigLoader.configPath = configFile.toString();
+
+        Config cfg = invokeLoadConfig();
+
+        assertFalse(Config.chart_synchronisation);
+        assertEquals(4, Config.map_synchronisation_gap);
+        assertEquals(7L, cfg.random_seed);
+    }
+
+    @Test
+    void nonNumericValueForASynchronisationGapShouldBeReportedAgainstThatKey() throws Exception {
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        Path configFile = tempDir.resolve("bad-sync-value-config.yaml");
+        Files.writeString(configFile, "chart_synchronisation_gap: not_a_number\n");
+
+        Throwable failure = loadConfigExpectingFailure(configFile);
+
+        assertInstanceOf(IllegalArgumentException.class, failure);
+        assertTrue(failure.getMessage().contains("chart_synchronisation_gap"),
+                "A bad value must be reported against the key it came from. Got: " + failure.getMessage());
+    }
+
+    @Test
+    void aValidConfigurationShouldStillLoadEveryOrdinaryKey() throws Exception {
+        // Guards the other half of the fix: tightening up unknown keys must not
+        // make ordinary, valid configurations any harder to load.
+        originalConfigPath = ConfigLoader.configPath;
+        originalConfig = ConfigLoader.config;
+        backupSynchronisationFields();
+
+        Path configFile = tempDir.resolve("valid-config.yaml");
+        Files.writeString(configFile, """
+                random_seed: 123
+                cell_selection: random
+                neighbour_radius: 3
+                participating_cell_fraction: 0.25
+                land_abandonment_fraction: 0.05
+                use_twinned_afts: true
+                output_folder_name: goldenrun
+                """);
+        ConfigLoader.configPath = configFile.toString();
+
+        Config cfg = invokeLoadConfig();
+
+        assertEquals(123L, cfg.random_seed);
+        assertEquals("random", cfg.cell_selection);
+        assertEquals(3, cfg.neighbour_radius);
+        assertEquals(0.25, cfg.participating_cell_fraction);
+        assertEquals(0.05, cfg.land_abandonment_fraction);
+        assertTrue(cfg.use_twinned_afts);
+        assertEquals("goldenrun", cfg.output_folder_name);
+    }
 }
